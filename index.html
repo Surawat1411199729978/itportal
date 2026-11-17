@@ -177,7 +177,7 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 <script>
 if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
 /* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
-const APP_VERSION='2026-11-17.24';
+const APP_VERSION='2026-11-17.25';
 async function checkUpdate(){
   try{
     if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
@@ -887,7 +887,7 @@ function rpFormHTML(L,ym,by){const [y,m]=ym.split('-');if(!RP_LOGO&&!RP_TPLP&&!D
 async function rpExportXlsx(L,ym,by){
   const buf=await rpTpl();const z=await JSZip.loadAsync(buf);const [y,m]=ym.split('-');
   const DP=new DOMParser(),XS=new XMLSerializer();const HEAD='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
-  const rd=async n=>DP.parseFromString(await z.file(n).async('string'),'application/xml');const wr=(n,doc)=>z.file(n,HEAD+XS.serializeToString(doc).replace(/^<\?xml[^>]*\?>\s*/,''));
+  const rd=async n=>DP.parseFromString((await z.file(n).async('string')).replace(/^\uFEFF/,''),'application/xml');const wr=(n,doc)=>z.file(n,HEAD+XS.serializeToString(doc).replace(/^<\?xml[^>]*\?>\s*/,''));
   const NS='http://schemas.openxmlformats.org/spreadsheetml/2006/main',RN='http://schemas.openxmlformats.org/officeDocument/2006/relationships',PR='http://schemas.openxmlformats.org/package/2006/relationships',CT='http://schemas.openxmlformats.org/package/2006/content-types';
   const xe=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const wb=await rd('xl/workbook.xml'),wrel=await rd('xl/_rels/workbook.xml.rels'),ct=await rd('[Content_Types].xml');
@@ -1015,10 +1015,10 @@ function vpnDetail(id){const r=(DATA.vpn||[]).find(x=>x._id===id);if(!r)return;c
   ${r.uname||r.status!=='new'?`<div class="fgroup"><h3>ฝ่าย IT</h3></div><div class="kv" style="margin-top:0">${kv('Username ที่ออกให้',r.uname?`<span class="mono">${esc(r.uname)}</span>`:'')}${kv('เปิดสิทธิ์ – ปิดสิทธิ์',r.open?thDate(r.open)+' ถึง '+(r.close?thDate(r.close):'–'):'')}${kv('IT Checklist',r.chk?`${(r.chk||[]).filter(Boolean).length}/4 ข้อ`:'')}${kv('ผู้ดำเนินการ',esc(r.itBy)+(r.itAt?' · '+thDate(r.itAt):''))}${kv('เหตุผลไม่อนุมัติ',esc(r.reject))}</div>`:''}
   ${s==='exp'&&it?`<div class="vpwarn">บัญชีนี้เลยวันสิ้นสุดแล้ว (${thDate(r.end)}) ควรปิดสิทธิ์</div>`:''}
   <div class="fgroup"><h3>ไทม์ไลน์</h3></div><div class="rptl">${(r.log||[]).slice().reverse().map(x=>`<div><i></i><b>${esc(x.a)}</b><span>${thDT(x.at)} · ${esc(x.by||'')}</span></div>`).join('')}</div>
-  <div class="fgroup"><h3>เอกสาร</h3></div><div class="rpex" style="grid-template-columns:repeat(3,minmax(0,1fr))"><button data-vex="pdf"><b>PDF</b>PDF</button><button data-vex="png"><b style="background:#bf5af2">IMG</b>รูปภาพ</button><button data-vex="print"><b style="background:#636366;font-size:20px">⎙</b>พิมพ์</button></div>
+  <div class="fgroup"><h3>ตัวอย่างเอกสาร FM-ITM-01-10 (A4 แนวตั้ง)</h3></div><div class="fmprev" id="v_prev"></div><div class="fgroup"><h3>ดาวน์โหลด</h3></div><div class="rpex"><button data-vex="docx"><b style="background:#2b579a">DOC</b>Word</button><button data-vex="pdf"><b>PDF</b>PDF</button><button data-vex="png"><b style="background:#bf5af2">IMG</b>รูปภาพ</button><button data-vex="print"><b style="background:#636366;font-size:20px">⎙</b>พิมพ์</button></div>
   <div class="btnlist">${it&&s==='new'?`<button id="d_ok">อนุมัติ · เปิดสิทธิ์</button><button class="d" id="d_no">ไม่อนุมัติ</button>`:''}${it&&['active','exp'].includes(s)?`<button id="d_ok">แก้ไขข้อมูลฝ่าย IT</button><button class="d" id="d_close">ปิดสิทธิ์ VPN</button>`:''}${mine&&s==='new'?`<button class="d" id="d_cancel">ยกเลิกคำขอ</button>`:''}${it&&!mine&&['closed','rejected'].includes(s)?`<button class="d" id="d_del">ลบรายการ</button>`:''}</div>`);
   $('d_x').onclick=closeSheet;
-  document.querySelectorAll('[data-vex]').forEach(b=>b.onclick=()=>vpnExport(r,b.dataset.vex,b));
+  document.querySelectorAll('[data-vex]').forEach(b=>b.onclick=()=>vpnExport(r,b.dataset.vex,b));vpPrev(r);
   if($('d_ok'))$('d_ok').onclick=()=>vpnIT(r);
   if($('d_no'))$('d_no').onclick=()=>{const m=prompt('เหตุผลที่ไม่อนุมัติ');if(m==null)return;const x={...r,status:'rejected',reject:m,itBy:me,itAt:today()};rpLog(x,'ไม่อนุมัติ'+(m?': '+m:''));vpSave(x,'บันทึกไม่อนุมัติแล้ว')};
   if($('d_close'))$('d_close').onclick=()=>{if(!confirm('ปิดสิทธิ์ VPN ของ '+r.name+' ?'))return;const x={...r,status:'closed',close:today()};rpLog(x,'ปิดสิทธิ์ VPN');vpSave(x,'ปิดสิทธิ์แล้ว')};
@@ -1067,7 +1067,7 @@ function vpnFormHTML(r){if(!RP_LOGO&&!RP_TPLP&&!DEMO)rpTpl().catch(()=>{});const
   <tr><td colspan="4">${VP_CHK.map((c,i)=>`<div>${b((r.chk||[])[i])}${c}</div>`).join('')}<div style="text-align:right;margin-top:6px">ผู้ดำเนินการ <u>&nbsp; ${r.itBy?v(r.itBy):'..................................................'} &nbsp;</u> &nbsp; วันที่ ${dt(r.itAt)}</div></td></tr></table>
   <div class="sig"><div><b>ผู้จัดทำ (Prepared by)</b><i></i><span>( ........................................ )</span><span>วันที่ ....../....../......</span></div><div><b>ผู้ทบทวน (Reviewed by)</b><i></i><span>( ........................................ )</span><span>วันที่ ....../....../......</span></div><div><b>ผู้อนุมัติ (Approved by)</b><i></i><span>( ........................................ )</span><span>วันที่ ....../....../......</span></div></div>
   <div class="ft">FM-ITM-01-10 · ${v(r.no)}</div></div>`}
-async function vpnExport(r,k,btn){const name=`FM-ITM-01-10_${r.no||'VPN'}`;
+async function vpnExport(r,k,btn){const name=`FM-ITM-01-10_${r.no||'VPN'}`;if(k==='docx'){const old=btn.innerHTML;btn.disabled=true;btn.innerHTML='<div class="spin"></div>';try{await vpDocx(r);toast('สร้างไฟล์แล้ว')}catch(e){toast('สร้างไฟล์ไม่สำเร็จ: '+e.message)}finally{btn.disabled=false;btn.innerHTML=old}return}
   if(k==='print'){const w=window.open('','_blank');if(!w){toast('เบราว์เซอร์บล็อกหน้าต่างใหม่');return}await rpTpl().catch(()=>{});w.document.open();w.document.write(`<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><title>${esc(name)}</title><style>@page{size:A4 portrait;margin:6mm}body{margin:0}</style></head><body>${vpnFormHTML(r)}<style>.vpf{width:auto;height:auto;padding:0}</style><script>window.onload=()=>setTimeout(()=>window.print(),400)<\/script></body></html>`);w.document.close();return}
   const old=btn.innerHTML;btn.disabled=true;btn.innerHTML='<div class="spin"></div>';
   try{await rpTpl().catch(()=>{});await loadLib('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js','html2canvas');const box=document.createElement('div');box.style.cssText='position:fixed;left:-20000px;top:0;z-index:-1';box.innerHTML=vpnFormHTML(r);document.body.appendChild(box);let c;try{c=await html2canvas(box.querySelector('.vpf'),{scale:2,backgroundColor:'#ffffff',logging:false})}finally{box.remove()}
@@ -1087,6 +1087,25 @@ document.addEventListener('click',ev=>{const t=ev.target;if(!t.closest)return;
   const o=t.closest('[data-vid]');if(o){vpnDetail(o.dataset.vid);return}
   if(t.closest('#vp_xls')){vpnXlsx().catch(e=>toast('สร้างไฟล์ไม่สำเร็จ: '+e.message));return}},true);
 document.addEventListener('input',ev=>{if(ev.target.id==='vp_q'){VPQ=ev.target.value;renderVpn()}});
+
+/* ---- VPN: ตัวอย่างเอกสาร + Export Word จากไฟล์ต้นฉบับ FM-ITM-01-10 ---- */
+function vpPrev(r){const P=$('v_prev');if(!P)return;P.innerHTML=`<div class="fmwrap" style="width:794px">${vpnFormHTML(r)}</div>`;
+  requestAnimationFrame(()=>{const w=P.querySelector('.fmwrap');if(!w)return;const k=P.clientWidth/794;w.style.transform=`scale(${k})`;P.style.height=Math.ceil(1123*k)+'px'});
+  if(!RP_LOGO&&!DEMO)rpTpl().then(()=>{if($('v_prev')&&RP_LOGO)vpPrev(r)}).catch(()=>{})}
+async function vpDocx(r){await loadLib('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js','JSZip');const d=await rpDriveId();const it=await g(`/drives/${d}/root:/_template/FM-ITM-01-10.docx`);const res=await fetch(it['@microsoft.graph.downloadUrl']);if(!res.ok)throw new Error('โหลดแม่แบบ Word ไม่สำเร็จ');
+  const z=await JSZip.loadAsync(await res.arrayBuffer());const W='http://schemas.openxmlformats.org/wordprocessingml/2006/main',W14='http://schemas.microsoft.com/office/word/2010/wordml',XML='http://www.w3.org/XML/1998/namespace';
+  const doc=new DOMParser().parseFromString((await z.file('word/document.xml').async('string')).replace(/^\uFEFF/,''),'application/xml');const S=[...doc.getElementsByTagNameNS(W,'sdt')];
+  if(S.length<34)throw new Error('แม่แบบ Word ไม่ตรงกับแบบฟอร์ม FM-ITM-01-10');
+  const content=sd=>[...sd.childNodes].find(n=>n.localName==='sdtContent');const props=sd=>[...sd.childNodes].find(n=>n.localName==='sdtPr');
+  const T=(i,v)=>{const sd=S[i];const pr=props(sd),ct=content(sd);if(!ct)return;if(pr)[...pr.getElementsByTagNameNS(W,'showingPlcHdr')].forEach(e=>e.parentNode.removeChild(e));[...ct.getElementsByTagNameNS(W,'rStyle')].forEach(e=>e.parentNode.removeChild(e));const ts=[...ct.getElementsByTagNameNS(W,'t')];if(!ts.length)return;ts.forEach((t,j)=>t.textContent=j?'':String(v??''));ts[0].setAttributeNS(XML,'xml:space','preserve')};
+  const B=(i,on)=>{const sd=S[i];const c=sd.getElementsByTagNameNS(W14,'checked')[0];if(!c)return;c.setAttributeNS(W14,'w14:val',on?'1':'0');const st=sd.getElementsByTagNameNS(W14,on?'checkedState':'uncheckedState')[0];const ch=st?String.fromCharCode(parseInt(st.getAttributeNS(W14,'val')||st.getAttribute('w14:val'),16)):(on?'☒':'☐');const t=content(sd)&&content(sd).getElementsByTagNameNS(W,'t')[0];if(t)t.textContent=ch};
+  const D=(i,s)=>{if(!s)return;const de=S[i].getElementsByTagNameNS(W,'date')[0];if(de)de.setAttributeNS(W,'w:fullDate',s+'T00:00:00Z');T(i,thD(s))};
+  T(0,r.name);T(1,r.empId);T(2,r.pos);T(3,r.dept);T(4,r.tel);T(5,r.email);B(6,r.utype==='emp');B(7,r.utype==='con');B(8,r.utype==='ven');T(9,r.company);T(10,r.resp);T(11,r.purpose);
+  VP_SYS.forEach((s,i)=>B(12+i,(r.sys||[]).includes(s)));B(16,!!r.sysOther);if(r.sysOther)T(18,r.sysOther);T(19,r.server);D(20,r.start);D(21,r.end);B(22,r.device!=='own');B(23,r.device==='own');T(24,r.mac);D(25,r.agreeAt&&r.agreeAt.slice(0,10));
+  T(26,r.uname);D(27,r.open);D(28,r.close);[0,1,2,3].forEach(i=>B(29+i,(r.chk||[])[i]));D(33,r.itAt);
+  let want=null;for(const t of [...doc.getElementsByTagNameNS(W,'t')]){const s=t.textContent;if(s.includes('ลงชื่อผู้ขอใช้งาน'))want=r.agreeBy?`${r.agreeBy} (ยอมรับทางออนไลน์)`:null;else if(s.includes('ผู้ดำเนินการ'))want=r.itBy||null;if(want&&/\.{20,}/.test(s)){t.textContent=s.replace(/\.{20,}/,`  ${want}  `);t.setAttributeNS(XML,'xml:space','preserve');want=null}}
+  z.file('word/document.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+new XMLSerializer().serializeToString(doc).replace(/^<\?xml[^>]*\?>\s*/,''));
+  rpSaveFile(await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',compression:'DEFLATE'}),`FM-ITM-01-10_${r.no||'VPN'}.docx`)}
 
 /* ===== Start ===== */
 (async()=>{
