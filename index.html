@@ -177,7 +177,7 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 <script>
 if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
 /* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
-const APP_VERSION='2026-11-17.16';
+const APP_VERSION='2026-11-17.17';
 async function checkUpdate(){
   try{
     if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
@@ -488,7 +488,7 @@ function detail(key,id){
   $('d_close').onclick=closeSheet;
   if($('d_edit'))$('d_edit').onclick=()=>edit(key,r);
   if($('d_del'))$('d_del').onclick=()=>{openSheet(`${shh('',`ลบรายการ`,'')}<p style="text-align:center;color:var(--sub);margin:8px 0">${esc(m.titleOf(r))}<br>ลบแล้วกู้คืนไม่ได้</p><div class="btnlist"><button class="d" id="y" style="font-weight:600">ลบรายการ</button><button id="n">ยกเลิก</button></div>`);$('n').onclick=()=>detail(key,id);$('y').onclick=async()=>{try{await store.del(key,id);closeSheet();toast('ลบแล้ว');render()}catch(e){toast(e.status===403?'ไม่มีสิทธิ์ลบ':'ลบไม่สำเร็จ')}}};
-  if($('qrbtn'))$('qrbtn').onclick=async()=>{await loadQR();const box=$('qrbox');box.className='qr';box.innerHTML='';const we=s=>String(s).replace(/([\;,:"])/g,'\\$1');new QRCode(box,{text:`WIFI:T:WPA;S:${we(r.ssid)};P:${we(r.password)};;`,width:220,height:220});$('qrbtn').remove()};
+  if($('qrbtn'))$('qrbtn').onclick=async()=>{try{await loadQR()}catch(x){toast('โหลดตัวสร้าง QR ไม่สำเร็จ');return}const box=$('qrbox');box.className='qr';const cl=v=>String(v??'').replace(/[​-‍﻿]/g,'').replace(/ /g,' ').trim();const we=v=>v.replace(/([\;,:"])/g,'\\$1');const ss=cl(r.ssid),pw=cl(r.password);const txt=`WIFI:T:${pw?'WPA':'nopass'};S:${we(ss)};${pw?'P:'+we(pw)+';':''};`;const q=qrcode(0,'M');q.addData(txt,'Byte');q.make();box.innerHTML=`<div style="width:240px;max-width:70vw;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden">${q.createSvgTag({cellSize:6,margin:4,scalable:true})}</div><p style="text-align:center;font-size:13px;color:var(--sub);margin:10px 0 0">เปิดกล้อง iPhone หรือ Android แล้วสแกน → แตะ “เข้าร่วมเครือข่าย”</p>`;$('qrbtn').remove()};
 }
 
 async function download(key,id){const r=DATA[key].find(x=>x._id===id);toast('กำลังเตรียมไฟล์…');try{const u=await store.dlUrl(key,id);const a=document.createElement('a');a.href=u;a.download=r?r.name:'';document.body.appendChild(a);a.click();a.remove()}catch(e){toast('ดาวน์โหลดไม่สำเร็จ: '+e.message)}}
@@ -554,7 +554,7 @@ function rmSheet(gid,uid,nm){
   openSheet(`${shh('','เอาออกจากกลุ่ม','')}<p style="text-align:center;color:var(--sub);margin:8px 0">เอา <b style="color:var(--ink)">${esc(nm)}</b> ออกจาก "${esc(r.name)}"?</p><div class="btnlist"><button class="d" id="y" style="font-weight:600">เอาออก</button><button id="n">ยกเลิก</button></div>`);
   $('n').onclick=closeSheet;$('y').onclick=async()=>{try{if(!DEMO)await ga(`/groups/${gid}/members/${uid}/$ref`,{method:'DELETE'});ROLEM[gid]=(ROLEM[gid]||[]).filter(u=>u.id!==uid);closeSheet();toast('เอาออกแล้ว');render()}catch(e){toast(e.status===403?'ไม่มีสิทธิ์จัดการกลุ่มนี้':'ไม่สำเร็จ: '+e.message)}};
 }
-function loadQR(){return window.QRCode?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+function loadQR(){return window.qrcode?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';s.onload=()=>{qrcode.stringToBytes=qrcode.stringToBytesFuncs['UTF-8'];ok()};s.onerror=no;document.head.appendChild(s)})}
 function edit(key,r){
   const m=MODS[key];r=r||{};const isNew=!r._id;
   const opts=k=>[...new Set((DATA[key]||[]).map(x=>x[k]).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'th'));
