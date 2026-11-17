@@ -163,7 +163,7 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 .alert .ab{flex:1;min-width:0;display:flex;flex-direction:column}
 .alert b{font-size:16px;font-weight:600}
 .alert .ab span{font-size:13px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-</style>
+.ccards{display:flex;flex-direction:column;gap:12px}.cc{background:var(--card);border-radius:18px;padding:14px}.cc .hd{display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:pointer}.cc .hd .ic{width:46px;height:46px;border-radius:14px}.cc .hd .ic svg{width:26px;height:26px}.cc .hd b{display:block;font-size:19px;font-weight:700;line-height:1.25}.cc .hd small{display:block;font-size:14px;color:var(--sub);margin-top:1px}.cr{display:grid;grid-template-columns:1fr auto auto;column-gap:6px;align-items:center;background:var(--bg);border-radius:14px;padding:8px 8px 8px 14px;margin-top:8px;min-height:52px}.cr .k{grid-column:1;grid-row:1;font-size:12.5px;color:var(--sub)}.cr .v{grid-column:1;grid-row:2;min-width:0;font-size:16px;font-weight:600;overflow-wrap:anywhere}.cr>a,.cr>button{grid-row:1/3}.cr .v.n{font-weight:500}.cbtn{flex:none;border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600;background:var(--card);color:var(--ink);text-decoration:none;white-space:nowrap}.cbtn.p{background:var(--acc);color:#fff}.cbtn.line{background:#06c755;color:#fff}.cc .nt{font-size:14px;color:var(--sub);margin:10px 4px 0;display:flex;gap:6px}.cc .ft{display:flex;justify-content:flex-end;margin-top:8px}.cc .ft button{color:var(--acc);font-size:15px;font-weight:600;padding:4px 6px}</style>
 </head>
 <body>
 <header id="hdr"><div class="hin">
@@ -177,7 +177,7 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 <script>
 if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
 /* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
-const APP_VERSION='2026-11-17.12';
+const APP_VERSION='2026-11-17.13';
 async function checkUpdate(){
   try{
     if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
@@ -253,11 +253,11 @@ const MODS={
   search:['code','name','type','dept','loc','doc','note'],
   summary:L=>[[L.length.toLocaleString(),'รายการ'],[money(L.reduce((a,r)=>a+(+r.cost||0),0)),'มูลค่ารวม (บาท)']],
   card:r=>`${aIco(r)}<div class="bd"><div class="t">${esc(r.name)}</div><div class="m"><span class="mono">${esc(r.code)}</span> · ${esc(r.dept||'-')} · ${thDate(r.date)}</div><div class="m">${esc(r.type||'')}</div></div><div class="r num">${r.cost?money(r.cost):''}</div>`},
- contacts:{list:'IT Contacts',title:'เบอร์ติดต่อ IT',icon:['phone','#6c9a52'],desc:'ผู้ให้บริการและผู้ติดต่อ',pub:1,
+ contacts:{layout:'cards',list:'IT Contacts',title:'เบอร์ติดต่อ IT',icon:['phone','#6c9a52'],desc:'ผู้ให้บริการและผู้ติดต่อ',pub:1,
   titleOf:r=>r.company,
-  fields:[{k:'company',l:'บริษัท / ผู้ให้บริการ',full:1,t:'list'},{k:'contact',l:'ผู้ติดต่อ'},{k:'topic',l:'เรื่อง / บริการ'},{k:'phone',l:'เบอร์โทร (หลายเบอร์คั่นด้วย /)',full:1,t:'tel'},{k:'email',l:'อีเมล',full:1,t:'email'},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
+  fields:[{k:'company',l:'บริษัท / ผู้ให้บริการ',full:1,t:'list'},{k:'contact',l:'ผู้ติดต่อ'},{k:'topic',l:'เรื่อง / บริการ'},{k:'phone',l:'เบอร์โทร (หลายเบอร์คั่นด้วย /)',full:1,t:'tel'},{k:'email',l:'E-Mail (หลายอันคั่นด้วย /)',full:1,t:'email'},{k:'line',l:'LINE ID (เช่น @amcplus)',full:1},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
   filters:[{k:'company',l:'บริษัท'}],sorts:[['no','ลำดับ'],['company','บริษัท ก-ฮ']],
-  search:['company','contact','topic','phone','email','note'],
+  search:['company','contact','topic','phone','email','line','note'],
   card:r=>`${ico('building','#6c9a52')}<div class="bd"><div class="t">${esc(r.company)}</div><div class="m">${esc([r.contact,r.topic].filter(Boolean).join(' · ')||'-')}</div><div class="acts">${phones(r.phone).map(p=>`<a class="pill" href="tel:${esc(p.tel)}" data-stop><svg viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a11 11 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2z" fill="currentColor"/></svg> <span class="num">${esc(p.label)}</span></a>`).join('')}${r.email?`<a class="pill g" href="mailto:${esc(r.email)}" data-stop>${esc(r.email)}</a>`:''}</div></div>`},
  software:{list:'Software Licenses',title:'Software Assets',icon:['disc','#8a74b8'],desc:'ไลเซนส์ซอฟต์แวร์และ Serial',
   titleOf:r=>r.product,
@@ -289,7 +289,7 @@ const MODS={
   search:['ssid','place','type','ip','note'],
   card:r=>`${ico('wifi','#3e9fa8')}<div class="bd"><div class="t">${esc(r.ssid)}</div><div class="m">${esc(r.place||'')}${r.type&&r.type!=='WiFi'?' · '+esc(r.type):''}${r.ip?' · <span class="mono">'+esc(r.ip)+'</span>':''}</div><div class="pw"><span class="v mono">••••••••</span><button class="cp" data-copypw="${esc(r._id)}">คัดลอกรหัส</button></div></div><div class="r"><span class="badge ${r.status==='old'?'b-mute':'b-ok'}">${r.status==='old'?'เก่า':'ใช้งาน'}</span></div>`}
 };
-const HOME=['assets','contacts','software','copier','wifi'];
+const lineUrl=id=>{id=String(id).trim();return 'https://line.me/R/ti/p/'+(id.startsWith('@')?'%40'+encodeURIComponent(id.slice(1)):'~'+encodeURIComponent(id))};const emails=s=>String(s||'').split(/[\/,;\s]+/).map(x=>x.trim()).filter(x=>x.includes('@'));const contactCard=r=>`<div class="cc"><div class="hd" data-cdet="${esc(r._id)}">${ico('building','#6c9a52')}<span style="flex:1;min-width:0"><b>${esc(r.company||'-')}</b>${r.topic?`<small>${esc(r.topic)}</small>`:''}</span>${CHEV}</div>${r.contact?`<div class="cr"><span class="k">ผู้ติดต่อ</span><span class="v n">${esc(r.contact)}</span></div>`:''}${phones(r.phone).map(p=>`<div class="cr"><span class="k">โทร</span><span class="v num">${esc(p.label)}</span>${p.tel?`<a class="cbtn p" href="tel:${esc(p.tel)}" data-stop>โทร</a>`:''}<button class="cbtn" data-cpv="${esc(p.label)}">คัดลอก</button></div>`).join('')}${emails(r.email).map(e=>`<div class="cr"><span class="k">E-Mail</span><span class="v" style="font-size:15px">${esc(e)}</span><a class="cbtn p" href="mailto:${esc(e)}" data-stop>ส่งเมล</a><button class="cbtn" data-cpv="${esc(e)}">คัดลอก</button></div>`).join('')}${r.line?`<div class="cr"><span class="k">LINE</span><span class="v">${esc(r.line)}</span><a class="cbtn line" href="${lineUrl(r.line)}" target="_blank" rel="noopener" data-stop>LINE</a><button class="cbtn" data-cpv="${esc(r.line)}">คัดลอก</button></div>`:''}${r.note?`<div class="nt"><span>📝</span><span>${esc(r.note)}</span></div>`:''}${canEdit('contacts')?`<div class="ft"><button data-cedit="${esc(r._id)}">แก้ไข</button></div>`:''}</div>`;const HOME=['assets','contacts','software','copier','wifi'];
 MODS.access={kind:'admin',title:'สิทธิ์การเข้าถึง',icon:['key','#c9677f'],sorts:[['x','']],filters:[],search:[],fields:[]};
 let isAdmin=false,myId='';
 const DOCS=['forms','docs'];
@@ -453,7 +453,7 @@ function renderList(){
   const sum=m.summary?`<div class="sum">${m.summary(L).map(([v,l])=>`<div><b class="num">${v}</b>${l}</div>`).join('')}</div>`:'';
   const row=r=>{const h=m.card(r);const i=h.indexOf('</svg></div>')+12;return `<div class="it" role="button" data-id="${esc(r._id)}">${h.slice(0,i)}<div class="bdw">${h.slice(i)}${m.kind==='docs'?'':`<span class="r" style="padding-top:3px">${CHEV}</span>`}</div></div>`};
   M.innerHTML=`${sum}<div class="toolbar"><span class="cnt">${L.length.toLocaleString()} รายการ</span><span class="tl"><select class="sortsel" id="sort">${m.sorts.map(([v,l])=>`<option value="${v}" ${v===s.sort?'selected':''}>${l}</option>`).join('')}</select>${m.kind==='docs'?'':'<button class="sortsel" id="csv">ส่งออก</button>'}</span></div>
-  <div class="list">${L.slice(0,s.lim).map(row).join('')||'<div class="empty">ไม่พบรายการ</div>'}</div>
+  <div class="${m.layout==='cards'?'ccards':'list'}">${L.slice(0,s.lim).map(m.layout==='cards'?contactCard:row).join('')||'<div class="empty">ไม่พบรายการ</div>'}</div>
   ${L.length>s.lim?`<button class="more" id="more">แสดงเพิ่มอีก ${L.length-s.lim} รายการ</button>`:''}`;
   $('sort').onchange=e=>{s.sort=e.target.value;renderList()};
   if($('csv'))$('csv').onclick=()=>exportCsv(key,L);
@@ -593,7 +593,7 @@ document.addEventListener('click',async ev=>{
   if(t.closest('#retry')){location.reload();return}
   const cp=t.closest('[data-copypw]');if(cp){ev.stopPropagation();const r=DATA.wifi.find(x=>x._id===cp.dataset.copypw);if(r)copy(r.password);return}
   const o=t.closest('[data-open]');if(o){go(o.dataset.open);return}
-  const ad=t.closest('[data-addto]');if(ad){addSheet(ad.dataset.addto);return}
+  const ce=t.closest('[data-cedit]');if(ce){const r=DATA.contacts.find(x=>x._id===ce.dataset.cedit);if(r)edit('contacts',r);return}const cd=t.closest('[data-cdet]');if(cd){detail('contacts',cd.dataset.cdet);return}const cv=t.closest('[data-cpv]');if(cv&&!t.closest('#sheet')){copy(cv.dataset.cpv);return}const ad=t.closest('[data-addto]');if(ad){addSheet(ad.dataset.addto);return}
   const rmv=t.closest('[data-rm]');if(rmv){rmSheet(rmv.dataset.rm,rmv.dataset.uid,rmv.dataset.nm);return}
   const fs=t.closest('[data-fseg]');if(fs){const s=st(view);s.seg=fs.dataset.fseg;s.f={};s.lim=60;render();return}
   const sg=t.closest('[data-seg]');if(sg){go(sg.dataset.seg,true);return}
