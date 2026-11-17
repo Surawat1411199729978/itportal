@@ -62,8 +62,8 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 .row .rv{color:var(--faint);font-size:17px}
 .row.lock{opacity:.45}
 .chev{color:#c4c4c7;flex:none}
-.ic{width:29px;height:29px;border-radius:7px;background:var(--c,#8e8e93);display:grid;place-items:center;flex:none;color:#fff}
-.ic svg{width:18px;height:18px}
+.ic{width:32px;height:32px;border-radius:10px;background:color-mix(in srgb,var(--c,#7d8a99) 14%,var(--card));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c,#7d8a99) 18%,transparent);display:grid;place-items:center;flex:none;color:var(--c,#7d8a99)}
+.ic svg{width:20px;height:20px}
 .sum{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 4px}
 .sum div{background:var(--card);border-radius:12px;padding:11px 14px;font-size:13px;color:var(--sub)}
 .sum b{display:block;font-size:22px;font-weight:700;color:var(--ink);letter-spacing:0}
@@ -135,8 +135,8 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 .toast{position:fixed;left:50%;top:calc(var(--safe-t) + 10px);transform:translateX(-50%) translateY(-20px);background:color-mix(in srgb,var(--card) 85%,transparent);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:var(--ink);border-radius:999px;padding:10px 18px;font-size:15px;font-weight:500;opacity:0;transition:.25s;z-index:50;pointer-events:none;max-width:90vw;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.15)}
 .toast.on{opacity:1;transform:translateX(-50%)}
 .center{text-align:center;padding:60px 10px;color:var(--sub)}
-.center .big{width:64px;height:64px;border-radius:15px;background:var(--acc);color:#fff;display:grid;place-items:center;margin:0 auto}
-.center .big svg{width:36px;height:36px}
+.center .big{width:72px;height:72px;border-radius:22px;background:color-mix(in srgb,var(--acc) 14%,var(--card));color:var(--acc);display:grid;place-items:center;margin:0 auto}
+.center .big svg{width:40px;height:40px}
 .center h2{color:var(--ink);font-size:22px;margin:16px 0 6px}
 .cta{display:inline-block;background:var(--acc);color:#fff;border-radius:12px;padding:14px 26px;font-weight:600;margin-top:22px;font-size:17px}
 .pw{display:flex;align-items:center;gap:10px;background:var(--fill);border-radius:8px;padding:6px 10px;margin-top:8px}
@@ -153,8 +153,8 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 .wd:active{transform:scale(.97)}
 .wd.lock{opacity:.45}
 .wtop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.wd .ic{width:36px;height:36px;border-radius:10px}
-.wd .ic svg{width:21px;height:21px}
+.wd .ic{width:44px;height:44px;border-radius:14px}
+.wd .ic svg{width:26px;height:26px}
 .wt{font-size:15px;font-weight:600;line-height:1.3;color:var(--sub)}
 .wn{font-size:28px;font-weight:700;letter-spacing:-.01em;line-height:1.15;margin-top:auto}
 .wn small{font-size:13px;font-weight:500;color:var(--faint);margin-left:5px}
@@ -197,34 +197,36 @@ async function copy(v){try{await navigator.clipboard.writeText(v);toast('คั�
 const phones=s=>String(s||'').split('/').map(x=>x.trim()).filter(Boolean).map(l=>{const m=l.match(/[0-9][0-9\- ]{2,}[0-9]/);const tel=m?m[0].replace(/[^0-9]/g,''):'';const ext=(l.match(/(ต่อ|กด)\s*([0-9]+)/)||[])[2];return {label:l,tel:tel+(ext?','+ext:'')}});
 
 /* ===== โมดูล ===== */
-const G={laptop:'<path d="M5 5h14v10H5zM2 18h20" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>',
- phone:'<path d="M6.5 3.5h3l1.5 4-2 1.5a11 11 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2z" fill="#fff"/>',
- disc:'<circle cx="12" cy="12" r="9" fill="none" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="2.5" fill="#fff"/>',
- printer:'<path d="M7 9V4h10v5M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v6H7z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>',
- wifi:'<path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.5 16a5 5 0 0 1 7 0" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="19.5" r="1.6" fill="#fff"/>',
- server:'<rect x="4" y="3" width="16" height="7" rx="1.5" fill="none" stroke="#fff" stroke-width="2"/><rect x="4" y="14" width="16" height="7" rx="1.5" fill="none" stroke="#fff" stroke-width="2"/><circle cx="8" cy="6.5" r="1.2" fill="#fff"/><circle cx="8" cy="17.5" r="1.2" fill="#fff"/>',
- net:'<circle cx="12" cy="12" r="9" fill="none" stroke="#fff" stroke-width="2"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" fill="none" stroke="#fff" stroke-width="1.8"/>',
- cam:'<rect x="3" y="6" width="13" height="12" rx="2" fill="none" stroke="#fff" stroke-width="2"/><path d="m16 10 5-3v10l-5-3z" fill="#fff"/>',
- screen:'<rect x="3" y="4" width="18" height="12" rx="1.5" fill="none" stroke="#fff" stroke-width="2"/><path d="M8 20h8M12 16v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/>',
- pin:'<path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z" fill="#fff"/><circle cx="12" cy="9" r="2.5" fill="var(--c)"/>',
- mobile:'<rect x="7" y="2.5" width="10" height="19" rx="2.5" fill="none" stroke="#fff" stroke-width="2"/><path d="M11 18h2" stroke="#fff" stroke-width="2" stroke-linecap="round"/>',
- tool:'<path d="M14.5 5.5a4 4 0 0 0 5 5L12 18a2.1 2.1 0 0 1-3-3l7.5-7.5a4 4 0 0 0-2-2z" fill="#fff"/>',
- building:'<path d="M5 21V4h9v17M14 9h5v12M3 21h18M8 8h3M8 12h3M8 16h3" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
- person:'<circle cx="12" cy="8" r="4" fill="#fff"/><path d="M4 21a8 8 0 0 1 16 0z" fill="#fff"/>',
- doc:'<path d="M6 3h8l4 4v14H6z M14 3v4h4M9 12h6M9 16h6" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>',
- key:'<circle cx="8" cy="15" r="4.5" fill="none" stroke="#fff" stroke-width="2.2"/><path d="m11.5 11.5 8-8M16 7l3 3" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>',
- folder:'<path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.6l2 2h8.4A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z" fill="#fff"/>',
- book:'<path d="M4 4.5h6a2 2 0 0 1 2 2V20a2 2 0 0 0-2-2H4zM20 4.5h-6a2 2 0 0 0-2 2V20a2 2 0 0 1 2-2h6z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>',
+const G={
+ laptop:'<rect x="4.5" y="5" width="15" height="10" rx="2" fill="currentColor" fill-opacity=".22"/><rect x="4.5" y="5" width="15" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 18.5h19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="1.3" fill="currentColor"/>',
+ phone:'<path d="M7 3.8h2.6l1.5 3.9-1.9 1.4a10.5 10.5 0 0 0 5.7 5.7l1.4-1.9 3.9 1.5V17a2.5 2.5 0 0 1-2.6 2.5A15.5 15.5 0 0 1 4.5 6.4 2.5 2.5 0 0 1 7 3.8z" fill="currentColor" fill-opacity=".22"/><path d="M7 3.8h2.6l1.5 3.9-1.9 1.4a10.5 10.5 0 0 0 5.7 5.7l1.4-1.9 3.9 1.5V17a2.5 2.5 0 0 1-2.6 2.5A15.5 15.5 0 0 1 4.5 6.4 2.5 2.5 0 0 1 7 3.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ disc:'<circle cx="12" cy="12" r="8.5" fill="currentColor" fill-opacity=".22"/><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 5.8a6.2 6.2 0 0 1 6.2 6.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".5"/>',
+ printer:'<rect x="3.5" y="9" width="17" height="7.5" rx="2" fill="currentColor" fill-opacity=".22"/><path d="M7.5 9V4.5h9V9M7.5 16.5H5.5a2 2 0 0 1-2-2V11a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v3.5a2 2 0 0 1-2 2h-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="7.5" y="13.5" width="9" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="17" cy="11.8" r="1" fill="currentColor"/>',
+ wifi:'<path d="M12 20.2 3 9.6a13.5 13.5 0 0 1 18 0z" fill="currentColor" fill-opacity=".22"/><path d="M3 9.6a13.5 13.5 0 0 1 18 0M6 13a9 9 0 0 1 12 0M9 16.4a4.6 4.6 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="19.3" r="1.3" fill="currentColor"/>',
+ server:'<rect x="4" y="3.5" width="16" height="7" rx="2" fill="currentColor" fill-opacity=".22"/><rect x="4" y="3.5" width="16" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="4" y="13.5" width="16" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="7" r="1.1" fill="currentColor"/><circle cx="8" cy="17" r="1.1" fill="currentColor"/>',
+ net:'<circle cx="12" cy="12" r="8.5" fill="currentColor" fill-opacity=".22"/><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 12h17M12 3.5c2.8 2.6 2.8 14.4 0 17M12 3.5c-2.8 2.6-2.8 14.4 0 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ cam:'<rect x="3" y="6.5" width="12.5" height="11" rx="2.5" fill="currentColor" fill-opacity=".22"/><rect x="3" y="6.5" width="12.5" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m15.5 10.5 5-3v9l-5-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="10" r="1" fill="currentColor"/>',
+ screen:'<rect x="3" y="4" width="18" height="12" rx="2" fill="currentColor" fill-opacity=".22"/><rect x="3" y="4" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 20h7M12 16v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ pin:'<path d="M12 21s-6.5-6-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 15 12 21 12 21z" fill="currentColor" fill-opacity=".22"/><path d="M12 21s-6.5-6-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 15 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="9.8" r="2.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ mobile:'<rect x="7" y="2.8" width="10" height="18.4" rx="2.6" fill="currentColor" fill-opacity=".22"/><rect x="7" y="2.8" width="10" height="18.4" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.8 17.8h2.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ tool:'<path d="M14.5 4.2a4.3 4.3 0 0 0 5.3 5.3l-7.7 7.7a2.3 2.3 0 0 1-3.3-3.3z" fill="currentColor" fill-opacity=".22"/><path d="M14.5 4.2a4.3 4.3 0 0 0 5.3 5.3l-7.7 7.7a2.3 2.3 0 0 1-3.3-3.3l7.7-7.7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ building:'<rect x="5" y="4" width="9" height="16.5" rx="1.2" fill="currentColor" fill-opacity=".22"/><path d="M5 20.5V5.2A1.2 1.2 0 0 1 6.2 4h6.6A1.2 1.2 0 0 1 14 5.2v15.3M14 9h4a1 1 0 0 1 1 1v10.5M3 20.5h18M8 8h3M8 11.5h3M8 15h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ person:'<circle cx="12" cy="8.2" r="3.8" fill="currentColor" fill-opacity=".22"/><circle cx="12" cy="8.2" r="3.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0" fill="currentColor" fill-opacity=".22"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ doc:'<path d="M6.5 3.5h7l4 4v12a1 1 0 0 1-1 1h-10a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z" fill="currentColor" fill-opacity=".22"/><path d="M6.5 3.5h7l4 4v12a1 1 0 0 1-1 1h-10a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1zM13.5 3.5v4h4M9 12h6M9 15.5h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ key:'<circle cx="8.5" cy="15" r="4.3" fill="currentColor" fill-opacity=".22"/><circle cx="8.5" cy="15" r="4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m11.6 12 7.9-7.9M16 7.6l2.4 2.4M14 9.6l1.6 1.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ folder:'<path d="M3.5 7A1.5 1.5 0 0 1 5 5.5h4.3l2 2H19A1.5 1.5 0 0 1 20.5 9v8.5A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z" fill="currentColor" fill-opacity=".22"/><path d="M3.5 7A1.5 1.5 0 0 1 5 5.5h4.3l2 2H19A1.5 1.5 0 0 1 20.5 9v8.5A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ book:'<path d="M3.5 5h5.5a3 3 0 0 1 3 3v12a2.3 2.3 0 0 0-2.3-2.3H3.5z" fill="currentColor" fill-opacity=".22"/><path d="M3.5 5h5.5a3 3 0 0 1 3 3v12a2.3 2.3 0 0 0-2.3-2.3H3.5zM20.5 5H15a3 3 0 0 0-3 3v12a2.3 2.3 0 0 1 2.3-2.3h6.2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
  dl:'<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
- lock:'<rect x="5" y="10.5" width="14" height="10" rx="2" fill="#fff"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="#fff" stroke-width="2.2"/>'};
+ lock:'<rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor" fill-opacity=".22"/><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor"/>',
+ alert:'<path d="M12 3.8 21 19.5H3z" fill="currentColor" fill-opacity=".22"/><path d="M12 3.8 21 19.5H3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 10v4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/>'};
 const ico=(n,c)=>`<div class="ic" style="--c:${c}"><svg viewBox="0 0 24 24">${G[n]||G.tool}</svg></div>`;
 const CHEV='<svg class="chev" width="8" height="13" viewBox="0 0 8 13"><path d="M1.5 1.5 6.5 6.5 1.5 11.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const TYPEICO={'ซอฟต์แวร์':['disc','#af52de'],'คอมพิวเตอร์ / โน้ตบุ๊ก / แท็บเล็ต':['laptop','#007aff'],'เซิร์ฟเวอร์ / Storage':['server','#5856d6'],'เครื่องพิมพ์ / สแกนเนอร์ / ถ่ายเอกสาร':['printer','#8e8e93'],'ระบบเครือข่าย':['net','#30b0c7'],'โทรศัพท์ / สื่อสาร':['mobile','#34c759'],'กล้องวงจรปิด / CCTV':['cam','#ff3b30'],'จอภาพ / โปรเจคเตอร์':['screen','#5ac8fa'],'GPS / อุปกรณ์ติดตาม':['pin','#ff9500']};
+const TYPEICO={'ซอฟต์แวร์':['disc','#8a74b8'],'คอมพิวเตอร์ / โน้ตบุ๊ก / แท็บเล็ต':['laptop','#4a87c5'],'เซิร์ฟเวอร์ / Storage':['server','#6f6aa8'],'เครื่องพิมพ์ / สแกนเนอร์ / ถ่ายเอกสาร':['printer','#7d8a99'],'ระบบเครือข่าย':['net','#3e9fa8'],'โทรศัพท์ / สื่อสาร':['mobile','#6c9a52'],'กล้องวงจรปิด / CCTV':['cam','#d4634f'],'จอภาพ / โปรเจคเตอร์':['screen','#5a9fc7'],'GPS / อุปกรณ์ติดตาม':['pin','#d9953a']};
 const aIco=r=>{const t=r.g==='sw'?TYPEICO['ซอฟต์แวร์']:(TYPEICO[r.type]||['tool','#a2845e']);return ico(t[0],t[1])};
 
 const ICON={'ซอฟต์แวร์':'💿','คอมพิวเตอร์ / โน้ตบุ๊ก / แท็บเล็ต':'💻','เซิร์ฟเวอร์ / Storage':'🗄️','เครื่องพิมพ์ / สแกนเนอร์ / ถ่ายเอกสาร':'🖨️','ระบบเครือข่าย':'🌐','โทรศัพท์ / สื่อสาร':'📱','กล้องวงจรปิด / CCTV':'📹','จอภาพ / โปรเจคเตอร์':'🖥️','GPS / อุปกรณ์ติดตาม':'📍'};
 const MODS={
- assets:{list:'IT Assets',title:'สินทรัพย์ IT',icon:['laptop','#007aff'],desc:'อุปกรณ์และซอฟต์แวร์ของบริษัท',
+ assets:{list:'IT Assets',title:'สินทรัพย์ IT',icon:['laptop','#4a87c5'],desc:'อุปกรณ์และซอฟต์แวร์ของบริษัท',
   titleOf:r=>`${r.code||''} ${r.name||''}`.trim(),
   fields:[{k:'g',l:'กลุ่ม',t:'select',o:[['hw','อุปกรณ์ IT'],['sw','ซอฟต์แวร์']]},{k:'code',l:'รหัสทรัพย์สิน'},{k:'name',l:'ชื่อรายการ',full:1},{k:'type',l:'ประเภท',t:'list'},{k:'date',l:'วันที่ซื้อ',t:'date'},{k:'cost',l:'ราคา (บาท)',t:'number'},{k:'qty',l:'จำนวน',t:'number'},{k:'unit',l:'หน่วย'},{k:'dept',l:'แผนก',t:'list'},{k:'loc',l:'ผู้ขาย / ที่มา',t:'list'},{k:'doc',l:'เลขที่เอกสาร'},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
   filters:[{k:'g',l:'กลุ่ม',fmt:v=>v==='sw'?'ซอฟต์แวร์':'อุปกรณ์ IT'},{k:'type',l:'ประเภท'},{k:'dept',l:'แผนก'},{k:'loc',l:'ผู้ขาย / ที่มา'},{k:'year',l:'ปีที่ซื้อ',get:r=>r.date?String(+r.date.slice(0,4)+543):'',sort:'desc'}],
@@ -232,47 +234,47 @@ const MODS={
   search:['code','name','type','dept','loc','doc','note'],
   summary:L=>[[L.length.toLocaleString(),'รายการ'],[money(L.reduce((a,r)=>a+(+r.cost||0),0)),'มูลค่ารวม (บาท)']],
   card:r=>`${aIco(r)}<div class="bd"><div class="t">${esc(r.name)}</div><div class="m"><span class="mono">${esc(r.code)}</span> · ${esc(r.dept||'-')} · ${thDate(r.date)}</div><div class="m">${esc(r.type||'')}</div></div><div class="r num">${r.cost?money(r.cost):''}</div>`},
- contacts:{list:'IT Contacts',title:'เบอร์ติดต่อ IT',icon:['phone','#34c759'],desc:'ผู้ให้บริการและผู้ติดต่อ',pub:1,
+ contacts:{list:'IT Contacts',title:'เบอร์ติดต่อ IT',icon:['phone','#6c9a52'],desc:'ผู้ให้บริการและผู้ติดต่อ',pub:1,
   titleOf:r=>r.company,
   fields:[{k:'company',l:'บริษัท / ผู้ให้บริการ',full:1,t:'list'},{k:'contact',l:'ผู้ติดต่อ'},{k:'topic',l:'เรื่อง / บริการ'},{k:'phone',l:'เบอร์โทร (หลายเบอร์คั่นด้วย /)',full:1,t:'tel'},{k:'email',l:'อีเมล',full:1,t:'email'},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
   filters:[{k:'company',l:'บริษัท'}],sorts:[['no','ลำดับ'],['company','บริษัท ก-ฮ']],
   search:['company','contact','topic','phone','email','note'],
-  card:r=>`${ico('building','#34c759')}<div class="bd"><div class="t">${esc(r.company)}</div><div class="m">${esc([r.contact,r.topic].filter(Boolean).join(' · ')||'-')}</div><div class="acts">${phones(r.phone).map(p=>`<a class="pill" href="tel:${esc(p.tel)}" data-stop><svg viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a11 11 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2z" fill="currentColor"/></svg> <span class="num">${esc(p.label)}</span></a>`).join('')}${r.email?`<a class="pill g" href="mailto:${esc(r.email)}" data-stop>${esc(r.email)}</a>`:''}</div></div>`},
- software:{list:'Software Licenses',title:'Software Assets',icon:['disc','#af52de'],desc:'ไลเซนส์ซอฟต์แวร์และ Serial',
+  card:r=>`${ico('building','#6c9a52')}<div class="bd"><div class="t">${esc(r.company)}</div><div class="m">${esc([r.contact,r.topic].filter(Boolean).join(' · ')||'-')}</div><div class="acts">${phones(r.phone).map(p=>`<a class="pill" href="tel:${esc(p.tel)}" data-stop><svg viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a11 11 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2z" fill="currentColor"/></svg> <span class="num">${esc(p.label)}</span></a>`).join('')}${r.email?`<a class="pill g" href="mailto:${esc(r.email)}" data-stop>${esc(r.email)}</a>`:''}</div></div>`},
+ software:{list:'Software Licenses',title:'Software Assets',icon:['disc','#8a74b8'],desc:'ไลเซนส์ซอฟต์แวร์และ Serial',
   titleOf:r=>r.product,
   fields:[{k:'product',l:'ชื่อซอฟต์แวร์',full:1,t:'list'},{k:'serial',l:'Serial / License Key',full:1,t:'secret'},{k:'computer',l:'เครื่องที่ติดตั้ง'},{k:'qty',l:'จำนวน',t:'number'},{k:'type',l:'ประเภทไลเซนส์',t:'list'},{k:'service',l:'บริการ',t:'list'},{k:'status',l:'สถานะ',t:'list'},{k:'date',l:'วันที่ / วันหมดอายุ',t:'date'},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
   filters:[{k:'product',l:'ซอฟต์แวร์'},{k:'status',l:'สถานะ'},{k:'type',l:'ประเภทไลเซนส์'}],sorts:[['no','ลำดับ'],['product','ชื่อ'],['date-','วันที่ล่าสุด']],
   search:['product','serial','computer','type','status','note'],
-  card:r=>`${ico('key','#af52de')}<div class="bd"><div class="t">${esc(r.product)}</div><div class="m">${esc(r.computer||'ไม่ระบุเครื่อง')} · ${esc(r.type||'')}${r.qty>1?' · '+r.qty+' ไลเซนส์':''}</div><div class="m mono">${esc(r.serial)}</div></div><div class="r"><span class="badge ${/expire/i.test(r.status)?'b-bad':'b-ok'}">${esc(r.status||'-')}</span></div>`},
- copier:{list:'Copier Users',title:'เครื่องถ่ายเอกสาร & ปริ้นเตอร์',icon:['printer','#8e8e93'],desc:'รหัสผู้ใช้และสัญญาเช่า',
+  card:r=>`${ico('key','#8a74b8')}<div class="bd"><div class="t">${esc(r.product)}</div><div class="m">${esc(r.computer||'ไม่ระบุเครื่อง')} · ${esc(r.type||'')}${r.qty>1?' · '+r.qty+' ไลเซนส์':''}</div><div class="m mono">${esc(r.serial)}</div></div><div class="r"><span class="badge ${/expire/i.test(r.status)?'b-bad':'b-ok'}">${esc(r.status||'-')}</span></div>`},
+ copier:{list:'Copier Users',title:'เครื่องถ่ายเอกสาร & ปริ้นเตอร์',icon:['printer','#5f7690'],desc:'รหัสผู้ใช้และสัญญาเช่า',
   titleOf:r=>`${r.code} ${r.user}`,
   fields:[{k:'code',l:'รหัสผู้ใช้'},{k:'name',l:'ชื่อบัญชี'},{k:'user',l:'ผู้ใช้'},{k:'room',l:'ห้อง / แผนก',t:'list'},{k:'status',l:'สถานะ',t:'select',o:[['use','ใช้งาน'],['left','ลาออก / ยกเลิก']]},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
   filters:[{k:'room',l:'ห้อง / แผนก'},{k:'status',l:'สถานะ',fmt:v=>v==='left'?'ลาออก / ยกเลิก':'ใช้งาน'}],sorts:[['code','รหัส'],['room','ห้อง']],
   search:['code','name','user','room','note'],
-  card:r=>`${ico('person','#8e8e93')}<div class="bd"><div class="t">${esc(r.user||'-')}</div><div class="m">รหัส <b class="mono">${esc(r.code)}</b> · ${esc(r.name||'')} · ${esc(r.room||'')}</div></div><div class="r"><span class="badge ${r.status==='left'?'b-mute':'b-ok'}">${r.status==='left'?'ลาออก':'ใช้งาน'}</span></div>`,
+  card:r=>`${ico('person','#5f7690')}<div class="bd"><div class="t">${esc(r.user||'-')}</div><div class="m">รหัส <b class="mono">${esc(r.code)}</b> · ${esc(r.name||'')} · ${esc(r.room||'')}</div></div><div class="r"><span class="badge ${r.status==='left'?'b-mute':'b-ok'}">${r.status==='left'?'ลาออก':'ใช้งาน'}</span></div>`,
   sub:'contracts'},
- contracts:{list:'Copier Contracts',title:'สัญญาเช่าเครื่องถ่ายเอกสาร',icon:['doc','#ff9500'],hidden:1,
+ contracts:{list:'Copier Contracts',title:'สัญญาเช่าเครื่องถ่ายเอกสาร',icon:['doc','#d9953a'],hidden:1,
   titleOf:r=>r.serial,
   fields:[{k:'serial',l:'Serial เครื่อง',full:1},{k:'place',l:'ที่ตั้ง',full:1,t:'list'},{k:'end',l:'วันสิ้นสุดสัญญา',t:'date'},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
   filters:[{k:'place',l:'ที่ตั้ง'}],sorts:[['end','ใกล้หมดก่อน'],['place','ที่ตั้ง']],
   search:['serial','place','note'],
-  card:r=>{const d=daysTo(r.end);const b=d==null?'':d<0?`<span class="badge b-bad">หมดแล้ว ${-d} วัน</span>`:d<=60?`<span class="badge b-warn">เหลือ ${d} วัน</span>`:`<span class="badge b-ok">เหลือ ${d} วัน</span>`;return `${ico('doc','#ff9500')}<div class="bd"><div class="t">${esc(r.place)}</div><div class="m">Serial <span class="mono">${esc(r.serial)}</span> · สิ้นสุด ${thDate(r.end)}</div>${r.note?`<div class="m">${esc(r.note)}</div>`:''}</div><div class="r">${b}</div>`}},
- forms:{kind:'docs',list:'Form Format',title:'Form Format',icon:['doc','#ff9500'],desc:'แบบฟอร์มสำหรับดาวน์โหลด',pub:1,
+  card:r=>{const d=daysTo(r.end);const b=d==null?'':d<0?`<span class="badge b-bad">หมดแล้ว ${-d} วัน</span>`:d<=60?`<span class="badge b-warn">เหลือ ${d} วัน</span>`:`<span class="badge b-ok">เหลือ ${d} วัน</span>`;return `${ico('doc','#d9953a')}<div class="bd"><div class="t">${esc(r.place)}</div><div class="m">Serial <span class="mono">${esc(r.serial)}</span> · สิ้นสุด ${thDate(r.end)}</div>${r.note?`<div class="m">${esc(r.note)}</div>`:''}</div><div class="r">${b}</div>`}},
+ forms:{kind:'docs',list:'Form Format',title:'Form Format',icon:['doc','#d9953a'],desc:'แบบฟอร์มสำหรับดาวน์โหลด',pub:1,
   titleOf:r=>r.name,fields:[],filters:[{k:'folder',l:'หมวด',fmt:v=>v||'ทั่วไป'},{k:'ext',l:'ชนิดไฟล์',fmt:v=>v.toUpperCase()||'-'}],sorts:[['name','ชื่อ ก-ฮ'],['mod-','อัปเดตล่าสุด']],search:['name','folder'],card:r=>docCard(r)},
- docs:{kind:'docs',list:'Support Documents',title:'Support Document',icon:['book','#5856d6'],desc:'คู่มือและเอกสารช่วยเหลือ',pub:1,
+ docs:{kind:'docs',list:'Support Documents',title:'Support Document',icon:['book','#c9677f'],desc:'คู่มือและเอกสารช่วยเหลือ',pub:1,
   titleOf:r=>r.name,fields:[],filters:[{k:'folder',l:'หมวด',fmt:v=>v||'ทั่วไป'},{k:'ext',l:'ชนิดไฟล์',fmt:v=>v.toUpperCase()||'-'}],sorts:[['name','ชื่อ ก-ฮ'],['mod-','อัปเดตล่าสุด']],search:['name','folder'],card:r=>docCard(r)},
- wifi:{list:'WiFi Passwords',title:'รหัส WiFi',icon:['wifi','#007aff'],desc:'ชื่อ WiFi และรหัสผ่าน',
+ wifi:{list:'WiFi Passwords',title:'รหัส WiFi',icon:['wifi','#3e9fa8'],desc:'ชื่อ WiFi และรหัสผ่าน',
   titleOf:r=>r.ssid,
   fields:[{k:'ssid',l:'ชื่อ WiFi (SSID) / Username',full:1},{k:'password',l:'Password',full:1,t:'secret'},{k:'place',l:'สถานที่',t:'list'},{k:'type',l:'ประเภท',t:'list'},{k:'ip',l:'IP (ถ้ามี)'},{k:'status',l:'สถานะ',t:'select',o:[['cur','ใช้งานปัจจุบัน'],['old','ข้อมูลเก่า']]},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
   filters:[{k:'status',l:'สถานะ',fmt:v=>v==='old'?'ข้อมูลเก่า':'ใช้งานปัจจุบัน'},{k:'place',l:'สถานที่'}],sorts:[['no','ลำดับ'],['place','สถานที่']],
   search:['ssid','place','type','ip','note'],
-  card:r=>`${ico('wifi','#007aff')}<div class="bd"><div class="t">${esc(r.ssid)}</div><div class="m">${esc(r.place||'')}${r.type&&r.type!=='WiFi'?' · '+esc(r.type):''}${r.ip?' · <span class="mono">'+esc(r.ip)+'</span>':''}</div><div class="pw"><span class="v mono">••••••••</span><button class="cp" data-copypw="${esc(r._id)}">คัดลอกรหัส</button></div></div><div class="r"><span class="badge ${r.status==='old'?'b-mute':'b-ok'}">${r.status==='old'?'เก่า':'ใช้งาน'}</span></div>`}
+  card:r=>`${ico('wifi','#3e9fa8')}<div class="bd"><div class="t">${esc(r.ssid)}</div><div class="m">${esc(r.place||'')}${r.type&&r.type!=='WiFi'?' · '+esc(r.type):''}${r.ip?' · <span class="mono">'+esc(r.ip)+'</span>':''}</div><div class="pw"><span class="v mono">••••••••</span><button class="cp" data-copypw="${esc(r._id)}">คัดลอกรหัส</button></div></div><div class="r"><span class="badge ${r.status==='old'?'b-mute':'b-ok'}">${r.status==='old'?'เก่า':'ใช้งาน'}</span></div>`}
 };
 const HOME=['assets','contacts','software','copier','wifi'];
 const DOCS=['forms','docs'];
-const EXTC={pdf:['#ff3b30','PDF'],doc:['#007aff','DOC'],docx:['#007aff','DOC'],xls:['#34c759','XLS'],xlsx:['#34c759','XLS'],xlsm:['#34c759','XLS'],csv:['#34c759','CSV'],ppt:['#ff9500','PPT'],pptx:['#ff9500','PPT'],png:['#af52de','IMG'],jpg:['#af52de','IMG'],jpeg:['#af52de','IMG'],zip:['#8e8e93','ZIP'],txt:['#8e8e93','TXT']};
+const EXTC={pdf:['#d4634f','PDF'],doc:['#4a87c5','DOC'],docx:['#4a87c5','DOC'],xls:['#6c9a52','XLS'],xlsx:['#6c9a52','XLS'],xlsm:['#6c9a52','XLS'],csv:['#6c9a52','CSV'],ppt:['#d9953a','PPT'],pptx:['#d9953a','PPT'],png:['#8a74b8','IMG'],jpg:['#8a74b8','IMG'],jpeg:['#8a74b8','IMG'],zip:['#7d8a99','ZIP'],txt:['#7d8a99','TXT']};
 const fsize=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(0)+' KB':(n/1048576).toFixed(1)+' MB';
-const extIco=e=>{const [c,l]=EXTC[e]||['#8e8e93',(e||'FILE').slice(0,4).toUpperCase()];return `<div class="ic" style="--c:${c};font-size:9.5px;font-weight:800;letter-spacing:.02em">${l}<svg viewBox="0 0 24 24" style="display:none"></svg></div>`};
+const extIco=e=>{const [c,l]=EXTC[e]||['#7d8a99',(e||'FILE').slice(0,4).toUpperCase()];return `<div class="ic" style="--c:${c};font-size:9.5px;font-weight:800;letter-spacing:.02em">${l}<svg viewBox="0 0 24 24" style="display:none"></svg></div>`};
 const docCard=r=>`${extIco(r.ext)}<div class="bd"><div class="t">${esc(r.name)}</div><div class="m">${esc(r.folder||'ทั่วไป')} · ${fsize(r.size)} · ${thDate(r.mod)}</div></div><div class="r"><button class="dlb" data-dl="${esc(r._id)}" aria-label="ดาวน์โหลด"><svg width="22" height="22" viewBox="0 0 24 24">${G.dl}</svg></button></div>`;
 
 
@@ -380,7 +382,7 @@ function render(){
   setHeader();const M=$('main');
   if(mode==='loading'){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   if(mode==='signin'){M.innerHTML=`<div class="center"><div class="big">${LOCKSVG}</div><h2>เข้าสู่ระบบด้วยบัญชีบริษัท</h2><div>ใช้อีเมลและรหัสผ่าน Microsoft 365 (Outlook / Teams)</div><button class="cta" id="login">เข้าสู่ระบบ Microsoft 365</button></div>`;return}
-  if(mode==='err'){M.innerHTML=`<div class="center"><div class="big" style="background:var(--bad)"><svg viewBox="0 0 24 24"><path d="M12 7v6M12 16.5v.5" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></div><h2>เชื่อมต่อไม่สำเร็จ</h2><div style="font-size:14px">${esc(errMsg)}</div><button class="cta" id="retry">ลองใหม่</button></div>`;return}
+  if(mode==='err'){M.innerHTML=`<div class="center"><div class="big" style="color:#d4634f;background:color-mix(in srgb,#d4634f 14%,var(--card))"><svg viewBox="0 0 24 24">${G.alert}</svg></div><h2>เชื่อมต่อไม่สำเร็จ</h2><div style="font-size:14px">${esc(errMsg)}</div><button class="cta" id="retry">ลองใหม่</button></div>`;return}
   if(view==='home'){renderHome();return}
   renderList();
 }
@@ -401,7 +403,7 @@ function renderHome(){
   // alerts for IT
   let alerts='';
   if(isIT&&DATA.contracts){const L=DATA.contracts.map(r=>({r,d:daysTo(r.end)})).filter(x=>x.d!=null&&x.d<=60).sort((a,b)=>a.d-b.d);
-    if(L.length)alerts=`<div class="gh">ต้องดำเนินการ</div><button class="alert" data-open="contracts"><span class="ic" style="--c:var(--bad)"><svg viewBox="0 0 24 24"><path d="M12 7v6M12 16.5v.5" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span><span class="ab"><b>สัญญาเช่าเครื่องถ่ายเอกสาร ${L.length} สัญญา</b><span>${L.filter(x=>x.d<0).length?`หมดอายุแล้ว ${L.filter(x=>x.d<0).length} สัญญา · `:''}${esc(L.slice(0,3).map(x=>x.r.place).join(', '))}${L.length>3?' …':''}</span></span>${CHEV}</button>`}
+    if(L.length)alerts=`<div class="gh">ต้องดำเนินการ</div><button class="alert" data-open="contracts"><span class="ic" style="--c:#d4634f"><svg viewBox="0 0 24 24">${G.alert}</svg></span><span class="ab"><b>สัญญาเช่าเครื่องถ่ายเอกสาร ${L.length} สัญญา</b><span>${L.filter(x=>x.d<0).length?`หมดอายุแล้ว ${L.filter(x=>x.d<0).length} สัญญา · `:''}${esc(L.slice(0,3).map(x=>x.r.place).join(', '))}${L.length>3?' …':''}</span></span>${CHEV}</button>`}
   const hour=new Date().getHours();const greet=hour<12?'สวัสดีตอนเช้า':hour<17?'สวัสดีตอนบ่าย':'สวัสดีตอนเย็น';
   $('main').innerHTML=`<div class="hello">${greet} คุณ${esc(String(me).split(' ')[0])} · ${thDate(today())}</div>
   ${alerts}
@@ -440,7 +442,7 @@ function detail(key,id){
   const m=MODS[key];const r=DATA[key].find(x=>x._id===id);if(!r)return;
   const rows=m.fields.map(c=>{const v=r[c.k];if(v==null||v==='')return '';
     if(c.t==='secret')return `<div><span class="k">${c.l}</span><span class="v mono" id="sec_${c.k}">••••••••</span><button class="cp" data-show="${c.k}">แสดง</button><button class="cp" data-cpv="${esc(v)}">คัดลอก</button></div>`;
-    if(c.t==='tel')return `<div><span class="k">${c.l}</span><span class="v">${phones(v).map(p=>`<a class="pill" style="margin:2px 4px 2px 0" href="tel:${esc(p.tel)}"><svg viewBox="0 0 24 24">${G.phone.replace('#fff','currentColor')}</svg>${esc(p.label)}</a>`).join('')}</span></div>`;
+    if(c.t==='tel')return `<div><span class="k">${c.l}</span><span class="v">${phones(v).map(p=>`<a class="pill" style="margin:2px 4px 2px 0" href="tel:${esc(p.tel)}"><svg viewBox="0 0 24 24">${G.phone}</svg>${esc(p.label)}</a>`).join('')}</span></div>`;
     if(c.t==='email')return `<div><span class="k">${c.l}</span><span class="v"><a href="mailto:${esc(v)}" style="color:var(--acc);text-decoration:none">${esc(v)}</a></span><button class="cp" data-cpv="${esc(v)}">คัดลอก</button></div>`;
     return `<div><span class="k">${c.l}</span><span class="v">${showVal(c,r)}</span>${['code','serial','ssid','ip','doc'].includes(c.k)?`<button class="cp" data-cpv="${esc(v)}">คัดลอก</button>`:''}</div>`}).join('');
   openSheet(`${shh('',m.title,`<button class="x b" id="d_close">เสร็จ</button>`)}<h2>${esc(m.titleOf(r))}</h2><div class="kv">${rows}</div>
@@ -458,7 +460,7 @@ function detail(key,id){
 async function download(key,id){const r=DATA[key].find(x=>x._id===id);toast('กำลังเตรียมไฟล์…');try{const u=await store.dlUrl(key,id);const a=document.createElement('a');a.href=u;a.download=r?r.name:'';document.body.appendChild(a);a.click();a.remove()}catch(e){toast('ดาวน์โหลดไม่สำเร็จ: '+e.message)}}
 function docDetail(key,id){
   const m=MODS[key];const r=DATA[key].find(x=>x._id===id);if(!r)return;
-  openSheet(`${shh('',m.title,`<button class="x b" id="d_close">เสร็จ</button>`)}<div style="text-align:center;margin:10px 0 4px">${extIco(r.ext).replace('class="ic"','class="ic" style="width:64px;height:64px;border-radius:14px;font-size:16px;margin:0 auto;--c:'+(EXTC[r.ext]||['#8e8e93'])[0]+'"')}</div><h2 style="text-align:center">${esc(r.name)}</h2>
+  openSheet(`${shh('',m.title,`<button class="x b" id="d_close">เสร็จ</button>`)}<div style="text-align:center;margin:10px 0 4px">${extIco(r.ext).replace('class="ic"','class="ic" style="width:64px;height:64px;border-radius:14px;font-size:16px;margin:0 auto;--c:'+(EXTC[r.ext]||['#7d8a99'])[0]+'"')}</div><h2 style="text-align:center">${esc(r.name)}</h2>
    <div class="kv"><div><span class="k">หมวด</span><span class="v">${esc(r.folder||'ทั่วไป')}</span></div><div><span class="k">ขนาด</span><span class="v">${fsize(r.size)}</span></div><div><span class="k">อัปเดต</span><span class="v">${thDate(r.mod)}</span></div>${r.by?`<div><span class="k">โดย</span><span class="v">${esc(r.by)}</span></div>`:''}</div>
    <button class="cta" id="d_dl" style="display:block;width:100%;margin-top:18px">ดาวน์โหลด</button>
    <div class="btnlist">${r.web?`<button id="d_view">เปิดดูใน SharePoint</button>`:''}${canEdit(key)?`<button class="d" id="d_del">ลบไฟล์</button>`:''}</div>`);
