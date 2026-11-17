@@ -177,7 +177,7 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 <script>
 if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
 /* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
-const APP_VERSION='2026-11-18.27';
+const APP_VERSION='2026-11-18.28';
 async function checkUpdate(){
   try{
     if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
@@ -1152,9 +1152,9 @@ function renderMeter(){const M=$('main');if(!DATA.contracts){M.innerHTML='<div c
   const card=(r,[c,p])=>{const d=c&&p?(+c.total||0)-(+p.total||0):null;return `<div class="it rpit" role="button" data-mt="${esc(r._id)}">${ico('printer','#5f7690')}<div class="bdw"><div class="bd"><div class="t"><b>${esc(r.place||'-')}</b>${r.model?' · '+esc(r.model):''}</div><div class="m">Serial <span class="mono">${esc(r.serial||'')}</span></div>${c?`<div class="mtnum"><b>${mtN(c.total)}</b><span>รวม · ${thDate(c.date)}</span></div><div class="m">${mtHasC(c)?`สี ${mtN(c.color)} · ขาวดำ ${mtN(c.bw)} · `:''}Copy ${mtN(c.copy)} · Print ${mtN(c.print)}${d!=null?` · <b style="color:#16a34a">+${mtN(d)}</b>`:''}</div>`:'<div class="m">ยังไม่มีค่ามิเตอร์</div>'}</div><span class="r" style="padding-top:3px">${CHEV}</span></div></div>`};
   M.innerHTML=`<div class="sum"><div><b class="num">${L.length}</b>เครื่อง</div><div><b class="num">${lastD?thDate(lastD):'–'}</b>อ่านมิเตอร์ล่าสุด</div></div>
   ${it?`<button class="mtcta" id="mt_read">${ico('doc','#5f7690')}<span><b>อ่านค่ามิเตอร์จากไฟล์</b><small>แนบ Status Page (PDF / รูปถ่าย) ระบบอ่าน Serial และ Counter ให้</small></span>${CHEV}</button>`:''}
-  <div class="toolbar"><span class="cnt">${L.length} เครื่อง${use?` · ใช้ไป ${mtN(use)} แผ่น (เทียบครั้งก่อน)`:''}</span><span class="tl"><button class="sortsel" id="mt_xls">Excel</button></span></div>
+  <div class="toolbar"><span class="cnt">${L.length} เครื่อง${use?` · ใช้ไป ${mtN(use)} แผ่น (เทียบครั้งก่อน)`:''}</span><span class="tl"><button class="sortsel" id="mt_rep">รายงาน</button><button class="sortsel" id="mt_xls">Excel</button></span></div>
   <div class="list">${L.map((r,i)=>card(r,rd[i])).join('')||'<div class="empty">ยังไม่มีเครื่องในสัญญาเช่า</div>'}</div>`;
-  if($('mt_read'))$('mt_read').onclick=()=>mtRead();$('mt_xls').onclick=()=>mtXlsx().catch(e=>toast('สร้างไฟล์ไม่สำเร็จ: '+e.message));
+  if($('mt_read'))$('mt_read').onclick=()=>mtRead();$('mt_xls').onclick=()=>mtXlsx().catch(e=>toast('สร้างไฟล์ไม่สำเร็จ: '+e.message));if($('mt_rep'))$('mt_rep').onclick=()=>mrOpen();
   M.querySelectorAll('[data-mt]').forEach(e=>e.onclick=()=>mtDetail(e.dataset.mt))}
 function mtDetail(id){const r=(DATA.contracts||[]).find(x=>x._id===id);if(!r)return;const it=isIT;const A=mtM(r);const m=A.slice().reverse();const hc=m.some(mtHasC);
   const row=(x,i)=>{const p=m[i+1];const d=p?(+x.total||0)-(+p.total||0):null;const k=A.indexOf(x);return `<tr><td>${thDate(x.date)}</td><td><b>${mtN(x.total)}</b></td><td class="up">${d!=null?'+'+mtN(d):''}</td><td>${mtN(x.copy)}</td><td>${mtN(x.print)}</td><td>${mtN(x.fax)}</td>${hc?`<td>${mtN(x.color)}</td><td>${mtN(x.bw)}</td>`:''}<td>${x.file?`<button data-mf="${k}">ดูไฟล์</button>`:''}${it?`<button class="d" data-md="${k}">ลบ</button>`:''}</td></tr>`};
@@ -1277,6 +1277,125 @@ async function mtXlsx(){await loadLib('https://cdn.jsdelivr.net/npm/exceljs@4.4.
   ws.eachRow((row,i)=>{if(i<2)return;row.eachCell({includeEmpty:true},c=>{c.border={top:{style:'thin',color:{argb:'FFD2D2D7'}},bottom:{style:'thin',color:{argb:'FFD2D2D7'}},left:{style:'thin',color:{argb:'FFD2D2D7'}},right:{style:'thin',color:{argb:'FFD2D2D7'}}}});if(i>2){row.getCell(10).font={bold:true};row.getCell(11).font={color:{argb:'FF16A34A'},bold:true}}});
   ws.autoFilter={from:'A2',to:{row:2,column:H.length}};
   rpSaveFile(new Blob([await wb.xlsx.writeBuffer()],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),`ค่ามิเตอร์เครื่องถ่ายเอกสาร_${today()}.xlsx`)}
+
+/* ===== รายงานค่าเครื่องถ่ายเอกสารประจำเดือน (FM-ITM-01-12) ===== */
+(()=>{const F=MODS.contracts.fields;const i=F.findIndex(f=>f.k==='note');F.splice(i<0?F.length:i,0,{k:'model',l:'รุ่นเครื่อง'},{k:'group',l:'กลุ่มในรายงาน',t:'list'},{k:'bwRate',l:'ราคาขาวดำ / แผ่น (บาท)',t:'number'},{k:'colorRate',l:'ราคาสี / แผ่น (บาท)',t:'number'},{k:'minPages',l:'คิดขั้นต่ำ (แผ่น / เดือน)',t:'number'})})();
+const MR_VAT=.07,MR_TH=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const mrRt=(v,d)=>v===''||v==null||isNaN(v)?d:+v;
+const mrGrp=r=>r.group||(/^รง\.?\s*1/.test(r.place||'')?'โรงงาน 1':/^รง\.?\s*2/.test(r.place||'')?'โรงงาน 2':(r.place||'อื่น ๆ'));
+const mrMl=ym=>{const[y,m]=ym.split('-');return MR_TH[+m-1]+' '+String(+y+543).slice(2)};
+const mrMonths=(end,n)=>{const[y,m]=end.split('-').map(Number);return Array.from({length:n},(_,i)=>{const d=new Date(y,m-1-(n-1-i),1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')})};
+const mr2=n=>Math.round(n*100)/100;
+const mrMoney=n=>n==null?'':Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+function mrUse(r,ym){const U=r.usage&&r.usage[ym];if(U&&(U.pages!=null||U.baht!=null))return {pages:U.pages,baht:U.baht,imp:1};
+  const M=mtM(r),s=ym+'-01',e=ym+'-31';const cur=M.filter(x=>x.date>=s&&x.date<=e).pop(),prev=M.filter(x=>x.date<s).pop();if(!cur||!prev)return null;
+  let pages=(+cur.total||0)-(+prev.total||0);if(pages<0)return null;const col=mtHasC(cur)&&mtHasC(prev)?Math.max(0,(+cur.color||0)-(+prev.color||0)):0;let bw=pages-col;
+  const min=mrRt(r.minPages,0);if(pages<min){bw+=min-pages;pages=min}
+  return {pages,baht:mr2((bw*mrRt(r.bwRate,.3)+col*mrRt(r.colorRate,3.5))*(1+MR_VAT))}}
+function mrData(months){const L=(DATA.contracts||[]).slice().sort((a,b)=>(+a.no||0)-(+b.no||0));const G=[];
+  for(const r of L){const g=mrGrp(r);let x=G.find(z=>z.name===g);if(!x)G.push(x={name:g,rows:[]});x.rows.push({r,c:months.map(ym=>mrUse(r,ym))})}
+  let n=0;G.forEach(g=>{g.rows.forEach(x=>x.n=++n);g.sub=months.map((_,i)=>{const v=g.rows.map(x=>x.c[i]).filter(Boolean);return v.length?mr2(v.reduce((a,c)=>a+(+c.baht||0),0)):null})});
+  const tot=months.map((_,i)=>{const v=G.map(g=>g.sub[i]).filter(v=>v!=null);return v.length?mr2(v.reduce((a,b)=>a+b,0)):null});return {G,tot}}
+function mrNotes(){const L=DATA.contracts||[];const bw=[...new Set(L.map(r=>mrRt(r.bwRate,.3)))],co=[...new Set(L.map(r=>mrRt(r.colorRate,3.5)))];
+  const a=`ขาว-ดำ ราคาแผ่นละ ${bw.length===1?bw[0].toFixed(2):'0.30'} / สี ราคาแผ่นละ ${co.length===1?co[0].toFixed(2):'3.50'}`;
+  const b=L.filter(r=>mrRt(r.minPages,0)>0).map(r=>`${r.place} คิดขั้นต่ำ ${mrRt(r.minPages,0).toLocaleString()} แผ่น/เดือน (${mrRt(r.bwRate,.3).toFixed(2)} บาท/แผ่น)`).join(' · ');return [a,b]}
+const MR_CSS=`.mrf{width:1123px;height:794px;box-sizing:border-box;padding:22px 26px;background:#fff;color:#000;font-family:Tahoma,"Sarabun","Noto Sans Thai",sans-serif;font-size:11px;line-height:1.3;position:relative}.mrf table{border-collapse:collapse;width:100%;table-layout:fixed}.mrf td,.mrf th{border:1px solid #000;padding:2px 4px;vertical-align:middle}.mrf .hd td{font-family:"Sarabun","TH Sarabun New",Tahoma,sans-serif}.mrf .co{font-size:21px;font-weight:700;text-align:center;height:36px}.mrf .wf{font-size:17px;font-weight:700;text-align:center}.mrf .tt{font-size:15px;font-weight:700;text-align:center}.mrf .lb{font-size:10.5px;border-right:0;white-space:nowrap}.mrf .vl{font-size:10.5px;text-align:center;border-left:0}.mrf .lg{text-align:center}.mrf .lg img{max-height:64px;max-width:130px}.mrf .dt{margin-top:10px}.mrf .dt th{font-weight:700;text-align:center;font-size:10.5px;background:#f2f2f2;line-height:1.2}.mrf .dt td{height:22px;font-size:11px}.mrf .dt .c{text-align:center}.mrf .dt .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.mrf .dt .sb td{font-weight:700;background:#f7f7f7;border-bottom:2px solid #000}.mrf .dt .tt2 td{font-weight:700;background:#e9e9e9;border-top:2px solid #000;border-bottom:2px solid #000}.mrf .dt.sm td{font-size:9.5px;padding:1px 2px}.mrf .dt.sm th{font-size:9px;padding:1px}.mrf .nt{margin-top:8px;font-size:11px;line-height:1.55}.mrf .sg{display:flex;margin-top:12px;border:1px solid #000}.mrf .sg>div{flex:1;text-align:center;border-right:1px solid #000}.mrf .sg>div:last-child{border-right:0}.mrf .sg b{display:block;border-bottom:1px solid #000;padding:4px;font-weight:600}.mrf .sg i{display:block;height:40px;font-style:normal}.mrf .sg span{display:block;padding:3px 4px}.mrf .sg span+span{border-top:1px solid #000}.mrf .ft{position:absolute;left:26px;bottom:10px;font-size:8.5px;color:#444}`;
+function mrFormHTML(months){const {G,tot}=mrData(months);const N=months.length;const sm=N>6,AW=sm?[30,105,82]:[40,130,95];const mw=(1123-52-AW[0]-AW[1]-AW[2])/N;const [n1,n2]=mrNotes();
+  const cell=c=>c?`<td class="n">${c.pages==null?'':Number(c.pages).toLocaleString('en-US')}</td><td class="n">${mrMoney(c.baht)}</td>`:'<td class="c">-</td><td class="c">-</td>';
+  const rows=G.map(g=>g.rows.map(x=>`<tr><td class="c">${x.n}</td><td>${esc(x.r.place||'')}</td><td class="c">${esc(x.r.serial||'')}</td>${x.c.map(cell).join('')}</tr>`).join('')+`<tr class="sb"><td colspan="3">รวม ${esc(g.name)}</td>${g.sub.map(v=>`<td></td><td class="n">${mrMoney(v)}</td>`).join('')}</tr>`).join('');
+  return `<style>${MR_CSS}</style><div class="mrf"><table class="hd"><colgroup><col style="width:17%"><col style="width:55%"><col style="width:17%"><col style="width:11%"></colgroup>
+  <tr><td rowspan="5" class="lg">${RP_LOGO?`<img src="${RP_LOGO}">`:'<b style="font-size:30px;color:#1a7f37">UNB</b>'}</td><td class="co" colspan="3">บริษัท ยูเนียนเบลท์ อินเตอร์เนชั่นแนล จำกัด</td></tr>
+  <tr><td rowspan="2" class="wf">เอกสาร (Work Form)</td><td class="lb">รหัสเอกสาร (Doc No) :</td><td class="vl">FM-ITM-01-12</td></tr>
+  <tr><td class="lb">แก้ไขครั้งที่ (Revision) :</td><td class="vl">00</td></tr>
+  <tr><td rowspan="2" class="tt">เรื่อง / Title : รายละเอียดค่าเครื่องถ่ายเอกสารประจำเดือน</td><td class="lb">วันที่บังคับใช้ (Effective date) :</td><td class="vl">01/11/2568</td></tr>
+  <tr><td class="lb">หน้าที่ (Page) :</td><td class="vl">1</td></tr></table>
+  <table class="dt${sm?' sm':''}"><colgroup><col style="width:${AW[0]}px"><col style="width:${AW[1]}px"><col style="width:${AW[2]}px">${months.map(()=>`<col style="width:${mw*.44}px"><col style="width:${mw*.56}px">`).join('')}</colgroup>
+  <tr><th rowspan="2">ลำดับ</th><th rowspan="2">สถานที่ตั้ง</th><th rowspan="2">เลขเครื่อง</th>${months.map(m=>`<th colspan="2">${mrMl(m)}</th>`).join('')}</tr>
+  <tr>${months.map(()=>'<th>จำนวน<br>(แผ่น)</th><th>จำนวน<br>(บาท)</th>').join('')}</tr>${rows}
+  <tr class="tt2"><td colspan="3">รวมทั้งหมด</td>${tot.map(v=>`<td></td><td class="n">${mrMoney(v)}</td>`).join('')}</tr></table>
+  <div class="nt"><b>หมายเหตุ :</b> 1. ราคารวมภาษีมูลค่าเพิ่มแล้ว &nbsp; 2. อัตราค่าบริการ ${esc(n1)}${n2?`<br>${esc(n2)}`:''}</div>
+  <div class="sg"><div><b>ผู้จัดทำ (Prepared by)</b><i></i><span>(..................................................)<br>ตำแหน่ง ..............................</span><span>วันที่ ......../......../........</span></div><div><b>ผู้ทบทวน (Reviewed by)</b><i></i><span>(..................................................)<br>แผนกสารสนเทศ</span><span>วันที่ ......../......../........</span></div><div><b>ผู้อนุมัติ (Approved by)</b><i></i><span>(..................................................)<br>ตำแหน่ง ..............................</span><span>วันที่ ......../......../........</span></div></div>
+  <div class="ft">FM-ITM-01-12 · พิมพ์จาก IT Portal ${thDate(today())}</div></div>`}
+function mrLastYm(){let best='';for(const r of DATA.contracts||[]){Object.keys(r.usage||{}).forEach(k=>{if(k>best)best=k});mtM(r).forEach(x=>{const k=String(x.date).slice(0,7);if(k>best)best=k})}return best||today().slice(0,7)}
+let MR_END='',MR_N=4;
+function mrOpen(){if(!MR_END)MR_END=mrLastYm();const opts=[];const end=today().slice(0,7);let first=end;for(const r of DATA.contracts||[]){Object.keys(r.usage||{}).forEach(k=>{if(k<first)first=k});mtM(r).forEach(x=>{const k=String(x.date).slice(0,7);if(k<first)first=k})}
+  for(let ym=end;ym>=first&&opts.length<60;ym=mrMonths(ym,2)[0])opts.push(ym);if(!opts.includes(MR_END))MR_END=opts[0];
+  openSheet(`${shh('',`รายงานค่าเครื่องถ่ายเอกสาร`,'<button class="x b" id="q_x">เสร็จ</button>')}
+  <div class="sub" style="margin:2px 4px 0">FM-ITM-01-12 · รายละเอียดค่าเครื่องถ่ายเอกสารประจำเดือน (A4 แนวนอน)</div>
+  <div class="formg" style="margin-top:12px"><div class="f"><label>ถึงเดือน</label><select id="q_e">${opts.map(o=>`<option value="${o}" ${o===MR_END?'selected':''}>${TH_FULL[+o.slice(5)-1]} ${+o.slice(0,4)+543}</option>`).join('')}</select></div><div class="f"><label>จำนวนเดือน</label><select id="q_n">${[3,4,6,12].map(n=>`<option value="${n}" ${n===MR_N?'selected':''}>${n} เดือน</option>`).join('')}</select></div></div>
+  <div class="vpnote">ยอดแต่ละเดือน = ค่ามิเตอร์รวมที่อ่านในเดือนนั้น ลบ ค่าที่อ่านครั้งล่าสุดของเดือนก่อน · คิดเงิน ขาวดำ/สี ตามราคาที่ตั้งในสัญญาเช่า + VAT 7%</div>
+  <div class="fgroup"><h3>ตัวอย่างรายงาน</h3></div><div class="fmprev" id="q_prev"></div>
+  <div class="fgroup"><h3>ดาวน์โหลด</h3></div><div class="rpex"><button data-qx="xlsx"><b style="background:#1d6f42">XLS</b>Excel</button><button data-qx="pdf"><b>PDF</b>PDF</button><button data-qx="png"><b style="background:#bf5af2">IMG</b>รูปภาพ</button><button data-qx="print"><b style="background:#636366;font-size:20px">⎙</b>พิมพ์</button></div>
+  ${isIT?`<div class="btnlist"><button id="q_imp">นำเข้าข้อมูลเดิมจากไฟล์ Excel FM-ITM-01-12</button></div><div class="vpnote">ตั้งราคาต่อแผ่น / ขั้นต่ำ / กลุ่ม ของแต่ละเครื่องได้ที่แท็บ “สัญญาเช่า” › แก้ไข</div>`:''}`);
+  const months=()=>mrMonths(MR_END,MR_N);
+  const prev=()=>{const P=$('q_prev');if(!P)return;P.innerHTML=`<div class="fmwrap" style="width:1123px">${mrFormHTML(months())}</div>`;requestAnimationFrame(()=>{const w=P.querySelector('.fmwrap');if(!w)return;const k=P.clientWidth/1123;w.style.transform=`scale(${k})`;w.style.transformOrigin='0 0';P.style.height=Math.ceil(794*k)+'px'})};
+  prev();if(!RP_LOGO&&!DEMO)rpTpl().then(()=>{if($('q_prev')&&RP_LOGO)prev()}).catch(()=>{});
+  $('q_e').onchange=e=>{MR_END=e.target.value;prev()};$('q_n').onchange=e=>{MR_N=+e.target.value;prev()};$('q_x').onclick=closeSheet;
+  $('q_prev').onclick=()=>mrExport(months(),'print');
+  document.querySelectorAll('[data-qx]').forEach(b=>b.onclick=async()=>{const old=b.innerHTML;if(b.dataset.qx!=='print'){b.disabled=true;b.innerHTML='<div class="spin"></div>'}try{await mrExport(months(),b.dataset.qx);if(b.dataset.qx!=='print')toast('สร้างไฟล์แล้ว')}catch(e){toast('สร้างไฟล์ไม่สำเร็จ: '+e.message)}finally{b.disabled=false;b.innerHTML=old}});
+  if($('q_imp'))$('q_imp').onclick=()=>mrImport()}
+async function mrExport(months,k){const name=`FM-ITM-01-12_ค่าเครื่องถ่ายเอกสาร_${months[0]}_${months[months.length-1]}`;
+  if(k==='xlsx'){rpSaveFile(await mrXlsx(months),name+'.xlsx');return}
+  if(k==='print'){const w=window.open('','_blank');if(!w){toast('เบราว์เซอร์บล็อกหน้าต่างใหม่');return}await rpTpl().catch(()=>{});w.document.open();w.document.write(`<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><title>${esc(name)}</title><style>@page{size:A4 landscape;margin:6mm}body{margin:0}</style></head><body>${mrFormHTML(months)}<style>.mrf{width:auto;height:auto;padding:0}.mrf .ft{position:static;margin-top:6px}</style><script>window.onload=()=>setTimeout(()=>window.print(),400)<\/script></body></html>`);w.document.close();return}
+  await rpTpl().catch(()=>{});await loadLib('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js','html2canvas');const box=document.createElement('div');box.style.cssText='position:fixed;left:-20000px;top:0;z-index:-1';box.innerHTML=mrFormHTML(months);document.body.appendChild(box);let c;try{c=await html2canvas(box.querySelector('.mrf'),{scale:2,backgroundColor:'#ffffff',logging:false})}finally{box.remove()}
+  if(k==='png'){rpSaveFile(await new Promise(ok=>c.toBlob(ok,'image/png')),name+'.png');return}
+  await loadLib('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js','jspdf');const pdf=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,297,210);rpSaveFile(pdf.output('blob'),name+'.pdf')}
+/* ---- Excel: เติมลงแบบฟอร์มจริง _template/FM-ITM-01-12.xlsx ---- */
+async function mrXlsx(months){await loadLib('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js','JSZip');const d=await rpDriveId();const it=await g(`/drives/${d}/root:/_template/FM-ITM-01-12.xlsx`);const res=await fetch(it['@microsoft.graph.downloadUrl']);if(!res.ok)throw new Error('โหลดแม่แบบ Excel ไม่สำเร็จ');
+  const z=await JSZip.loadAsync(await res.arrayBuffer());const P='xl/worksheets/sheet1.xml';const NS='http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+  const doc=new DOMParser().parseFromString((await z.file(P).async('string')).replace(/^﻿/,''),'application/xml');const SD=doc.getElementsByTagNameNS(NS,'sheetData')[0];
+  const rowEl={};[...SD.getElementsByTagNameNS(NS,'row')].forEach(r=>rowEl[+r.getAttribute('r')]=r);if(!rowEl[7]||!rowEl[9]||!rowEl[17])throw new Error('แม่แบบ Excel ไม่ตรงกับแบบฟอร์ม FM-ITM-01-12');
+  const CL=n=>{let s='';while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26)}return s};const CN=s=>[...s].reduce((a,ch)=>a*26+ch.charCodeAt(0)-64,0);
+  const sty=(row,col)=>{const r=rowEl[row];if(!r)return null;const c=[...r.getElementsByTagNameNS(NS,'c')].find(x=>x.getAttribute('r')===CL(col)+row);return c?c.getAttribute('s'):null};
+  const NP=18,N=months.length,first=NP-N;const ST={first:{a:[21,22,22],p:32,b:33},mid:{a:[35,36,36],p:44,b:48},sub:{a:[51,52,52],p:64,b:63},tot:{a:[115,116,116],p:110,b:124},h7:{a:[171,173,173],p:156,b:157},h8:{a:[172,174,174],p:16,b:17}};
+  const txt=(c,v)=>{c.setAttribute('t','inlineStr');const is=doc.createElementNS(NS,'is'),t=doc.createElementNS(NS,'t');t.setAttributeNS('http://www.w3.org/XML/1998/namespace','xml:space','preserve');t.textContent=v;is.appendChild(t);c.appendChild(is)};
+  const mk=(tpl,rn,vals,S)=>{const src=rowEl[tpl];const r=doc.createElementNS(NS,'row');[...src.attributes].forEach(a=>{if(a.name!=='r'&&a.name!=='spans')r.setAttributeNS(a.namespaceURI,a.name,a.value)});r.setAttribute('r',rn);r.setAttribute('spans','1:39');
+    for(let col=1;col<=39;col++){const c=doc.createElementNS(NS,'c');c.setAttribute('r',CL(col)+rn);const s=col<=3?S.a[col-1]:(col-4)%2?S.b:S.p;c.setAttribute('s',s);
+      const v=vals[col];if(v!=null&&v!==''){if(typeof v==='number'){const e=doc.createElementNS(NS,'v');e.textContent=String(v);c.appendChild(e)}else txt(c,v)}r.appendChild(c)}return r};
+  const keep=(tpl,rn,set)=>{const r=rowEl[tpl].cloneNode(true);r.setAttribute('r',rn);[...r.getElementsByTagNameNS(NS,'c')].forEach(c=>{const ref=c.getAttribute('r').replace(/\d+$/,'');c.setAttribute('r',ref+rn);if(set&&set[ref]!=null){while(c.firstChild)c.removeChild(c.firstChild);txt(c,set[ref])}});return r};
+  const {G,tot}=mrData(months);const pc=i=>4+(first+i)*2;const out=[];
+  const h7={1:'ลำดับ',2:'สถานที่ตั้ง',3:'เลขเครื่อง'};months.forEach((m,i)=>h7[pc(i)]=mrMl(m));out.push(mk(7,7,h7,ST.h7));
+  const h8={};for(let p=0;p<NP;p++){h8[4+p*2]='จำนวน (แผ่น)';h8[5+p*2]='จำนวน (บาท)'}out.push(mk(8,8,h8,ST.h8));
+  let rn=9;G.forEach((gr,gi)=>{gr.rows.forEach((x,j)=>{const v={1:x.n,2:x.r.place||'',3:x.r.serial||''};x.c.forEach((c,i)=>{if(c){v[pc(i)]=c.pages==null?'':+c.pages;v[pc(i)+1]=c.baht==null?'':+c.baht}else{v[pc(i)]='-';v[pc(i)+1]='-'}});out.push(mk(j?10:9,rn++,v,j?ST.mid:ST.first))});
+    const sv={1:'รวม '+gr.name};gr.sub.forEach((b,i)=>{if(b!=null)sv[pc(i)+1]=b});out.push(mk(11,rn++,sv,ST.sub))});
+  const tv={1:'รวมทั้งหมด'};tot.forEach((b,i)=>{if(b!=null)tv[pc(i)+1]=b});out.push(mk(17,rn++,tv,ST.tot));
+  const delta=rn-18;const [n1,n2]=mrNotes();const maxR=Math.max(...Object.keys(rowEl).map(Number));
+  for(let t=18;t<=maxR;t++)if(rowEl[t])out.push(keep(t,t+delta,t===19?{A:n1}:t===20&&n2?{A:n2}:null));
+  [...SD.getElementsByTagNameNS(NS,'row')].forEach(r=>{if(+r.getAttribute('r')>=7)SD.removeChild(r)});out.forEach(r=>SD.appendChild(r));
+  const MC=doc.getElementsByTagNameNS(NS,'mergeCells')[0];if(MC){[...MC.getElementsByTagNameNS(NS,'mergeCell')].forEach(m=>{const ref=m.getAttribute('ref');const rows=ref.match(/\d+/g).map(Number);if(rows[0]>=9&&rows[0]<=17)MC.removeChild(m);else if(rows[0]>=18)m.setAttribute('ref',ref.replace(/(\D+)(\d+)/g,(a,c,n)=>c+(+n+delta)))});MC.setAttribute('count',MC.getElementsByTagNameNS(NS,'mergeCell').length)}
+  const C=doc.getElementsByTagNameNS(NS,'cols')[0];if(C){while(C.firstChild)C.removeChild(C.firstChild);const col=(a,b,w,h)=>{const e=doc.createElementNS(NS,'col');e.setAttribute('min',a);e.setAttribute('max',b);e.setAttribute('width',w);if(h)e.setAttribute('hidden','1');e.setAttribute('customWidth','1');C.appendChild(e)};
+    col(1,1,9);col(2,2,18);col(3,3,13);if(first>0)col(4,3+first*2,0,1);for(let i=0;i<N;i++){col(pc(i),pc(i),N>6?8:9.5);col(pc(i)+1,pc(i)+1,N>6?9.5:11)}}
+  const dim=doc.getElementsByTagNameNS(NS,'dimension')[0];if(dim)dim.setAttribute('ref','A2:AM'+(maxR+delta));
+  let sp=doc.getElementsByTagNameNS(NS,'sheetPr')[0];if(!sp){sp=doc.createElementNS(NS,'sheetPr');doc.documentElement.insertBefore(sp,doc.documentElement.firstElementChild)}if(!sp.getElementsByTagNameNS(NS,'pageSetUpPr')[0]){const e=doc.createElementNS(NS,'pageSetUpPr');e.setAttribute('fitToPage','1');sp.appendChild(e)}
+  const ps=doc.getElementsByTagNameNS(NS,'pageSetup')[0];if(ps){ps.setAttribute('orientation','landscape');ps.setAttribute('paperSize','9');ps.setAttribute('fitToWidth','1');ps.setAttribute('fitToHeight','0')}
+  const pm=doc.getElementsByTagNameNS(NS,'pageMargins')[0];if(pm){pm.setAttribute('left','0.3');pm.setAttribute('right','0.3');pm.setAttribute('top','0.4');pm.setAttribute('bottom','0.4')}
+  z.file(P,new XMLSerializer().serializeToString(doc));
+  if(z.file('xl/calcChain.xml')){z.remove('xl/calcChain.xml');const ct=await z.file('[Content_Types].xml').async('string');z.file('[Content_Types].xml',ct.replace(/<Override[^>]*calcChain[^>]*\/>/,''));const rl=await z.file('xl/_rels/workbook.xml.rels').async('string');z.file('xl/_rels/workbook.xml.rels',rl.replace(/<Relationship[^>]*calcChain[^>]*\/>/,''))}
+  return await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+/* ---- นำเข้ายอดเดิมจาก Excel FM-ITM-01-12 ---- */
+const MR_MAP={'มค':1,'กพ':2,'มีค':3,'เมย':4,'พค':5,'มิย':6,'กค':7,'สค':8,'กย':9,'ตค':10,'พย':11,'ธค':12};
+function mrYm(s){const t=String(s||'').replace(/[\s.\-\/]/g,'');const m=t.match(/^(มค|กพ|มีค|เมย|พค|มิย|กค|สค|กย|ตค|พย|ธค)\D*(\d{2,4})$/);if(!m)return null;let y=+m[2];if(y<100)y+=2500;if(y>2400)y-=543;return y+'-'+String(MR_MAP[m[1]]).padStart(2,'0')}
+const mrNum=v=>{if(v==null)return null;if(typeof v==='object')v=v.result??(v.richText?v.richText.map(x=>x.text).join(''):v.text);if(typeof v==='number')return v;const s=String(v).replace(/[,\s]/g,'');return /^\d+(\.\d+)?$/.test(s)?+s:null};
+const mrTxt=v=>v==null?'':typeof v==='object'?(v.richText?v.richText.map(x=>x.text).join(''):String(v.result??v.text??'')):String(v);
+function mrImport(){const back=()=>mrOpen();
+  openSheet(`${shh('<button class="x" id="i_b">กลับ</button>','นำเข้าข้อมูลเดิม','')}
+  <div class="sub" style="margin:4px 4px 0">เลือกไฟล์ Excel แบบฟอร์ม FM-ITM-01-12 ที่มียอดรายเดือนเดิม ระบบจะจับคู่เครื่องจากเลขเครื่อง แล้วนำยอดแผ่น/บาทแต่ละเดือนเข้ามาเป็นประวัติ</div>
+  <label class="mtdrop"><input type="file" id="i_f" accept=".xlsx" hidden><b>เลือกไฟล์ Excel</b><span>.xlsx</span></label><div id="i_r"></div>`);
+  $('i_b').onclick=back;
+  $('i_f').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('i_r').innerHTML='<div class="center"><div class="spin"></div></div>';
+    try{await loadLib('https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js','ExcelJS');const wb=new ExcelJS.Workbook();await wb.xlsx.load(await f.arrayBuffer());const ws=wb.worksheets[0];
+      let hr=0,sc=0;ws.eachRow((row,rn)=>{if(hr)return;row.eachCell((c,cn)=>{if(!hr&&/เลขเครื่อง/.test(mrTxt(c.value))){hr=rn;sc=cn}})});if(!hr)throw new Error('ไม่พบหัวตาราง “เลขเครื่อง”');
+      const MC=[];ws.getRow(hr).eachCell((c,cn)=>{const ym=mrYm(mrTxt(c.value));if(ym&&!MC.some(x=>x.ym===ym))MC.push({cn,ym})});if(!MC.length)throw new Error('ไม่พบหัวคอลัมน์เดือน');
+      const found=[],miss=[];for(let rn=hr+1;rn<=ws.rowCount;rn++){const row=ws.getRow(rn);const s=mtNorm(mrTxt(row.getCell(sc).value));if(s.length<6||!/\d{3}/.test(s))continue;
+        let best=null;for(const r of DATA.contracts||[]){const k=mtNorm(r.serial);if(k.length<6)continue;const dd=mtLev(k,s);if(dd<=Math.max(2,Math.floor(k.length/4))&&(!best||dd<best.d))best={d:dd,r}}
+        const U={};MC.forEach(({cn,ym})=>{const p=mrNum(row.getCell(cn).value),b=mrNum(row.getCell(cn+1).value);if(p!=null||b!=null)U[ym]={pages:p,baht:b}});
+        if(best)found.push({r:best.r,s:mrTxt(row.getCell(sc).value),U});else miss.push(mrTxt(row.getCell(sc).value))}
+      if(!found.length)throw new Error('ไม่พบเครื่องที่ตรงกับสัญญาเช่า');const yms=MC.map(x=>x.ym).sort();
+      $('i_r').innerHTML=`<div class="kv">${found.map(x=>`<div><span class="k">${esc(x.r.place||'')}</span><span class="v">${esc(x.s)} → ${Object.keys(x.U).length} เดือน</span></div>`).join('')}</div>
+      <div class="vpnote">ช่วงเดือนในไฟล์: ${mrMl(yms[0])} – ${mrMl(yms[yms.length-1])}${miss.length?` · ไม่พบเครื่อง: ${esc(miss.join(', '))}`:''} · เดือนที่มีอยู่แล้วจะถูกแทนที่</div>
+      <button class="cta" id="i_go" style="display:block;width:100%;margin-top:18px">นำเข้า ${found.length} เครื่อง</button>`;
+      $('i_go').onclick=async()=>{$('i_go').disabled=true;$('i_go').textContent='กำลังบันทึก…';try{for(const x of found){const cur=DATA.contracts.find(y=>y._id===x.r._id);await store.save('contracts',{...cur,usage:{...(cur.usage||{}),...x.U}})}MR_END=yms[yms.length-1];toast('นำเข้าข้อมูลแล้ว');render();mrOpen()}catch(err){$('i_go').disabled=false;$('i_go').textContent='นำเข้า';toast(err.status===403?'ไม่มีสิทธิ์บันทึก':'บันทึกไม่สำเร็จ: '+err.message)}}}
+    catch(err){$('i_r').innerHTML=`<div class="empty">${esc(err.message)}</div>`}}}
 
 /* ===== Start ===== */
 (async()=>{
