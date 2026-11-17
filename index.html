@@ -177,7 +177,7 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 <script>
 if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
 /* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
-const APP_VERSION='2026-11-17.26';
+const APP_VERSION='2026-11-18.27';
 async function checkUpdate(){
   try{
     if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
@@ -381,18 +381,18 @@ const roleName=()=>isIT?'ทีม IT · แก้ไขได้ทุกระ
 let view='home',mode='loading',errMsg='';
 const ST={};const st=k=>ST[k]||(ST[k]={q:'',f:{},sort:MODS[k].sorts[0][0],lim:60,seg:MODS[k].segs?MODS[k].segs[0]:''});
 function setHeader(){
-  const home=view==='home';const mk=view==='contracts'?'copier':view;
+  const home=view==='home';const mk=(view==='contracts'||view==='meters')?'copier':view;
   $('back').classList.toggle('on',!home);
   $('title').style.display=home?'':'none';$('sub').style.display=home?'':'none';
   $('ntitle').textContent=home?'':MODS[mk].title;$('ntitle').classList.toggle('on',!home);
-  $('fab').classList.toggle('on',!home&&mode==='ready'&&canEdit(view));if(!home&&MODS[view].kind==='repair')$('fab').dataset.l='แจ้งซ่อม';else if(!home&&MODS[view].kind==='vpn')$('fab').dataset.l='ขอใช้ VPN';else delete $('fab').dataset.l;
+  $('fab').classList.toggle('on',!home&&mode==='ready'&&canEdit(view));if(!home&&MODS[view].kind==='repair')$('fab').dataset.l='แจ้งซ่อม';else if(!home&&MODS[view].kind==='vpn')$('fab').dataset.l='ขอใช้ VPN';else if(!home&&MODS[view].kind==='meter')$('fab').dataset.l='อ่านมิเตอร์';else delete $('fab').dataset.l;
   $('who').classList.toggle('on',home&&mode==='ready');
   if(home||mode!=='ready'){$('tools').innerHTML='';return}
   if(MODS[view]&&MODS[view].kind==='repair'){$('tools').innerHTML=repairTools();return}
-  if(MODS[view]&&MODS[view].kind==='vpn'){$('tools').innerHTML=vpnTools();return}
+  if(MODS[view]&&MODS[view].kind==='vpn'){$('tools').innerHTML=vpnTools();return}if(MODS[view]&&MODS[view].kind==='meter'){$('tools').innerHTML=meterTools();return}
   if(view==='access'){$('tools').innerHTML=`<h1 style="font-size:30px;margin-top:0">สิทธิ์การเข้าถึง</h1><div class="sub">เพิ่ม/ลบคนในแต่ละกลุ่มสิทธิ์ของ IT Portal</div>`;return}
   const s=st(view);const nf=Object.values(s.f).reduce((a,v)=>a+v.length,0);
-  $('tools').innerHTML=`<h1 style="font-size:30px;margin-top:0">${esc(MODS[mk].title)}</h1>${MODS[view].segs?`<div class="seg">${MODS[view].segs.map(g=>{const n=(DATA[view]||[]).filter(r=>segMatch(MODS[view],r,g)).length;return `<button data-fseg="${esc(g)}" class="${s.seg===g?'on':''}">${esc(g)}${DATA[view]?` <span style="opacity:.55">${n}</span>`:''}</button>`}).join('')}</div>`:''}${(view==='copier'||view==='contracts')?`<div class="seg"><button data-seg="copier" class="${view==='copier'?'on':''}">รหัสผู้ใช้</button><button data-seg="contracts" class="${view==='contracts'?'on':''}">สัญญาเช่า</button></div>`:''}
+  $('tools').innerHTML=`<h1 style="font-size:30px;margin-top:0">${esc(MODS[mk].title)}</h1>${MODS[view].segs?`<div class="seg">${MODS[view].segs.map(g=>{const n=(DATA[view]||[]).filter(r=>segMatch(MODS[view],r,g)).length;return `<button data-fseg="${esc(g)}" class="${s.seg===g?'on':''}">${esc(g)}${DATA[view]?` <span style="opacity:.55">${n}</span>`:''}</button>`}).join('')}</div>`:''}${(view==='copier'||view==='contracts')?`<div class="seg"><button data-seg="copier" class="${view==='copier'?'on':''}">รหัสผู้ใช้</button><button data-seg="contracts" class="${view==='contracts'?'on':''}">สัญญาเช่า</button><button data-seg="meters">ค่ามิเตอร์</button></div>`:''}
   <div class="sbar"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="ค้นหา" value="${esc(s.q)}" autocomplete="off"></label><button class="fbtn" id="fopen"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M7 9h10M9 12.5h6M11 16h2"/></svg>${nf?`<b>${nf}</b>`:''}</button></div>
   <div class="chips">${Object.entries(s.f).flatMap(([k,vs])=>vs.map(v=>{const F=MODS[view].filters.find(x=>x.k===k);return `<button class="chip" data-rmf="${esc(k)}" data-v="${esc(v)}">${esc(F&&F.fmt?F.fmt(v):v||'ไม่ระบุ')} <span>✕</span></button>`})).join('')}</div>`;
   const q=$('q');q.oninput=()=>{s.q=q.value;s.lim=60;renderList()};
@@ -453,6 +453,7 @@ function renderList(){
   if(view==='access'){renderAccess();return}
   if(MODS[view].kind==='repair'){renderRepair();return}
   if(MODS[view].kind==='vpn'){renderVpn();return}
+  if(MODS[view].kind==='meter'){renderMeter();return}
   const key=view,m=MODS[key],s=st(key);const M=$('main');
   if(!DATA[key]){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   const L=filtered(key);
@@ -611,7 +612,7 @@ document.addEventListener('click',async ev=>{
   if(t.closest('#fopen')){filterSheet(view);return}
 });
 $('back').onclick=()=>{history.length>1&&location.hash?history.back():go('home')};
-$('fab').onclick=()=>MODS[view].kind==='repair'?repairNew():MODS[view].kind==='vpn'?vpnNew():MODS[view].kind==='docs'?uploadSheet(view):edit(view,null);
+$('fab').onclick=()=>MODS[view].kind==='repair'?repairNew():MODS[view].kind==='vpn'?vpnNew():MODS[view].kind==='meter'?mtRead():MODS[view].kind==='docs'?uploadSheet(view):edit(view,null);
 $('who').onclick=()=>{openSheet(`${shh('','บัญชี',`<button class="x b" id="w_x">เสร็จ</button>`)}<div class="kv"><div><span class="k">ชื่อ</span><span class="v">${esc(me)}</span></div><div><span class="k">สิทธิ์</span><span class="v">${roleName()}</span></div></div><div class="btnlist"><button class="d" id="w_out">ออกจากระบบ</button></div>`);$('w_x').onclick=closeSheet;$('w_out').onclick=()=>{if(DEMO){location.href=location.pathname}else msal.logoutRedirect({account})}};
 async function go(key,replace){
   if(key==='access'?!isAdmin:(key!=='home'&&!lists[MODS[key].list])){toast('ไม่มีสิทธิ์เข้าถึง');return}
@@ -1125,6 +1126,157 @@ async function vpDocx(r){await loadLib('https://cdn.jsdelivr.net/npm/jszip@3.10.
   let want=null;for(const t of [...doc.getElementsByTagNameNS(W,'t')]){const s=t.textContent;if(s.includes('ลงชื่อผู้ขอใช้งาน'))want=r.agreeBy?`${r.agreeBy} (ยอมรับทางออนไลน์)`:null;else if(s.includes('ผู้ดำเนินการ'))want=r.itBy||null;if(want&&/\.{20,}/.test(s)){t.textContent=s.replace(/\.{20,}/,`  ${want}  `);t.setAttributeNS(XML,'xml:space','preserve');want=null}}
   z.file('word/document.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+new XMLSerializer().serializeToString(doc).replace(/^<\?xml[^>]*\?>\s*/,''));
   rpSaveFile(await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',compression:'DEFLATE'}),`FM-ITM-01-10_${r.no||'VPN'}.docx`)}
+
+/* ===== ค่ามิเตอร์เครื่องถ่ายเอกสาร (Status Page) ===== */
+MODS.meters={kind:'meter',list:'Copier Contracts',hidden:1,title:'ค่ามิเตอร์เครื่อง',icon:['printer','#5f7690'],titleOf:r=>r.serial,fields:[],filters:[],sorts:[['x','']],search:[]};
+const _mtEnsure=ensure;ensure=async k=>{if(k==='meters'){await _mtEnsure('contracts');return DATA.meters=DATA.contracts}return _mtEnsure(k)};
+const MT_LIB={pdf:'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',pdfw:'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js',tess:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js',tw:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js',tc:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1',tl:'https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng@1.0.0/4.0.0_best_int'};
+const mtN=n=>n==null||n===''||isNaN(n)?'–':Number(n).toLocaleString('en-US');
+const mtM=r=>(r.meters||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+const mtLast=r=>{const m=mtM(r);return [m[m.length-1],m[m.length-2]]};
+const mtL=()=>(DATA.contracts||[]).slice().sort((a,b)=>String(a.place||'').localeCompare(String(b.place||''),'th'));
+const mtHasC=x=>x&&x.color!=null&&x.color!=='';
+document.head.insertAdjacentHTML('beforeend',`<style>.mtnum{display:flex;align-items:baseline;gap:8px;margin:4px 0 2px}.mtnum b{font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}.mtnum span{font-size:13px;color:var(--sub)}
+.mtcta{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:0;border-radius:22px;padding:14px 16px;margin:14px 0 4px;font:inherit;color:var(--ink);cursor:pointer}.mtcta>span:nth-child(2){flex:1;display:flex;flex-direction:column}.mtcta b{font-size:16px}.mtcta small{font-size:13px;color:var(--sub);margin-top:2px}
+.mttbl{background:var(--card);border-radius:20px;overflow-x:auto;-webkit-overflow-scrolling:touch}.mttbl table{border-collapse:collapse;width:100%;font-size:13.5px;white-space:nowrap}.mttbl th{font-size:11.5px;color:var(--sub);font-weight:600;text-align:right;padding:10px 10px 6px}.mttbl th:first-child,.mttbl td:first-child{text-align:left}.mttbl td{padding:9px 10px;border-top:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}.mttbl td b{font-weight:800}.mttbl .up{color:#16a34a;font-weight:700}.mttbl button{border:0;background:var(--bg);color:var(--ink);font:inherit;font-size:12.5px;font-weight:700;border-radius:999px;padding:5px 10px;cursor:pointer;margin-left:4px}.mttbl button.d{color:#ef4444}
+.mtdrop{display:flex;flex-direction:column;align-items:center;gap:4px;border:2px dashed var(--line);border-radius:22px;padding:22px;margin-top:14px;cursor:pointer;background:var(--card)}.mtdrop b{font-size:16px}.mtdrop span{font-size:13px;color:var(--sub)}
+.mtprog{margin-top:14px;font-size:14px;font-weight:600}.mtbar{height:6px;border-radius:9px;background:var(--line);margin-top:8px;overflow:hidden}.mtbar i{display:block;height:100%;background:var(--ink);width:0;transition:width .2s}
+.mtpg{background:var(--card);border-radius:22px;padding:12px;margin-top:14px}.mtpg.off{opacity:.45}.mtpg .hd{display:flex;gap:12px;align-items:flex-start}.mtpg .th{width:96px;flex:none;border-radius:10px;border:1px solid var(--line);cursor:zoom-in;background:#fff}.mtpg .hd>div{flex:1;min-width:0}.mtpg .pn{font-size:12.5px;color:var(--sub)}.mtpg select,.mtpg input[type=date]{width:100%;font:inherit;font-size:15px;font-weight:700;border:0;background:var(--bg);border-radius:12px;padding:9px 10px;margin-top:6px;color:var(--ink);box-sizing:border-box}
+.mtgr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.mtgr label{display:flex;flex-direction:column;font-size:12px;color:var(--sub);font-weight:600}.mtgr input{font:inherit;font-size:16px;font-weight:700;border:0;background:var(--bg);border-radius:12px;padding:9px 10px;margin-top:3px;color:var(--ink);width:100%;box-sizing:border-box;font-variant-numeric:tabular-nums}.mtgr label.tot input{background:#e8f1ff}
+.mtok{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;margin-top:10px}.mtok input{width:20px;height:20px;accent-color:var(--ink)}.mtw{font-size:12.5px;margin-top:8px;border-radius:12px;padding:7px 10px;background:#fff7d6;color:#7a5200}.mtw.g{background:#e7f8ec;color:#166534}
+.mtzoom{margin-top:10px;background:#fff;border-radius:16px;overflow:auto;max-height:72vh;-webkit-overflow-scrolling:touch}.mtzoom img{display:block;width:100%;height:auto}.mtzb{display:flex;gap:8px;justify-content:center;margin-top:10px}.mtzb button{border:0;background:var(--card);font:inherit;font-size:20px;font-weight:800;width:54px;height:40px;border-radius:999px;color:var(--ink);cursor:pointer}</style>`);
+function meterTools(){return `<h1 style="font-size:30px;margin-top:0">${esc(MODS.copier.title)}</h1><div class="seg"><button data-seg="copier">รหัสผู้ใช้</button><button data-seg="contracts">สัญญาเช่า</button><button data-seg="meters" class="on">ค่ามิเตอร์</button></div>`}
+function renderMeter(){const M=$('main');if(!DATA.contracts){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
+  const L=mtL(),it=isIT,rd=L.map(mtLast);const lastD=rd.map(x=>x[0]&&x[0].date).filter(Boolean).sort().pop();
+  const use=rd.reduce((a,[c,p])=>a+(c&&p?Math.max(0,(+c.total||0)-(+p.total||0)):0),0);
+  const card=(r,[c,p])=>{const d=c&&p?(+c.total||0)-(+p.total||0):null;return `<div class="it rpit" role="button" data-mt="${esc(r._id)}">${ico('printer','#5f7690')}<div class="bdw"><div class="bd"><div class="t"><b>${esc(r.place||'-')}</b>${r.model?' · '+esc(r.model):''}</div><div class="m">Serial <span class="mono">${esc(r.serial||'')}</span></div>${c?`<div class="mtnum"><b>${mtN(c.total)}</b><span>รวม · ${thDate(c.date)}</span></div><div class="m">${mtHasC(c)?`สี ${mtN(c.color)} · ขาวดำ ${mtN(c.bw)} · `:''}Copy ${mtN(c.copy)} · Print ${mtN(c.print)}${d!=null?` · <b style="color:#16a34a">+${mtN(d)}</b>`:''}</div>`:'<div class="m">ยังไม่มีค่ามิเตอร์</div>'}</div><span class="r" style="padding-top:3px">${CHEV}</span></div></div>`};
+  M.innerHTML=`<div class="sum"><div><b class="num">${L.length}</b>เครื่อง</div><div><b class="num">${lastD?thDate(lastD):'–'}</b>อ่านมิเตอร์ล่าสุด</div></div>
+  ${it?`<button class="mtcta" id="mt_read">${ico('doc','#5f7690')}<span><b>อ่านค่ามิเตอร์จากไฟล์</b><small>แนบ Status Page (PDF / รูปถ่าย) ระบบอ่าน Serial และ Counter ให้</small></span>${CHEV}</button>`:''}
+  <div class="toolbar"><span class="cnt">${L.length} เครื่อง${use?` · ใช้ไป ${mtN(use)} แผ่น (เทียบครั้งก่อน)`:''}</span><span class="tl"><button class="sortsel" id="mt_xls">Excel</button></span></div>
+  <div class="list">${L.map((r,i)=>card(r,rd[i])).join('')||'<div class="empty">ยังไม่มีเครื่องในสัญญาเช่า</div>'}</div>`;
+  if($('mt_read'))$('mt_read').onclick=()=>mtRead();$('mt_xls').onclick=()=>mtXlsx().catch(e=>toast('สร้างไฟล์ไม่สำเร็จ: '+e.message));
+  M.querySelectorAll('[data-mt]').forEach(e=>e.onclick=()=>mtDetail(e.dataset.mt))}
+function mtDetail(id){const r=(DATA.contracts||[]).find(x=>x._id===id);if(!r)return;const it=isIT;const A=mtM(r);const m=A.slice().reverse();const hc=m.some(mtHasC);
+  const row=(x,i)=>{const p=m[i+1];const d=p?(+x.total||0)-(+p.total||0):null;const k=A.indexOf(x);return `<tr><td>${thDate(x.date)}</td><td><b>${mtN(x.total)}</b></td><td class="up">${d!=null?'+'+mtN(d):''}</td><td>${mtN(x.copy)}</td><td>${mtN(x.print)}</td><td>${mtN(x.fax)}</td>${hc?`<td>${mtN(x.color)}</td><td>${mtN(x.bw)}</td>`:''}<td>${x.file?`<button data-mf="${k}">ดูไฟล์</button>`:''}${it?`<button class="d" data-md="${k}">ลบ</button>`:''}</td></tr>`};
+  const c=m[0];const kv=(k,v)=>v?`<div><span class="k">${k}</span><span class="v">${v}</span></div>`:'';
+  openSheet(`${shh('',esc(r.place||'เครื่อง'),'<button class="x b" id="m_x">เสร็จ</button>')}
+  <div class="rphead">${ico('printer','#5f7690')}<div><h2 style="margin:0">${esc(r.model||r.place||'')}</h2><div class="mono" style="font-size:14px;color:var(--sub)">Serial ${esc(r.serial||'')}</div></div></div>
+  ${c?`<div class="kv">${kv('อ่านล่าสุด',thDate(c.date))}${kv('รวมทั้งหมด','<b>'+mtN(c.total)+'</b> แผ่น')}${mtHasC(c)?kv('สี / ขาวดำ',mtN(c.color)+' / '+mtN(c.bw)):''}${kv('Copy / Printer / FAX',mtN(c.copy)+' / '+mtN(c.print)+' / '+mtN(c.fax))}${m[1]?kv('ใช้ไปตั้งแต่ครั้งก่อน','+'+mtN((+c.total||0)-(+m[1].total||0))+' แผ่น ('+thDate(m[1].date)+')'):''}${kv('บันทึกโดย',esc(c.by||''))}</div>`:''}
+  <div class="fgroup"><h3>ประวัติค่ามิเตอร์</h3></div>
+  ${m.length?`<div class="mttbl"><table><thead><tr><th>วันที่</th><th>รวม</th><th>เพิ่มขึ้น</th><th>Copy</th><th>Printer</th><th>FAX</th>${hc?'<th>สี</th><th>ขาวดำ</th>':''}<th></th></tr></thead><tbody>${m.map(row).join('')}</tbody></table></div>`:'<div class="empty">ยังไม่มีค่ามิเตอร์ · กด “อ่านค่าจากไฟล์” เพื่อเริ่ม</div>'}
+  ${it?`<div class="btnlist"><button id="m_read">อ่านค่าจากไฟล์ Status Page</button><button id="m_add">กรอกค่ามิเตอร์เอง</button></div>`:''}`);
+  $('m_x').onclick=closeSheet;
+  if($('m_read'))$('m_read').onclick=()=>mtRead(r._id);if($('m_add'))$('m_add').onclick=()=>mtAdd(r._id);
+  document.querySelectorAll('[data-mf]').forEach(b=>b.onclick=()=>mtView(A[+b.dataset.mf].file,()=>mtDetail(id)));
+  document.querySelectorAll('[data-md]').forEach(b=>b.onclick=async()=>{const x=A[+b.dataset.md];if(!confirm('ลบค่ามิเตอร์วันที่ '+thDate(x.date)+' ?'))return;try{await store.save('contracts',{...r,meters:(r.meters||[]).filter(y=>y!==x)});toast('ลบแล้ว');render();mtDetail(id)}catch(e){toast(e.status===403?'ไม่มีสิทธิ์แก้ไข':'ลบไม่สำเร็จ: '+e.message)}})}
+/* ---- ไฟล์: แสดงผล / อัปโหลด ---- */
+const mtIsPdf=f=>/\.pdf$/i.test(f.name||'')||f.type==='application/pdf';
+async function mtPdf(){await loadLib(MT_LIB.pdf,'pdfjsLib');pdfjsLib.GlobalWorkerOptions.workerSrc=MT_LIB.pdfw;return pdfjsLib}
+async function mtCanvases(src,isPdf,only,W=2400){const out=[];
+  if(isPdf){const P=await mtPdf();const buf=src instanceof Blob?await src.arrayBuffer():await (await fetch(src)).arrayBuffer();const doc=await P.getDocument({data:new Uint8Array(buf)}).promise;
+    for(let i=1;i<=doc.numPages;i++){if(only&&i!==only)continue;const pg=await doc.getPage(i);const v0=pg.getViewport({scale:1});const v=pg.getViewport({scale:W/v0.width});const c=document.createElement('canvas');c.width=Math.round(v.width);c.height=Math.round(v.height);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);await pg.render({canvasContext:x,viewport:v}).promise;out.push({page:i,c})}}
+  else{const bl=src instanceof Blob?src:await (await fetch(src)).blob();const img=await new Promise((ok,no)=>{const im=new Image();im.onload=()=>ok(im);im.onerror=()=>no(new Error('เปิดรูปไม่ได้'));im.src=URL.createObjectURL(bl)});const k=Math.min(3,Math.max(1,W/img.naturalWidth));const c=document.createElement('canvas');c.width=Math.round(img.naturalWidth*k);c.height=Math.round(img.naturalHeight*k);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);out.push({page:1,c})}
+  return out}
+async function mtUrl(f){if(f.data)return f.data;const d=await rpDriveId();return (await g(`/drives/${d}/items/${f.id}`))['@microsoft.graph.downloadUrl']}
+async function mtUp(file,date){if(DEMO){const data=await new Promise(ok=>{const fr=new FileReader();fr.onload=()=>ok(fr.result);fr.readAsDataURL(file)});return {id:'demo'+Date.now(),name:file.name,data}}
+  const d=await rpDriveId();const nm=`${date}_${Date.now().toString(36)}_${file.name.replace(/[\\/:*?"<>|#%]/g,'_')}`;const path=['Copier Meters',date.slice(0,7),nm].map(encodeURIComponent).join('/');let it;
+  if(file.size<=4*1024*1024){const t=await token();const r=await fetch(`https://graph.microsoft.com/v1.0/drives/${d}/root:/${path}:/content`,{method:'PUT',headers:{Authorization:'Bearer '+t},body:file});if(!r.ok){const e=new Error('อัปโหลดไฟล์ไม่สำเร็จ ('+r.status+')');e.status=r.status;throw e}it=await r.json()}
+  else{const ses=await g(`/drives/${d}/root:/${path}:/createUploadSession`,{method:'POST',json:{item:{'@microsoft.graph.conflictBehavior':'rename'}}});const CH=327680*10;
+    for(let o=0;o<file.size;o+=CH){const end=Math.min(o+CH,file.size);const r=await fetch(ses.uploadUrl,{method:'PUT',headers:{'Content-Range':`bytes ${o}-${end-1}/${file.size}`},body:file.slice(o,end)});if(!r.ok&&r.status!==202)throw new Error('อัปโหลดไฟล์ไม่สำเร็จ ('+r.status+')');if(end===file.size)it=await r.json()}}
+  return {id:it.id,name:file.name}}
+function mtZoom(src,title,back,openUrl){let z=100;
+  openSheet(`${shh(`<button class="x" id="z_b">${back?'กลับ':'ปิด'}</button>`,esc(title||'ไฟล์'),openUrl?'<button class="x b" id="z_o">เปิดไฟล์</button>':'')}<div class="mtzoom" id="z_c"><img id="z_i" src="${src}" alt=""></div><div class="mtzb"><button id="z_m">−</button><button id="z_f" style="font-size:14px;width:auto;padding:0 16px">พอดีจอ</button><button id="z_p">+</button></div><div class="vpnote" style="text-align:center">ใช้ปุ่ม + / − หรือถ่างนิ้วเพื่อซูมอ่านค่า Counter</div>`);
+  const set=v=>{z=Math.max(100,Math.min(400,v));$('z_i').style.width=z+'%'};$('z_m').onclick=()=>set(z-50);$('z_p').onclick=()=>set(z+50);$('z_f').onclick=()=>set(100);
+  $('z_b').onclick=()=>back?back():closeSheet();if(openUrl)$('z_o').onclick=()=>window.open(openUrl,'_blank')}
+async function mtView(f,back){openSheet(`${shh('<button class="x" id="z_b">กลับ</button>',esc(f.name||'ไฟล์'),'')}<div class="center"><div class="spin"></div></div>`);$('z_b').onclick=back;
+  try{const u=await mtUrl(f);const [p]=await mtCanvases(u,mtIsPdf(f),f.page||1,2000);mtZoom(p.c.toDataURL('image/jpeg',.9),(f.name||'ไฟล์')+(f.page?` · หน้า ${f.page}`:''),back,u)}
+  catch(e){openSheet(`${shh('<button class="x" id="z_b">กลับ</button>','ไฟล์','')}<div class="empty">เปิดไฟล์ไม่สำเร็จ: ${esc(e.message)}</div>`);$('z_b').onclick=back}}
+/* ---- อ่านค่าจาก Status Page (OCR) ---- */
+const mtLev=(a,b)=>{const m=a.length,n=b.length;let p=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){const q=[i];for(let j=1;j<=n;j++)q[j]=Math.min(p[j]+1,q[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=q}return p[n]};
+const mtNorm=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+function mtParse(t){const L=t.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);const o={};
+  const toks=[...new Set((t.toUpperCase().match(/[A-Z0-9]{8,12}/g)||[]).filter(x=>/\d{3}/.test(x)&&/[A-Z]/.test(x)&&!/BASE|^0X/.test(x)))];let best=null;
+  for(const r of DATA.contracts||[]){const s=mtNorm(r.serial);if(s.length<6)continue;for(const k of toks){const d=mtLev(s,k);if(d<=Math.max(2,Math.floor(s.length/4))&&(!best||d<best.d))best={d,id:r._id}}}if(best)o.cid=best.id;
+  let m;const D=[];const pd=(y,mo,d)=>{mo=+mo;d=+d;if(mo>=1&&mo<=12&&d>=1&&d<=31)D.push(`${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`)};for(const x of t.matchAll(/(20\d\d)[\/.-](\d{1,2})[\/.-](\d{1,2})/g))pd(x[1],x[2],x[3]);for(const x of t.matchAll(/(\d{1,2})[\/.-](\d{1,2})[\/.-](20\d\d)/g))pd(x[3],x[2],x[1]);const tm=new Date(Date.now()+864e5).toISOString().slice(0,10);o.date=D.filter(x=>x<=tm).sort().pop();
+  if(m=t.match(/(ECOSYS|TASKalfa|FS-?)\s*([A-Z0-9-]{3,12})/i))o.model=(/fs/i.test(m[1])?'FS-'+m[2].replace(/^-/,''):m[1].replace(/ecosys/i,'ECOSYS').replace(/taskalfa/i,'TASKalfa')+' '+m[2]);
+  let i0=L.findIndex(s=>/count/i.test(s));if(i0<0)i0=0;let i1=L.findIndex((s,i)=>i>i0&&/paper\s*size|scanned|toner/i.test(s));if(i1<0)i1=Math.min(L.length,i0+12);
+  const num=s=>s==='-'||s==='—'?0:+String(s).replace(/[^\d]/g,'');const N='(-|—|\\d[\\d,.]*)';
+  const grab=(re)=>{for(let i=i0;i<i1;i++){const x=L[i].match(new RegExp(re.source+`\\s*:?\\s+${N}(?:\\s+${N}\\s+${N})?\\s*$`,'i'));if(x)return x.slice(1).filter(v=>v!=null).map(num)}return null};
+  const cp=grab(/\b(?:Copy|C[o0]py)/),pr=grab(/\bPrinter/),fx=grab(/\bF[AÀ][XY]/),tt=grab(/\bTotal/);
+  const pick=(a,k)=>a?(a.length===3?a[k]:a[0]):undefined;
+  if(tt&&tt.length===3){o.color=tt[0];o.bw=tt[1]}
+  o.copy=pick(cp,2);o.print=pick(pr,2);o.fax=pick(fx,2);o.total=pick(tt,2);
+  if(o.total!=null&&o.copy==null&&o.print!=null)o.copy=o.total-o.print-(o.fax||0);
+  if(o.total!=null&&o.print==null&&o.copy!=null)o.print=o.total-o.copy-(o.fax||0);
+  if(o.total==null&&o.copy!=null&&o.print!=null)o.total=o.copy+o.print+(o.fax||0);
+  if(o.fax==null&&o.total!=null&&o.copy!=null&&o.print!=null&&o.total>=o.copy+o.print)o.fax=o.total-o.copy-o.print;
+  return o}
+function mtChk(o){const n=v=>v===''||v==null?null:+v;const[c,p,f,t,co,bw]=[o.copy,o.print,o.fax,o.total,o.color,o.bw].map(n);const w=[];
+  if(!o.cid)w.push('เลือกเครื่องให้ถูกต้อง');if(!o.date)w.push('ระบุวันที่');if(t==null)w.push('ไม่พบค่ารวม (Total)');
+  else{if(c!=null&&p!=null&&c+p+(f||0)!==t)w.push(`Copy+Printer+FAX = ${mtN(c+p+(f||0))} ไม่ตรงกับรวม`);if(co!=null&&bw!=null&&co+bw!==t)w.push('สี+ขาวดำ ไม่ตรงกับรวม');
+    const r=(DATA.contracts||[]).find(x=>x._id===o.cid);const prev=r&&mtM(r).filter(x=>x.date<o.date).pop();if(prev&&t<(+prev.total||0))w.push(`น้อยกว่าครั้งก่อน (${mtN(prev.total)})`)}
+  return w}
+async function mtOcrWorker(){await loadLib(MT_LIB.tess,'Tesseract');const w=await Tesseract.createWorker('eng',1,{workerPath:MT_LIB.tw,corePath:MT_LIB.tc,langPath:MT_LIB.tl});await w.setParameters({tessedit_pageseg_mode:'4'});return w}
+function mtRead(cid){let P=[],files=[];
+  openSheet(`${shh('<button class="x" id="r_x">ยกเลิก</button>','อ่านค่ามิเตอร์','<button class="x b" id="r_s" disabled>บันทึก</button>')}
+  <div class="sub" style="margin:4px 4px 0">แนบ Status Page ของเครื่องถ่ายเอกสาร / ปริ้นเตอร์ (PDF หลายหน้า หรือรูปถ่าย) ระบบจะอ่าน Serial วันที่ และ Counter ให้ แล้วตรวจตัวเลขก่อนบันทึก · ไฟล์จะแนบไว้กับค่ามิเตอร์เพื่อเปิดดูภายหลัง</div>
+  <label class="mtdrop" id="r_d"><input type="file" id="r_f" accept="application/pdf,image/*" multiple hidden><b>เลือกไฟล์ / ถ่ายรูป</b><span>PDF, JPG, PNG · เลือกได้หลายไฟล์</span></label>
+  <div id="r_p"></div><div id="r_l"></div>
+  <button class="cta" id="r_s2" style="display:none;width:100%;margin-top:22px">บันทึกค่ามิเตอร์</button>`);
+  $('r_x').onclick=()=>cid?mtDetail(cid):closeSheet();
+  const prog=(msg,f)=>{$('r_p').innerHTML=msg?`<div class="mtprog">${msg}<div class="mtbar"><i style="width:${Math.round((f||0)*100)}%"></i></div></div>`:''};
+  $('r_f').onchange=async e=>{files=[...e.target.files];if(!files.length)return;$('r_d').style.display='none';P=[];
+    try{prog('กำลังเปิดไฟล์…',0);for(let fi=0;fi<files.length;fi++){const f=files[fi];const cs=await mtCanvases(f,mtIsPdf(f));cs.forEach(x=>P.push({fi,page:x.page,c:x.c,multi:cs.length>1}))}
+      prog('กำลังโหลดตัวอ่านข้อความ (ครั้งแรกอาจใช้เวลาสักครู่)…',.03);const w=await mtOcrWorker();
+      for(let i=0;i<P.length;i++){prog(`กำลังอ่านค่า หน้า ${i+1} / ${P.length}…`,(i+.2)/P.length);let o={};try{const{data}=await w.recognize(P[i].c);o=mtParse(data.text);P[i].txt=data.text}catch(err){o={}}
+        if(cid&&P.length===1&&!o.cid)o.cid=cid;if(!o.date)o.date=today();P[i].o=o;P[i].on=true}
+      await w.terminate();prog('');draw()}
+    catch(err){prog('');$('r_d').style.display='';toast('อ่านไฟล์ไม่สำเร็จ: '+err.message)}};
+  const opts=sel=>`<option value="">— เลือกเครื่อง —</option>${mtL().map(r=>`<option value="${esc(r._id)}" ${r._id===sel?'selected':''}>${esc(r.place||'')} · ${esc(r.serial||'')}</option>`).join('')}`;
+  const fld=(i,k,l,cls='')=>`<label class="${cls}">${l}<input inputmode="numeric" data-i="${i}" data-k="${k}" value="${P[i].o[k]??''}"></label>`;
+  const warn=i=>{const w=mtChk(P[i].o);return w.length?`<div class="mtw">⚠ ${w.map(esc).join(' · ')}</div>`:'<div class="mtw g">✓ ตัวเลขสอดคล้องกัน</div>'};
+  function draw(){$('r_l').innerHTML=P.map((p,i)=>{const o=p.o;const r=(DATA.contracts||[]).find(x=>x._id===o.cid);const col=o.color!=null||(r&&mtM(r).some(mtHasC));return `<div class="mtpg ${p.on?'':'off'}" id="r_pg${i}"><div class="hd"><img class="th" data-z="${i}" src="${p.c.toDataURL('image/jpeg',.5)}" alt=""><div><div class="pn">${esc(files[p.fi].name)}${p.multi?` · หน้า ${p.page}`:''} · แตะรูปเพื่อขยาย</div><select data-i="${i}" data-k="cid">${opts(o.cid)}</select><input type="date" data-i="${i}" data-k="date" value="${esc(o.date||'')}"></div></div>
+    <div class="mtgr">${fld(i,'copy','Copy')}${fld(i,'print','Printer')}${fld(i,'fax','FAX')}${fld(i,'total','รวม (Total)','tot')}${col?fld(i,'color','สี (Color)')+fld(i,'bw','ขาวดำ (B&W)'):''}</div>
+    <div id="r_w${i}">${warn(i)}</div><label class="mtok"><input type="checkbox" data-on="${i}" ${p.on?'checked':''}>บันทึกหน้านี้</label></div>`}).join('');
+    $('r_s').disabled=false;$('r_s2').style.display='block';
+    $('r_l').querySelectorAll('[data-k]').forEach(el=>{el.oninput=el.onchange=()=>{const i=+el.dataset.i,k=el.dataset.k;let v=el.value.trim();if(!['cid','date'].includes(k))v=v===''?'':+v.replace(/[^\d]/g,'');P[i].o[k]=v;$('r_w'+i).innerHTML=warn(i);if(k==='cid'&&el.tagName==='SELECT')draw()}});
+    $('r_l').querySelectorAll('[data-on]').forEach(el=>el.onchange=()=>{const i=+el.dataset.on;P[i].on=el.checked;$('r_pg'+i).classList.toggle('off',!el.checked)});
+    $('r_l').querySelectorAll('[data-z]').forEach(el=>el.onclick=()=>{const keep=$('sheet').innerHTML;const y=$('sheet').scrollTop;mtZoom(P[+el.dataset.z].c.toDataURL('image/jpeg',.9),'Status Page',()=>{$('sheet').innerHTML=keep;draw();$('sheet').scrollTop=y;bind()})});}
+  async function save(){const S=P.filter(p=>p.on);if(!S.length){toast('ไม่ได้เลือกหน้าที่จะบันทึก');return}
+    const bad=S.find(p=>!p.o.cid||!p.o.date||p.o.total===''||p.o.total==null);if(bad){toast('กรอกเครื่อง วันที่ และค่ารวมให้ครบ');$('r_pg'+P.indexOf(bad)).scrollIntoView({behavior:'smooth',block:'center'});return}
+    const ids=S.map(p=>p.o.cid);if(new Set(ids.map((x,i)=>x+S[i].o.date)).size!==ids.length){toast('มีเครื่องเดียวกันวันเดียวกันซ้ำ');return}
+    $('r_s').disabled=true;$('r_s2').disabled=true;
+    try{const up={};for(const p of S){if(!up[p.fi]){prog('กำลังแนบไฟล์…',.5);up[p.fi]=await mtUp(files[p.fi],p.o.date)}}
+      let n=0;for(const p of S){prog(`กำลังบันทึก ${++n} / ${S.length}…`,n/S.length);const o=p.o;const r=DATA.contracts.find(x=>x._id===o.cid);const v=k=>o[k]===''||o[k]==null?'':+o[k];
+        const x={date:o.date,copy:v('copy'),print:v('print'),fax:v('fax'),total:v('total'),file:{...up[p.fi],page:p.page},by:me,at:nowIso()};if(o.color!==''&&o.color!=null){x.color=v('color');x.bw=v('bw')}if(DEMO)x.file.data=up[p.fi].data;
+        await store.save('contracts',{...r,model:r.model||o.model||'',meters:[...(r.meters||[]).filter(y=>y.date!==o.date),x]})}
+      prog('');toast(`บันทึกค่ามิเตอร์ ${S.length} เครื่องแล้ว`);render();S.length===1?mtDetail(S[0].o.cid):closeSheet()}
+    catch(e){prog('');$('r_s').disabled=$('r_s2').disabled=false;toast(e.status===403?'ไม่มีสิทธิ์บันทึก':'บันทึกไม่สำเร็จ: '+e.message)}}
+  function bind(){$('r_x').onclick=()=>cid?mtDetail(cid):closeSheet();$('r_s').onclick=save;$('r_s2').onclick=save}
+  bind()}
+function mtAdd(cid){const r=(DATA.contracts||[]).find(x=>x._id===cid);if(!r)return;const c=mtLast(r)[0];const col=mtHasC(c);
+  const f=(k,l,cls='')=>`<label class="${cls}">${l}<input inputmode="numeric" id="a_${k}" placeholder="0"></label>`;
+  openSheet(`${shh('<button class="x" id="a_x">ยกเลิก</button>','กรอกค่ามิเตอร์','<button class="x b" id="a_s">บันทึก</button>')}
+  <div class="sub" style="margin:4px 4px 0">${esc(r.place||'')} · Serial ${esc(r.serial||'')}</div>
+  <div class="mtpg"><input type="date" id="a_date" value="${today()}" style="width:100%;font:inherit;font-size:16px;font-weight:700;border:0;background:var(--bg);border-radius:12px;padding:10px;box-sizing:border-box"><div class="mtgr">${f('copy','Copy')}${f('print','Printer')}${f('fax','FAX')}${f('total','รวม (Total)','tot')}${col?f('color','สี (Color)')+f('bw','ขาวดำ (B&W)'):''}</div>
+  <label class="mtdrop" style="padding:14px"><input type="file" id="a_f" accept="application/pdf,image/*" hidden><b id="a_fn">แนบไฟล์ Status Page (ไม่บังคับ)</b><span>PDF หรือรูปถ่าย</span></label></div>`);
+  $('a_x').onclick=()=>mtDetail(cid);$('a_f').onchange=e=>{$('a_fn').textContent=e.target.files[0]?e.target.files[0].name:'แนบไฟล์ Status Page (ไม่บังคับ)'};
+  $('a_s').onclick=async()=>{const v=k=>$('a_'+k)?($('a_'+k).value.replace(/[^\d]/g,'')):'';const n=k=>v(k)===''?'':+v(k);const date=$('a_date').value;let t=n('total');
+    if(t===''&&n('copy')!==''&&n('print')!=='')t=n('copy')+n('print')+(+n('fax')||0);if(!date||t===''){toast('ระบุวันที่และค่ารวม');return}
+    $('a_s').disabled=true;try{const fl=$('a_f').files[0];const x={date,copy:n('copy'),print:n('print'),fax:n('fax'),total:t,by:me,at:nowIso()};if(col){x.color=n('color');x.bw=n('bw')}
+      if(fl)x.file={...(await mtUp(fl,date)),page:1};const cur=DATA.contracts.find(y=>y._id===cid);
+      await store.save('contracts',{...cur,meters:[...(cur.meters||[]).filter(y=>y.date!==date),x]});toast('บันทึกค่ามิเตอร์แล้ว');render();mtDetail(cid)}
+    catch(e){$('a_s').disabled=false;toast(e.status===403?'ไม่มีสิทธิ์บันทึก':'บันทึกไม่สำเร็จ: '+e.message)}}}
+async function mtXlsx(){await loadLib('https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js','ExcelJS');const wb=new ExcelJS.Workbook();
+  const ws=wb.addWorksheet('ค่ามิเตอร์',{views:[{state:'frozen',ySplit:2}],pageSetup:{paperSize:9,orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0}});
+  const H=['ที่ตั้ง','รุ่น','Serial','วันที่อ่าน','Copy','Printer','FAX','สี','ขาวดำ','รวม','ใช้ไปจากครั้งก่อน','บันทึกโดย'];
+  ws.mergeCells(1,1,1,H.length);ws.getCell(1,1).value=`รายงานค่ามิเตอร์เครื่องถ่ายเอกสาร & ปริ้นเตอร์ · ณ ${thDate(today())}`;ws.getCell(1,1).font={bold:true,size:14};ws.getRow(1).height=24;
+  ws.addRow(H);const hr=ws.getRow(2);hr.eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1D1D1F'}};c.alignment={horizontal:'center',vertical:'middle',wrapText:true}});hr.height=30;
+  for(const r of mtL()){const A=mtM(r);if(!A.length){ws.addRow([r.place,r.model||'',r.serial,'ยังไม่มีค่า']);continue}A.forEach((x,i)=>{const p=A[i-1];const n=v=>v===''||v==null?null:+v;ws.addRow([r.place,r.model||'',r.serial,x.date?new Date(x.date+'T00:00:00'):'',n(x.copy),n(x.print),n(x.fax),n(x.color),n(x.bw),n(x.total),p?(+x.total||0)-(+p.total||0):null,x.by||''])})}
+  [22,18,15,13,12,12,9,12,12,13,15,18].forEach((w,i)=>ws.getColumn(i+1).width=w);ws.getColumn(4).numFmt='dd/mm/yyyy';[5,6,7,8,9,10,11].forEach(i=>ws.getColumn(i).numFmt='#,##0');
+  ws.eachRow((row,i)=>{if(i<2)return;row.eachCell({includeEmpty:true},c=>{c.border={top:{style:'thin',color:{argb:'FFD2D2D7'}},bottom:{style:'thin',color:{argb:'FFD2D2D7'}},left:{style:'thin',color:{argb:'FFD2D2D7'}},right:{style:'thin',color:{argb:'FFD2D2D7'}}}});if(i>2){row.getCell(10).font={bold:true};row.getCell(11).font={color:{argb:'FF16A34A'},bold:true}}});
+  ws.autoFilter={from:'A2',to:{row:2,column:H.length}};
+  rpSaveFile(new Blob([await wb.xlsx.writeBuffer()],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),`ค่ามิเตอร์เครื่องถ่ายเอกสาร_${today()}.xlsx`)}
 
 /* ===== Start ===== */
 (async()=>{
