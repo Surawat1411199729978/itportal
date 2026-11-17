@@ -177,7 +177,7 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 <script>
 if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
 /* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
-const APP_VERSION='2026-11-17.25';
+const APP_VERSION='2026-11-17.26';
 async function checkUpdate(){
   try{
     if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
@@ -945,7 +945,7 @@ document.addEventListener('input',ev=>{if(ev.target.id==='rp_q'){RPQ=ev.target.v
 
 /* ===== ขอใช้งาน VPN (FM-ITM-01-10) ===== */
 MODS.vpn={kind:'vpn',list:'VPN Requests',pub:1,title:'ขอใช้งาน VPN',icon:['shield','#5b6bbf'],desc:'ขอสิทธิ์ VPN · FM-ITM-01-10',titleOf:r=>r.no||'VPN',fields:[],filters:[],sorts:[['x','']],search:[]};
-const VPS={new:['รอฝ่าย IT','#0a84ff'],active:['เปิดสิทธิ์แล้ว','#16a34a'],rejected:['ไม่อนุมัติ','#ef4444'],closed:['ปิดสิทธิ์แล้ว','#6b7280'],exp:['หมดอายุ · รอปิดสิทธิ์','#f59e0b']};
+const VPS={new:['รอฝ่าย IT','#0a84ff'],ret:['ส่งกลับแก้ไข','#ff6a00'],active:['เปิดสิทธิ์แล้ว','#16a34a'],rejected:['ไม่อนุมัติ','#ef4444'],closed:['ปิดสิทธิ์แล้ว','#6b7280'],exp:['หมดอายุ · รอปิดสิทธิ์','#f59e0b']};
 const VP_UT=[['emp','พนักงาน'],['con','ผู้รับเหมา'],['ven','Vendor ภายนอก']];
 const VP_SYS=['Internet','API-Commerce','CRM','WINSpeed'];
 const VP_CHK=['บันทึก Log : Username, วันเวลา Login/Logout, ระยะเวลาเชื่อมต่อ, IP ต้นทางผู้ใช้ และ IP ที่ระบบแจกให้','ตั้งเวลาเครื่องตรงเวลามาตรฐานผ่าน NTP · เก็บ Log ไม่น้อยกว่า 90 วัน (ขยายได้ถึง 2 ปี หากเจ้าพนักงานสั่ง)','เก็บ Log อย่างมั่นคงปลอดภัย : รักษาความครบถ้วน ระบุตัวผู้เข้าถึง จำกัดสิทธิ์ (เช่น Centralized Log Server / Hashing)','กรณีจ้างภายนอกเก็บ Log บริษัทต้องเก็บและครอบครองสำเนาข้อมูลเอง'];
@@ -958,13 +958,13 @@ const vpMine=r=>String(r.cmail||'').toLowerCase()===myMail();
 const vpList=()=>(DATA.vpn||[]).filter(r=>isIT||vpMine(r)).sort((a,b)=>String(b.dt||'').localeCompare(String(a.dt||'')));
 const vpExt=r=>r.utype&&r.utype!=='emp';
 const vpSysTxt=r=>[...(r.sys||[]),r.sysOther?'อื่น ๆ: '+r.sysOther:''].filter(Boolean).join(', ');
-document.head.insertAdjacentHTML('beforeend',`<style>.vpchk{display:flex;flex-wrap:wrap;gap:8px}.vpchk label{display:flex;align-items:center;gap:6px;background:var(--card);border-radius:999px;padding:9px 14px;font-size:14px;font-weight:600;cursor:pointer;border:2px solid transparent}.vpchk input{accent-color:var(--ink);width:17px;height:17px;margin:0}.vpchk label:has(input:checked){border-color:var(--ink)}.vpagr{background:var(--card);border-radius:20px;padding:14px 16px;font-size:14px;line-height:1.55}.vpagr ol{margin:6px 0 8px 18px;padding:0}.vpagr small{display:block;color:var(--sub);font-size:12.5px;margin-top:6px}.vpok{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-weight:700;font-size:15px}.vpok input{width:22px;height:22px;accent-color:var(--ink);flex:none;margin-top:1px}.vpnote{font-size:12.5px;color:var(--sub);margin:6px 6px 0}.vpwarn{background:#fff7d6;color:#111;border-radius:16px;padding:10px 14px;font-size:13.5px;margin-top:10px}.vpcl{list-style:none;margin:0;padding:0}.vpcl li{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line);font-size:14px}.vpcl li:first-child{border-top:0}.vpcl input{width:20px;height:20px;accent-color:var(--ink);flex:none;margin-top:1px}</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>.vpret{background:#fff1e6;color:#111;border-radius:20px;padding:14px 16px;margin-top:14px;border:1.5px solid #ff6a00}.vpret b{color:#c2410c;font-size:15px}.vpret p{margin:6px 0 4px;font-size:14.5px;line-height:1.55}.vpret span{font-size:12.5px;color:#666}.vpret .cta{display:block;width:100%;margin-top:12px;background:#ff6a00}.vpchk{display:flex;flex-wrap:wrap;gap:8px}.vpchk label{display:flex;align-items:center;gap:6px;background:var(--card);border-radius:999px;padding:9px 14px;font-size:14px;font-weight:600;cursor:pointer;border:2px solid transparent}.vpchk input{accent-color:var(--ink);width:17px;height:17px;margin:0}.vpchk label:has(input:checked){border-color:var(--ink)}.vpagr{background:var(--card);border-radius:20px;padding:14px 16px;font-size:14px;line-height:1.55}.vpagr ol{margin:6px 0 8px 18px;padding:0}.vpagr small{display:block;color:var(--sub);font-size:12.5px;margin-top:6px}.vpok{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-weight:700;font-size:15px}.vpok input{width:22px;height:22px;accent-color:var(--ink);flex:none;margin-top:1px}.vpnote{font-size:12.5px;color:var(--sub);margin:6px 6px 0}.vpwarn{background:#fff7d6;color:#111;border-radius:16px;padding:10px 14px;font-size:13.5px;margin-top:10px}.vpcl{list-style:none;margin:0;padding:0}.vpcl li{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line);font-size:14px}.vpcl li:first-child{border-top:0}.vpcl input{width:20px;height:20px;accent-color:var(--ink);flex:none;margin-top:1px}</style>`);
 function vpnTools(){const L=vpList();const it=isIT;if(!VPF)VPF=it?'new':'all';const c=f=>L.filter(f).length;
-  const F=it?[['new','รอดำเนินการ',r=>vpSt(r)==='new'],['active','เปิดสิทธิ์อยู่',r=>vpSt(r)==='active'],['exp','หมดอายุ',r=>vpSt(r)==='exp'],['closed','ปิด/ไม่อนุมัติ',r=>['closed','rejected'].includes(vpSt(r))],['all','ทั้งหมด',()=>1]]:[['all','ทั้งหมด',()=>1],['new','รอ IT',r=>vpSt(r)==='new'],['active','ใช้งานได้',r=>['active','exp'].includes(vpSt(r))],['closed','ปิดแล้ว',r=>['closed','rejected'].includes(vpSt(r))]];
+  const F=it?[['new','รอดำเนินการ',r=>vpSt(r)==='new'],['ret','ส่งกลับแก้ไข',r=>vpSt(r)==='ret'],['active','เปิดสิทธิ์อยู่',r=>vpSt(r)==='active'],['exp','หมดอายุ',r=>vpSt(r)==='exp'],['closed','ปิด/ไม่อนุมัติ',r=>['closed','rejected'].includes(vpSt(r))],['all','ทั้งหมด',()=>1]]:[['all','ทั้งหมด',()=>1],['ret','ต้องแก้ไข',r=>vpSt(r)==='ret'],['new','รอ IT',r=>vpSt(r)==='new'],['active','ใช้งานได้',r=>['active','exp'].includes(vpSt(r))],['closed','ปิดแล้ว',r=>['closed','rejected'].includes(vpSt(r))]];
   return `<h1 style="font-size:30px;margin-top:0">ขอใช้งาน VPN</h1><div class="sub">${it?'คำขอทั้งหมด':'คำขอของฉัน'} · FM-ITM-01-10</div>
   <div class="sbar"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="m20 20-3.6-3.6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><input id="vp_q" type="search" placeholder="ค้นหาชื่อ, เลขที่, Username" value="${esc(VPQ)}"></label>${it?`<button class="fbtn" id="vp_xls">Excel</button>`:''}</div>
   <div class="chips rpchips">${F.map(([k,l,f])=>`<button class="chip ${VPF===k?'on':''}" data-vpf="${k}">${l} <span>${DATA.vpn?c(f):''}</span></button>`).join('')}</div>`}
-function vpFilter(r){const s=vpSt(r);const ok={new:s==='new',active:isIT?s==='active':['active','exp'].includes(s),exp:s==='exp',closed:['closed','rejected'].includes(s),all:true}[VPF];if(!ok)return false;if(!VPQ)return true;const q=VPQ.toLowerCase();return [r.no,r.name,r.dept,r.company,r.uname,r.purpose,r.empId].some(v=>String(v||'').toLowerCase().includes(q))}
+function vpFilter(r){const s=vpSt(r);const ok={new:s==='new',ret:s==='ret',active:isIT?s==='active':['active','exp'].includes(s),exp:s==='exp',closed:['closed','rejected'].includes(s),all:true}[VPF];if(!ok)return false;if(!VPQ)return true;const q=VPQ.toLowerCase();return [r.no,r.name,r.dept,r.company,r.uname,r.purpose,r.empId].some(v=>String(v||'').toLowerCase().includes(q))}
 function renderVpn(){const M=$('main');if(!DATA.vpn){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   const all=vpList(),L=all.filter(vpFilter),it=isIT;const n=f=>all.filter(f).length;
   const sum=it?[[n(r=>vpSt(r)==='new'),'รอดำเนินการ'],[n(r=>vpSt(r)==='active'),'บัญชีที่เปิดอยู่']]:[[all.length,'คำขอทั้งหมด'],[n(r=>['active','exp'].includes(vpSt(r))),'ใช้งานได้']];
@@ -973,7 +973,7 @@ function renderVpn(){const M=$('main');if(!DATA.vpn){M.innerHTML='<div class="ce
   ${!it&&!all.length?`<div class="rpempty"><div class="big">${ico('shield','#5b6bbf')}</div><b>ยังไม่มีคำขอใช้ VPN</b><span>กดปุ่ม “ขอใช้ VPN” ด้านล่าง<br>กรอกแบบฟอร์ม FM-ITM-01-10 ออนไลน์ได้เลย</span></div>`:''}
   ${all.length?`<div class="toolbar"><span class="cnt">${L.length} รายการ</span></div>${L.length?`<div class="list">${L.map(card).join('')}</div>`:'<div class="empty">ไม่มีรายการในหมวดนี้</div>'}`:''}`}
 /* ---- ฟอร์มขอใช้ VPN ---- */
-async function vpnNew(){const info=await getMeInfo();
+async function vpnNew(e){e=e&&e._id?e:null;const info=await getMeInfo();
   const f=(id,l,v='',t='text',ph='ระบุ')=>`<div class="f"><label>${l}</label><input id="${id}" type="${t}" value="${esc(v)}" placeholder="${ph}"></div>`;
   openSheet(`${shh('<button class="x" id="v_x">ยกเลิก</button>','ขอใช้งาน VPN','<button class="x b" id="v_s">ส่ง</button>')}
   <div class="sub" style="margin:2px 4px 0">แบบฟอร์มขอใช้งานระบบ VPN · FM-ITM-01-10</div>
@@ -995,12 +995,13 @@ async function vpnNew(){const info=await getMeInfo();
   <button class="cta" id="v_s2" style="display:block;width:100%;margin-top:22px">ส่งคำขอใช้ VPN</button>`);
   const ut=()=>document.querySelector('[name=v_ut]:checked').value;
   const sync=()=>{const ext=ut()!=='emp';$('v_extbox').style.display=ext?'':'none';$('v_endnote').style.fontWeight=ext?'700':''};
-  document.querySelectorAll('[name=v_ut]').forEach(x=>x.onchange=sync);sync();$('v_x').onclick=closeSheet;
+  if(e)vpFill(e);document.querySelectorAll('[name=v_ut]').forEach(x=>x.onchange=sync);sync();$('v_x').onclick=()=>e?vpnDetail(e._id):closeSheet();
   const send=async()=>{const g_=id=>$(id).value.trim();const sys=[...document.querySelectorAll('[name=v_sys]:checked')].map(x=>x.value);const oth=$('v_oth').checked?g_('v_otht'):'';const ext=ut()!=='emp';
     const need=[[!g_('v_name'),'กรอกชื่อ - นามสกุล'],[ext&&!g_('v_co'),'กรอกบริษัทต้นสังกัด'],[ext&&!g_('v_resp'),'กรอกผู้รับผิดชอบฝั่งบริษัท'],[!g_('v_pur'),'กรอกวัตถุประสงค์'],[!sys.length&&!oth,'เลือกระบบที่ต้องเข้าถึง'],[!g_('v_start'),'ระบุวันเริ่มใช้งาน'],[ext&&!g_('v_end'),'บุคคลภายนอกต้องระบุวันสิ้นสุด'],[g_('v_end')&&g_('v_end')<g_('v_start'),'วันสิ้นสุดต้องไม่ก่อนวันเริ่ม'],[!$('v_agree').checked,'ติ๊กยอมรับข้อตกลงก่อนส่ง']].find(x=>x[0]);
     if(need){toast(need[1]);return}
     $('v_s').disabled=$('v_s2').disabled=true;$('v_s2').textContent='กำลังส่ง…';
     const r={no:'',dt:nowIso(),date:today(),cmail:myMail(),cby:info.name,utype:ut(),name:g_('v_name'),empId:g_('v_emp'),pos:g_('v_pos'),dept:g_('v_dept'),tel:g_('v_tel'),email:g_('v_mail'),company:ext?g_('v_co'):'',resp:ext?g_('v_resp'):'',purpose:g_('v_pur'),sys,sysOther:oth,server:g_('v_srv'),start:g_('v_start'),end:g_('v_end'),device:document.querySelector('[name=v_dev]:checked').value,mac:g_('v_mac'),agreeAt:nowIso(),agreeBy:info.name,status:'new',log:[{at:nowIso(),by:info.name,a:'ส่งคำขอใช้ VPN · ยอมรับข้อตกลง'}]};
+    if(e){const x={...e,...r,no:e.no,dt:e.dt,date:e.date,cmail:e.cmail,cby:e.cby,retMsg:'',log:[...(e.log||[]),{at:nowIso(),by:info.name,a:e.status==='ret'?'แก้ไขคำขอและส่งใหม่ · ยอมรับข้อตกลง':'แก้ไขคำขอ · ยอมรับข้อตกลง'}]};try{await store.save('vpn',x);toast('ส่งคำขอแล้ว · '+x.no);render();vpnDetail(x._id)}catch(err){$('v_s').disabled=$('v_s2').disabled=false;$('v_s2').textContent='ส่งคำขออีกครั้ง';toast(err.status===403?'ไม่มีสิทธิ์แก้ไข':'ส่งไม่สำเร็จ: '+err.message)}return}
     try{await store.save('vpn',r);const x=DATA.vpn[DATA.vpn.length-1];const d=new Date();x.no=`VPN-${String(d.getFullYear()+543).slice(2)}${String(d.getMonth()+1).padStart(2,'0')}-${String(x._id).replace(/\D/g,'').slice(-4).padStart(3,'0')}`;await store.save('vpn',x);closeSheet();VPF=isIT?'new':'all';render();toast('ส่งคำขอแล้ว · เลขที่ '+x.no)}
     catch(e){$('v_s').disabled=$('v_s2').disabled=false;$('v_s2').textContent='ส่งคำขอใช้ VPN';toast(e.status===403?'ไม่มีสิทธิ์ส่งคำขอ (ติดต่อฝ่าย IT)':'ส่งไม่สำเร็จ: '+e.message)}};
   $('v_s').onclick=send;$('v_s2').onclick=send}
@@ -1009,6 +1010,7 @@ function vpnDetail(id){const r=(DATA.vpn||[]).find(x=>x._id===id);if(!r)return;c
   const kv=(k,v)=>v?`<div><span class="k">${k}</span><span class="v">${v}</span></div>`:'';
   openSheet(`${shh('',esc(r.no||'VPN'),`<button class="x b" id="d_x">เสร็จ</button>`)}
   <div class="rphead">${ico('shield','#5b6bbf')}<div><h2 style="margin:0">${esc(r.name)}</h2><div>${vpBadge(r)}</div></div></div>
+  ${s==='ret'?`<div class="vpret"><b>ฝ่าย IT ส่งกลับให้แก้ไข</b><p>${esc(r.retMsg||'-').replace(/\n/g,'<br>')}</p><span>${esc(r.itBy||'')}${r.itAt?' · '+thDate(r.itAt):''}</span>${mine?'<button class="cta" id="d_edit2">แก้ไขคำขอ</button>':''}</div>`:''}
   <div class="fgroup"><h3>ส่วนที่ 1 · ผู้ขอใช้งาน</h3></div><div class="kv" style="margin-top:0">${kv('ประเภทผู้ใช้',esc(VP_UT.find(u=>u[0]===r.utype)?.[1]||''))}${kv('รหัสพนักงาน',esc(r.empId))}${kv('ตำแหน่ง',esc(r.pos))}${kv('แผนก',esc(r.dept))}${kv('เบอร์โทร',esc(r.tel))}${kv('อีเมล',esc(r.email))}${kv('บริษัทต้นสังกัด',esc(r.company))}${kv('ผู้รับผิดชอบฝั่งบริษัท',esc(r.resp))}</div>
   <div class="fgroup"><h3>ส่วนที่ 2 · การใช้งาน</h3></div><div class="kv" style="margin-top:0">${kv('วัตถุประสงค์',esc(r.purpose))}${kv('ระบบที่เข้าถึง',esc(vpSysTxt(r)))}${kv('Server / Folder / IP',esc(r.server))}${kv('ช่วงเวลา',thDate(r.start)+(r.end?' – '+thDate(r.end):' (ไม่ระบุวันสิ้นสุด)'))}${kv('อุปกรณ์',r.device==='own'?'เครื่องส่วนตัว':'เครื่องบริษัท')}${kv('หมายเลขเครื่อง / MAC',esc(r.mac))}</div>
   <div class="fgroup"><h3>ส่วนที่ 3 · ข้อตกลง</h3></div><div class="kv" style="margin-top:0">${kv('ยอมรับข้อตกลงโดย',esc(r.agreeBy)+' · '+(r.agreeAt?thDT(r.agreeAt):''))}</div>
@@ -1016,15 +1018,32 @@ function vpnDetail(id){const r=(DATA.vpn||[]).find(x=>x._id===id);if(!r)return;c
   ${s==='exp'&&it?`<div class="vpwarn">บัญชีนี้เลยวันสิ้นสุดแล้ว (${thDate(r.end)}) ควรปิดสิทธิ์</div>`:''}
   <div class="fgroup"><h3>ไทม์ไลน์</h3></div><div class="rptl">${(r.log||[]).slice().reverse().map(x=>`<div><i></i><b>${esc(x.a)}</b><span>${thDT(x.at)} · ${esc(x.by||'')}</span></div>`).join('')}</div>
   <div class="fgroup"><h3>ตัวอย่างเอกสาร FM-ITM-01-10 (A4 แนวตั้ง)</h3></div><div class="fmprev" id="v_prev"></div><div class="fgroup"><h3>ดาวน์โหลด</h3></div><div class="rpex"><button data-vex="docx"><b style="background:#2b579a">DOC</b>Word</button><button data-vex="pdf"><b>PDF</b>PDF</button><button data-vex="png"><b style="background:#bf5af2">IMG</b>รูปภาพ</button><button data-vex="print"><b style="background:#636366;font-size:20px">⎙</b>พิมพ์</button></div>
-  <div class="btnlist">${it&&s==='new'?`<button id="d_ok">อนุมัติ · เปิดสิทธิ์</button><button class="d" id="d_no">ไม่อนุมัติ</button>`:''}${it&&['active','exp'].includes(s)?`<button id="d_ok">แก้ไขข้อมูลฝ่าย IT</button><button class="d" id="d_close">ปิดสิทธิ์ VPN</button>`:''}${mine&&s==='new'?`<button class="d" id="d_cancel">ยกเลิกคำขอ</button>`:''}${it&&!mine&&['closed','rejected'].includes(s)?`<button class="d" id="d_del">ลบรายการ</button>`:''}</div>`);
+  <div class="btnlist">${it&&s==='new'?`<button id="d_ok">อนุมัติ · เปิดสิทธิ์</button><button id="d_ret" style="color:#ff6a00">ส่งกลับให้ผู้ขอแก้ไข</button><button class="d" id="d_no">ไม่อนุมัติ</button>`:''}${mine&&s==='new'?`<button id="d_edit">แก้ไขคำขอ</button>`:''}${it&&['active','exp'].includes(s)?`<button id="d_ok">แก้ไขข้อมูลฝ่าย IT</button><button class="d" id="d_close">ปิดสิทธิ์ VPN</button>`:''}${mine&&['new','ret'].includes(s)?`<button class="d" id="d_cancel">ยกเลิกคำขอ</button>`:''}${it&&!mine&&['closed','rejected'].includes(s)?`<button class="d" id="d_del">ลบรายการ</button>`:''}</div>`);
   $('d_x').onclick=closeSheet;
   document.querySelectorAll('[data-vex]').forEach(b=>b.onclick=()=>vpnExport(r,b.dataset.vex,b));vpPrev(r);
-  if($('d_ok'))$('d_ok').onclick=()=>vpnIT(r);
+  if($('d_ok'))$('d_ok').onclick=()=>vpnIT(r);if($('d_ret'))$('d_ret').onclick=()=>vpRet(r);['d_edit','d_edit2'].forEach(k=>{if($(k))$(k).onclick=()=>vpnNew(r)});
   if($('d_no'))$('d_no').onclick=()=>{const m=prompt('เหตุผลที่ไม่อนุมัติ');if(m==null)return;const x={...r,status:'rejected',reject:m,itBy:me,itAt:today()};rpLog(x,'ไม่อนุมัติ'+(m?': '+m:''));vpSave(x,'บันทึกไม่อนุมัติแล้ว')};
   if($('d_close'))$('d_close').onclick=()=>{if(!confirm('ปิดสิทธิ์ VPN ของ '+r.name+' ?'))return;const x={...r,status:'closed',close:today()};rpLog(x,'ปิดสิทธิ์ VPN');vpSave(x,'ปิดสิทธิ์แล้ว')};
   const del=async m=>{try{await store.del('vpn',r._id);closeSheet();render();toast(m)}catch(e){toast(e.status===403?'ไม่มีสิทธิ์ลบ':'ลบไม่สำเร็จ: '+e.message)}};
   if($('d_cancel'))$('d_cancel').onclick=()=>{if(confirm('ยกเลิกคำขอ '+(r.no||'')+' ?'))del('ยกเลิกคำขอแล้ว')};
   if($('d_del'))$('d_del').onclick=()=>{if(confirm('ลบรายการ '+(r.no||'')+' ถาวร?'))del('ลบแล้ว')}}
+function vpRet(r){const Q=['ข้อมูลผู้ขอไม่ครบ','วัตถุประสงค์ไม่ชัดเจน','ระบุระบบที่ต้องเข้าถึงไม่ถูกต้อง','ขอสิทธิ์เกินความจำเป็น','ระบุวันสิ้นสุด','ระบุหมายเลขเครื่อง / MAC'];
+  openSheet(`${shh('<button class="x" id="t_x">ยกเลิก</button>','ส่งกลับแก้ไข','<button class="x b" id="t_s">ส่งกลับ</button>')}
+  <div class="sub" style="margin:4px 4px 0">${esc(r.no)} · ${esc(r.name)}</div>
+  <div class="fgroup"><h3>เลือกเรื่องที่ต้องแก้ (เลือกได้หลายข้อ)</h3></div><div class="vpchk">${Q.map(q=>`<label><input type="checkbox" name="t_q" value="${q}">${q}</label>`).join('')}</div>
+  <div class="formg" style="margin-top:12px"><div class="f area"><label>รายละเอียดที่ต้องแก้ไข *</label><textarea id="t_m" placeholder="อธิบายให้ผู้ขอทราบว่าต้องแก้อะไร"></textarea></div></div>
+  <div class="vpnote">ผู้ขอจะเห็นข้อความนี้ในคำขอ และกด “แก้ไขคำขอ” เพื่อส่งกลับมาใหม่ได้</div>
+  <button class="cta" id="t_s2" style="display:block;width:100%;margin-top:22px;background:#ff6a00">ส่งกลับให้ผู้ขอแก้ไข</button>`);
+  $('t_x').onclick=()=>vpnDetail(r._id);
+  const go=()=>{const q=[...document.querySelectorAll('[name=t_q]:checked')].map(x=>x.value);const t=$('t_m').value.trim();const m=[q.length?'• '+q.join('\n• '):'',t].filter(Boolean).join('\n');if(!m){toast('ระบุสิ่งที่ต้องแก้ไข');return}
+    const x={...r,status:'ret',retMsg:m,itBy:me,itAt:today()};rpLog(x,'ส่งกลับให้แก้ไข: '+m.replace(/\n/g,' '));vpSave(x,'ส่งกลับให้ผู้ขอแก้ไขแล้ว')};
+  $('t_s').onclick=go;$('t_s2').onclick=go}
+function vpFill(e){const v=(id,x)=>{if($(id)&&x!=null)$(id).value=x};const ck=(sel,on)=>document.querySelectorAll(sel).forEach(on);
+  ck('[name=v_ut]',x=>x.checked=x.value===(e.utype||'emp'));
+  [['v_name','name'],['v_emp','empId'],['v_pos','pos'],['v_dept','dept'],['v_tel','tel'],['v_mail','email'],['v_co','company'],['v_resp','resp'],['v_pur','purpose'],['v_otht','sysOther'],['v_srv','server'],['v_start','start'],['v_end','end'],['v_mac','mac']].forEach(([i,k])=>v(i,e[k]||''));
+  ck('[name=v_sys]',x=>x.checked=(e.sys||[]).includes(x.value));$('v_oth').checked=!!e.sysOther;ck('[name=v_dev]',x=>x.checked=x.value===(e.device||'co'));
+  const tt=document.querySelector('.shh .tt');if(tt)tt.textContent='แก้ไขคำขอ '+(e.no||'');$('v_s2').textContent='ส่งคำขออีกครั้ง';
+  if(e.status==='ret')document.querySelector('.shh').insertAdjacentHTML('afterend',`<div class="vpret"><b>สิ่งที่ฝ่าย IT ขอให้แก้ไข</b><p>${esc(e.retMsg||'-').replace(/\n/g,'<br>')}</p></div>`)}
 async function vpSave(x,msg){try{await store.save('vpn',x);toast(msg);render();vpnDetail(x._id)}catch(e){toast(e.status===403?'ไม่มีสิทธิ์แก้ไข':'บันทึกไม่สำเร็จ: '+e.message)}}
 function vpnIT(r){const chk=r.chk||[0,0,0,0];
   openSheet(`${shh('<button class="x" id="i_x">ยกเลิก</button>','ส่วนที่ 4 · ฝ่าย IT','<button class="x b" id="i_s">บันทึก</button>')}
