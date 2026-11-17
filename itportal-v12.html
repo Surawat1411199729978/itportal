@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="IT Portal">
+<meta name="theme-color" content="#f5f6f8">
+<title>IT Portal · UNB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.3/lib/msal-browser.min.js"></script>
+<style>
+:root{--bg:#f2f2f7;--card:#fff;--ink:#000;--sub:#6e6e73;--faint:#8e8e93;--line:rgba(60,60,67,.18);--fill:rgba(118,118,128,.12);--acc:#007aff;--acc-soft:rgba(0,122,255,.12);
+  --ok:#34c759;--ok-soft:rgba(52,199,89,.15);--warn:#ff9500;--warn-soft:rgba(255,149,0,.15);--bad:#ff3b30;--bad-soft:rgba(255,59,48,.12);--sheet:#f2f2f7;
+  --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#000;--card:#1c1c1e;--ink:#fff;--sub:#98989f;--faint:#8d8d93;--line:rgba(84,84,88,.6);--fill:rgba(118,118,128,.24);--acc:#0a84ff;--acc-soft:rgba(10,132,255,.2);--ok:#30d158;--ok-soft:rgba(48,209,88,.2);--warn:#ff9f0a;--warn-soft:rgba(255,159,10,.2);--bad:#ff453a;--bad-soft:rgba(255,69,58,.2);--sheet:#1c1c1e}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Noto Sans Thai",sans-serif;font-size:17px;line-height:1.35;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+input,select,textarea{font:inherit;color:var(--ink)}
+.num,.mono{font-variant-numeric:tabular-nums}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:.92em;letter-spacing:0}
+header{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);padding:var(--safe-t) 0 0}
+header.sc{border-bottom:.5px solid var(--line)}
+.hin{max-width:720px;margin:0 auto;padding:0 16px}
+.nav{height:44px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.back{justify-self:start;color:var(--acc);font-size:17px;display:flex;visibility:hidden;align-items:center;gap:2px;margin-left:-6px;white-space:nowrap}
+.back svg{flex:none}
+.back.on{visibility:visible}
+.ntitle{font-size:17px;font-weight:600;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw;opacity:0;transition:opacity .15s}
+header.sc .ntitle.on{opacity:1}
+.navr{justify-self:end;display:flex;gap:14px;align-items:center}
+.who{color:var(--acc);font-size:16px;display:none;align-items:center;gap:4px;max-width:40vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.add{color:var(--acc);display:none}
+.add.on,.who.on{display:flex}
+h1{margin:2px 0 0;font-size:34px;font-weight:700;letter-spacing:.01em;line-height:1.2}
+.sub{font-size:15px;color:var(--sub);margin-top:2px}
+#tools{padding-bottom:8px}
+.sbar{display:flex;gap:8px;margin-top:10px;align-items:center}
+.search{flex:1;position:relative}
+.search input{width:100%;border:0;background:var(--fill);border-radius:10px;padding:8px 10px 8px 32px;font-size:17px;outline:none;-webkit-appearance:none;appearance:none}
+.search input::-webkit-search-cancel-button{-webkit-appearance:none}
+.search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--faint)}
+.fbtn{flex:none;color:var(--acc);font-size:17px;display:flex;align-items:center;gap:6px}
+.fbtn b{background:var(--acc);color:#fff;border-radius:999px;font-size:12px;min-width:20px;height:20px;display:grid;place-items:center;padding:0 5px;font-weight:600}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.chips:empty{display:none}
+.chip{display:flex;align-items:center;gap:5px;background:var(--acc-soft);color:var(--acc);border-radius:999px;padding:4px 10px;font-size:14px;font-weight:500}
+.chip span{font-size:13px;opacity:.75}
+.seg{display:flex;background:var(--fill);border-radius:9px;padding:2px;margin-top:10px}
+.seg button{flex:1;padding:6px;border-radius:7px;font-size:14px;font-weight:500}
+.seg button.on{background:var(--card);font-weight:600;box-shadow:0 3px 8px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.04)}
+main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
+.gh{font-size:13px;color:var(--sub);text-transform:uppercase;letter-spacing:.02em;margin:22px 16px 7px}
+.gf{font-size:13px;color:var(--sub);margin:7px 16px 0;line-height:1.45}
+.group{background:var(--card);border-radius:12px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:0 0 0 16px;width:100%;text-align:left;min-height:46px;position:relative;text-decoration:none;color:inherit}
+.row:active,.it:active{background:var(--fill)}
+.row .rb{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:11px 16px 11px 0;border-bottom:.5px solid var(--line);align-self:stretch}
+.row:last-child .rb{border-bottom:0}
+.row .rt{flex:1;min-width:0;font-size:17px}
+.row .rv{color:var(--faint);font-size:17px}
+.row.lock{opacity:.45}
+.chev{color:#c4c4c7;flex:none}
+.ic{width:32px;height:32px;border-radius:10px;background:color-mix(in srgb,var(--c,#7d8a99) 14%,var(--card));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c,#7d8a99) 18%,transparent);display:grid;place-items:center;flex:none;color:var(--c,#7d8a99)}
+.ic svg{width:20px;height:20px}
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 4px}
+.sum div{background:var(--card);border-radius:12px;padding:11px 14px;font-size:13px;color:var(--sub)}
+.sum b{display:block;font-size:22px;font-weight:700;color:var(--ink);letter-spacing:0}
+.toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:16px 16px 7px}
+.toolbar .cnt{font-size:13px;color:var(--sub);text-transform:uppercase}
+.tl{display:flex;gap:16px}
+.sortsel{border:0;background:none;color:var(--acc);font-size:15px;-webkit-appearance:none;appearance:none;padding:0}
+.list{background:var(--card);border-radius:12px;overflow:hidden}
+.it{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;padding:0 0 0 16px;cursor:pointer}
+.it .ic{margin-top:11px}
+.it .bdw{flex:1;min-width:0;display:flex;gap:10px;padding:10px 14px 10px 0;border-bottom:.5px solid var(--line)}
+.it:last-child .bdw{border-bottom:0}
+.it .bd{flex:1;min-width:0}
+.it .t{font-size:17px;line-height:1.3;word-break:break-word}
+.it .m{font-size:14px;color:var(--sub);margin-top:2px;word-break:break-word}
+.it .r{flex:none;text-align:right;font-size:15px;color:var(--sub);display:flex;align-items:flex-start;gap:6px;padding-top:2px}
+.it .r .chev{margin-top:2px}
+.dlb{color:var(--acc);display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--acc-soft)}
+.badge{display:inline-block;border-radius:6px;padding:1px 7px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.b-ok{background:var(--ok-soft);color:var(--ok)}.b-warn{background:var(--warn-soft);color:var(--warn)}.b-bad{background:var(--bad-soft);color:var(--bad)}.b-mute{background:var(--fill);color:var(--sub)}
+.acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.pill{display:inline-flex;align-items:center;gap:5px;background:var(--acc-soft);color:var(--acc);border-radius:999px;padding:5px 11px;font-size:14px;font-weight:500;text-decoration:none}
+.pill svg{width:14px;height:14px}
+.pill.g{background:var(--fill);color:var(--ink)}
+.empty{text-align:center;color:var(--faint);padding:40px 10px}
+.more{display:block;margin:14px auto;color:var(--acc);font-size:16px}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .3s;z-index:30}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;background:var(--sheet);border-radius:12px 12px 0 0;padding:6px 16px calc(var(--safe-b) + 24px);transform:translateY(105%);transition:transform .35s cubic-bezier(.32,.72,0,1);z-index:31;max-width:720px;margin:0 auto}
+@media (prefers-color-scheme:light){.sheet{background:#f2f2f7}}
+.sheet .kv,.sheet .group,.sheet .opts,.sheet .formg{background:var(--card)}
+@media (prefers-color-scheme:dark){.sheet .kv,.sheet .group,.sheet .opts,.sheet .formg{background:#2c2c2e}}
+.sheet.on{transform:none}
+.grab{width:36px;height:5px;border-radius:9px;background:rgba(127,127,127,.4);margin:0 auto 10px}
+.shh{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px}
+.shh .x{color:var(--acc);font-size:17px}
+.shh .x.b{font-weight:600}
+.shh .x:disabled{opacity:.4}
+.shh .tt{font-weight:600;font-size:17px;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheet h2{margin:6px 0 2px;font-size:22px;font-weight:700;line-height:1.3}
+.kv{border-radius:12px;margin-top:14px;overflow:hidden}
+.kv>div{display:flex;gap:10px;padding:11px 16px;align-items:center;position:relative}
+.kv>div+div::before{content:"";position:absolute;top:0;left:16px;right:0;border-top:.5px solid var(--line)}
+.kv .k{width:34%;flex:none;font-size:15px;color:var(--sub)}
+.kv .v{flex:1;min-width:0;word-break:break-word;font-size:16px}
+.cp{flex:none;font-size:15px;color:var(--acc)}
+.formg{border-radius:12px;overflow:hidden;margin-top:14px}
+.f{display:flex;align-items:center;gap:10px;padding:0 16px;min-height:46px;position:relative}
+.f+.f::before{content:"";position:absolute;top:0;left:16px;right:0;border-top:.5px solid var(--line)}
+.f label{width:36%;flex:none;font-size:15px;color:var(--sub)}
+.f.area{align-items:flex-start;flex-direction:column;gap:2px;padding:10px 16px}
+.f.area label{width:auto}
+.f input,.f select,.f textarea{border:0;background:none;padding:11px 0;font-size:17px;outline:none;width:100%;flex:1;min-width:0;text-align:left;-webkit-appearance:none;appearance:none}
+.f.area textarea{padding:4px 0;min-height:66px;resize:vertical}
+.btnlist{border-radius:12px;overflow:hidden;margin-top:24px;background:var(--card)}
+@media (prefers-color-scheme:dark){.btnlist{background:#2c2c2e}}
+.btnlist button{display:block;width:100%;padding:13px 16px;text-align:center;font-size:17px;color:var(--acc);position:relative}
+.btnlist button+button::before{content:"";position:absolute;top:0;left:0;right:0;border-top:.5px solid var(--line)}
+.btnlist .d{color:var(--bad)}
+.opts{border-radius:12px;overflow:hidden}
+.opt{display:flex;align-items:center;gap:10px;padding:0 16px;min-height:44px;position:relative;text-align:left;cursor:pointer}
+.opt+.opt::before{content:"";position:absolute;top:0;left:16px;right:0;border-top:.5px solid var(--line)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt span{flex:1;font-size:16px;padding:10px 0}
+.opt small{color:var(--faint);font-size:15px}
+.opt i{width:20px;color:var(--acc);font-style:normal;font-weight:700;visibility:hidden}
+.opt input:checked~i{visibility:visible}
+.fgroup h3{font-size:13px;color:var(--sub);text-transform:uppercase;font-weight:400;margin:20px 16px 7px}
+.toast{position:fixed;left:50%;top:calc(var(--safe-t) + 10px);transform:translateX(-50%) translateY(-20px);background:color-mix(in srgb,var(--card) 85%,transparent);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:var(--ink);border-radius:999px;padding:10px 18px;font-size:15px;font-weight:500;opacity:0;transition:.25s;z-index:50;pointer-events:none;max-width:90vw;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.15)}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.center{text-align:center;padding:60px 10px;color:var(--sub)}
+.center .big{width:72px;height:72px;border-radius:22px;background:color-mix(in srgb,var(--acc) 14%,var(--card));color:var(--acc);display:grid;place-items:center;margin:0 auto}
+.center .big svg{width:40px;height:40px}
+.center h2{color:var(--ink);font-size:22px;margin:16px 0 6px}
+.cta{display:inline-block;background:var(--acc);color:#fff;border-radius:12px;padding:14px 26px;font-weight:600;margin-top:22px;font-size:17px}
+.pw{display:flex;align-items:center;gap:10px;background:var(--fill);border-radius:8px;padding:6px 10px;margin-top:8px}
+.pw .v{flex:1;min-width:0;word-break:break-all;font-size:15px;letter-spacing:.1em}
+.qr{display:grid;place-items:center;padding:18px;background:#fff;border-radius:12px;margin-top:14px}
+.spin{width:24px;height:24px;border:2.5px solid var(--fill);border-top-color:var(--faint);border-radius:50%;animation:sp .8s linear infinite;margin:0 auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+.hello{font-size:15px;color:var(--sub);margin:2px 4px 0}
+.wgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:640px){.wgrid{grid-template-columns:repeat(3,1fr)}main{max-width:900px}.hin{max-width:900px}}
+@media(min-width:640px){.wgrid.two{grid-template-columns:repeat(2,1fr)}}
+.wd{background:var(--card);border-radius:18px;padding:14px 14px 13px;text-align:left;display:flex;flex-direction:column;gap:2px;min-height:146px;transition:transform .12s}
+.wd:active{transform:scale(.97)}
+.wd.lock{opacity:.45}
+.wtop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.wd .ic{width:44px;height:44px;border-radius:14px}
+.wd .ic svg{width:26px;height:26px}
+.wt{font-size:15px;font-weight:600;line-height:1.3;color:var(--sub)}
+.wn{font-size:28px;font-weight:700;letter-spacing:-.01em;line-height:1.15;margin-top:auto}
+.wn small{font-size:13px;font-weight:500;color:var(--faint);margin-left:5px}
+.ws{font-size:12.5px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alert{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:12px 14px;width:100%;text-align:left}
+.alert .ab{flex:1;min-width:0;display:flex;flex-direction:column}
+.alert b{font-size:16px;font-weight:600}
+.alert .ab span{font-size:13px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
+</head>
+<body>
+<header id="hdr"><div class="hin">
+  <div class="nav"><button class="back" id="back"><svg width="12" height="20" viewBox="0 0 12 20"><path d="M10 2 2 10l8 8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>IT Portal</button><div class="ntitle" id="ntitle"></div><div class="navr"><button class="who" id="who"></button><button class="add" id="fab" aria-label="เพิ่ม"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 3v16M3 11h16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div></div>
+  <h1 id="title">IT Portal</h1>
+  <div class="sub" id="sub">Union Belt International · ฝ่าย IT</div>
+  <div id="tools"></div>
+</div></header>
+<main id="main"><div class="center"><div class="spin"></div></div></main>
+<div class="scrim" id="scrim"></div><div class="sheet" id="sheet"></div><div class="toast" id="toast"></div>
+<script>
+if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
+/* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
+const APP_VERSION='2026-11-17.12';
+async function checkUpdate(){
+  try{
+    if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
+    const r=await fetch(location.pathname+'?_='+Date.now(),{cache:'no-store'});if(!r.ok)return;
+    const m=(await r.text()).match(/APP_VERSION='([^']+)'/);
+    if(m&&m[1]!==APP_VERSION){const k='itp-upd-'+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');
+      location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}
+  }catch(e){}
+}
+checkUpdate();
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()});
+setInterval(checkUpdate,10*60*1000);
+/* ===== ตั้งค่า ===== */
+const CFG={
+  clientId:"73241ae0-9aa1-49fe-b2c7-caa2449a0091",
+  tenantId:"410b700e-bb2a-46d2-b4c0-449aec007d0e",
+  siteUrl:"https://unboffice.sharepoint.com/sites/ITPortal",
+  cctvUrl:"https://surawat1411199729978.github.io/cctv/",
+  roles:[
+    {id:"1bd59628-c797-415e-b7e6-9260d905b502",name:"ทีม IT",icon:['person','#4a87c5'],desc:"ดูและแก้ไขได้ทุกเมนู รวมรหัส WiFi และอัปโหลดเอกสาร"},
+    {id:"c245be50-a1c7-4ecb-a191-c5fef9534ed0",name:"ผู้บริหาร",icon:['person','#8a74b8'],desc:"ดูได้ทุกเมนู รวมรหัส WiFi แต่แก้ไขไม่ได้"},
+    {id:"a534e2b7-6fa0-4fde-b9fb-8da88c179a81",name:"ผู้อัปโหลดเอกสาร",icon:['person','#d9953a'],desc:"อัปโหลด/ลบไฟล์ใน Form Format และ Support Document (ไม่เห็นข้อมูล IT อื่น)"}]
+};
+const SCOPES=['User.Read','Sites.ReadWrite.All'];
+const DEMO=new URLSearchParams(location.search).has('demo');
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const TH_M=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const thDate=s=>{if(!s)return '';const [y,m,d]=String(s).split('-').map(Number);if(!y)return esc(s);return `${d?d+' ':''}${m?TH_M[m-1]+' ':''}${y+543}`};
+const money=n=>(+n||0).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2});
+const today=()=>new Date().toISOString().slice(0,10);
+const daysTo=s=>{if(!s)return null;return Math.round((new Date(s+'T00:00:00')-new Date(today()+'T00:00:00'))/864e5)};
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2200)}
+async function copy(v){try{await navigator.clipboard.writeText(v);toast('คัดลอกแล้ว')}catch(e){const a=document.createElement('textarea');a.value=v;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();toast('คัดลอกแล้ว')}}
+const phones=s=>String(s||'').split('/').map(x=>x.trim()).filter(Boolean).map(l=>{const m=l.match(/[0-9][0-9\- ]{2,}[0-9]/);const tel=m?m[0].replace(/[^0-9]/g,''):'';const ext=(l.match(/(ต่อ|กด)\s*([0-9]+)/)||[])[2];return {label:l,tel:tel+(ext?','+ext:'')}});
+
+/* ===== โมดูล ===== */
+const G={
+ laptop:'<rect x="4.5" y="5" width="15" height="10" rx="2" fill="currentColor" fill-opacity=".22"/><rect x="4.5" y="5" width="15" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 18.5h19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="1.3" fill="currentColor"/>',
+ phone:'<path d="M7 3.8h2.6l1.5 3.9-1.9 1.4a10.5 10.5 0 0 0 5.7 5.7l1.4-1.9 3.9 1.5V17a2.5 2.5 0 0 1-2.6 2.5A15.5 15.5 0 0 1 4.5 6.4 2.5 2.5 0 0 1 7 3.8z" fill="currentColor" fill-opacity=".22"/><path d="M7 3.8h2.6l1.5 3.9-1.9 1.4a10.5 10.5 0 0 0 5.7 5.7l1.4-1.9 3.9 1.5V17a2.5 2.5 0 0 1-2.6 2.5A15.5 15.5 0 0 1 4.5 6.4 2.5 2.5 0 0 1 7 3.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ disc:'<circle cx="12" cy="12" r="8.5" fill="currentColor" fill-opacity=".22"/><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 5.8a6.2 6.2 0 0 1 6.2 6.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".5"/>',
+ printer:'<rect x="3.5" y="9" width="17" height="7.5" rx="2" fill="currentColor" fill-opacity=".22"/><path d="M7.5 9V4.5h9V9M7.5 16.5H5.5a2 2 0 0 1-2-2V11a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v3.5a2 2 0 0 1-2 2h-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="7.5" y="13.5" width="9" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="17" cy="11.8" r="1" fill="currentColor"/>',
+ wifi:'<path d="M12 20.2 3 9.6a13.5 13.5 0 0 1 18 0z" fill="currentColor" fill-opacity=".22"/><path d="M3 9.6a13.5 13.5 0 0 1 18 0M6 13a9 9 0 0 1 12 0M9 16.4a4.6 4.6 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="19.3" r="1.3" fill="currentColor"/>',
+ server:'<rect x="4" y="3.5" width="16" height="7" rx="2" fill="currentColor" fill-opacity=".22"/><rect x="4" y="3.5" width="16" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="4" y="13.5" width="16" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="7" r="1.1" fill="currentColor"/><circle cx="8" cy="17" r="1.1" fill="currentColor"/>',
+ net:'<circle cx="12" cy="12" r="8.5" fill="currentColor" fill-opacity=".22"/><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 12h17M12 3.5c2.8 2.6 2.8 14.4 0 17M12 3.5c-2.8 2.6-2.8 14.4 0 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ cam:'<rect x="3" y="6.5" width="12.5" height="11" rx="2.5" fill="currentColor" fill-opacity=".22"/><rect x="3" y="6.5" width="12.5" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m15.5 10.5 5-3v9l-5-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="10" r="1" fill="currentColor"/>',
+ screen:'<rect x="3" y="4" width="18" height="12" rx="2" fill="currentColor" fill-opacity=".22"/><rect x="3" y="4" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 20h7M12 16v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ pin:'<path d="M12 21s-6.5-6-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 15 12 21 12 21z" fill="currentColor" fill-opacity=".22"/><path d="M12 21s-6.5-6-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 15 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="9.8" r="2.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ mobile:'<rect x="7" y="2.8" width="10" height="18.4" rx="2.6" fill="currentColor" fill-opacity=".22"/><rect x="7" y="2.8" width="10" height="18.4" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.8 17.8h2.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ tool:'<path d="M14.5 4.2a4.3 4.3 0 0 0 5.3 5.3l-7.7 7.7a2.3 2.3 0 0 1-3.3-3.3z" fill="currentColor" fill-opacity=".22"/><path d="M14.5 4.2a4.3 4.3 0 0 0 5.3 5.3l-7.7 7.7a2.3 2.3 0 0 1-3.3-3.3l7.7-7.7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ building:'<rect x="5" y="4" width="9" height="16.5" rx="1.2" fill="currentColor" fill-opacity=".22"/><path d="M5 20.5V5.2A1.2 1.2 0 0 1 6.2 4h6.6A1.2 1.2 0 0 1 14 5.2v15.3M14 9h4a1 1 0 0 1 1 1v10.5M3 20.5h18M8 8h3M8 11.5h3M8 15h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ person:'<circle cx="12" cy="8.2" r="3.8" fill="currentColor" fill-opacity=".22"/><circle cx="12" cy="8.2" r="3.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0" fill="currentColor" fill-opacity=".22"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ doc:'<path d="M6.5 3.5h7l4 4v12a1 1 0 0 1-1 1h-10a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z" fill="currentColor" fill-opacity=".22"/><path d="M6.5 3.5h7l4 4v12a1 1 0 0 1-1 1h-10a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1zM13.5 3.5v4h4M9 12h6M9 15.5h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ key:'<circle cx="8.5" cy="15" r="4.3" fill="currentColor" fill-opacity=".22"/><circle cx="8.5" cy="15" r="4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m11.6 12 7.9-7.9M16 7.6l2.4 2.4M14 9.6l1.6 1.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ folder:'<path d="M3.5 7A1.5 1.5 0 0 1 5 5.5h4.3l2 2H19A1.5 1.5 0 0 1 20.5 9v8.5A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z" fill="currentColor" fill-opacity=".22"/><path d="M3.5 7A1.5 1.5 0 0 1 5 5.5h4.3l2 2H19A1.5 1.5 0 0 1 20.5 9v8.5A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ book:'<path d="M3.5 5h5.5a3 3 0 0 1 3 3v12a2.3 2.3 0 0 0-2.3-2.3H3.5z" fill="currentColor" fill-opacity=".22"/><path d="M3.5 5h5.5a3 3 0 0 1 3 3v12a2.3 2.3 0 0 0-2.3-2.3H3.5zM20.5 5H15a3 3 0 0 0-3 3v12a2.3 2.3 0 0 1 2.3-2.3h6.2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ dl:'<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
+ lock:'<rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor" fill-opacity=".22"/><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor"/>',
+ alert:'<path d="M12 3.8 21 19.5H3z" fill="currentColor" fill-opacity=".22"/><path d="M12 3.8 21 19.5H3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 10v4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/>'};
+const ico=(n,c)=>`<div class="ic" style="--c:${c}"><svg viewBox="0 0 24 24">${G[n]||G.tool}</svg></div>`;
+const CHEV='<svg class="chev" width="8" height="13" viewBox="0 0 8 13"><path d="M1.5 1.5 6.5 6.5 1.5 11.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const TYPEICO={'ซอฟต์แวร์':['disc','#8a74b8'],'คอมพิวเตอร์ / โน้ตบุ๊ก / แท็บเล็ต':['laptop','#4a87c5'],'เซิร์ฟเวอร์ / Storage':['server','#6f6aa8'],'เครื่องพิมพ์ / สแกนเนอร์ / ถ่ายเอกสาร':['printer','#7d8a99'],'ระบบเครือข่าย':['net','#3e9fa8'],'โทรศัพท์ / สื่อสาร':['mobile','#6c9a52'],'กล้องวงจรปิด / CCTV':['cam','#d4634f'],'จอภาพ / โปรเจคเตอร์':['screen','#5a9fc7'],'GPS / อุปกรณ์ติดตาม':['pin','#d9953a']};
+const aIco=r=>{const t=r.g==='sw'?TYPEICO['ซอฟต์แวร์']:(TYPEICO[r.type]||['tool','#a2845e']);return ico(t[0],t[1])};
+
+const ICON={'ซอฟต์แวร์':'💿','คอมพิวเตอร์ / โน้ตบุ๊ก / แท็บเล็ต':'💻','เซิร์ฟเวอร์ / Storage':'🗄️','เครื่องพิมพ์ / สแกนเนอร์ / ถ่ายเอกสาร':'🖨️','ระบบเครือข่าย':'🌐','โทรศัพท์ / สื่อสาร':'📱','กล้องวงจรปิด / CCTV':'📹','จอภาพ / โปรเจคเตอร์':'🖥️','GPS / อุปกรณ์ติดตาม':'📍'};
+const MODS={
+ assets:{list:'IT Assets',title:'สินทรัพย์ IT',icon:['laptop','#4a87c5'],desc:'อุปกรณ์และซอฟต์แวร์ของบริษัท',
+  titleOf:r=>`${r.code||''} ${r.name||''}`.trim(),
+  fields:[{k:'g',l:'กลุ่ม',t:'select',o:[['hw','อุปกรณ์ IT'],['sw','ซอฟต์แวร์']]},{k:'code',l:'รหัสทรัพย์สิน'},{k:'name',l:'ชื่อรายการ',full:1},{k:'type',l:'ประเภท',t:'list'},{k:'date',l:'วันที่ซื้อ',t:'date'},{k:'cost',l:'ราคา (บาท)',t:'number'},{k:'qty',l:'จำนวน',t:'number'},{k:'unit',l:'หน่วย'},{k:'dept',l:'แผนก',t:'list'},{k:'loc',l:'ผู้ขาย / ที่มา',t:'list'},{k:'doc',l:'เลขที่เอกสาร'},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
+  filters:[{k:'g',l:'กลุ่ม',fmt:v=>v==='sw'?'ซอฟต์แวร์':'อุปกรณ์ IT'},{k:'type',l:'ประเภท'},{k:'dept',l:'แผนก'},{k:'loc',l:'ผู้ขาย / ที่มา'},{k:'year',l:'ปีที่ซื้อ',get:r=>r.date?String(+r.date.slice(0,4)+543):'',sort:'desc'}],
+  sorts:[['date-','ซื้อล่าสุด'],['date','ซื้อเก่าสุด'],['cost-','ราคาสูง→ต่ำ'],['code','รหัส']],
+  search:['code','name','type','dept','loc','doc','note'],
+  summary:L=>[[L.length.toLocaleString(),'รายการ'],[money(L.reduce((a,r)=>a+(+r.cost||0),0)),'มูลค่ารวม (บาท)']],
+  card:r=>`${aIco(r)}<div class="bd"><div class="t">${esc(r.name)}</div><div class="m"><span class="mono">${esc(r.code)}</span> · ${esc(r.dept||'-')} · ${thDate(r.date)}</div><div class="m">${esc(r.type||'')}</div></div><div class="r num">${r.cost?money(r.cost):''}</div>`},
+ contacts:{list:'IT Contacts',title:'เบอร์ติดต่อ IT',icon:['phone','#6c9a52'],desc:'ผู้ให้บริการและผู้ติดต่อ',pub:1,
+  titleOf:r=>r.company,
+  fields:[{k:'company',l:'บริษัท / ผู้ให้บริการ',full:1,t:'list'},{k:'contact',l:'ผู้ติดต่อ'},{k:'topic',l:'เรื่อง / บริการ'},{k:'phone',l:'เบอร์โทร (หลายเบอร์คั่นด้วย /)',full:1,t:'tel'},{k:'email',l:'อีเมล',full:1,t:'email'},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
+  filters:[{k:'company',l:'บริษัท'}],sorts:[['no','ลำดับ'],['company','บริษัท ก-ฮ']],
+  search:['company','contact','topic','phone','email','note'],
+  card:r=>`${ico('building','#6c9a52')}<div class="bd"><div class="t">${esc(r.company)}</div><div class="m">${esc([r.contact,r.topic].filter(Boolean).join(' · ')||'-')}</div><div class="acts">${phones(r.phone).map(p=>`<a class="pill" href="tel:${esc(p.tel)}" data-stop><svg viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a11 11 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2z" fill="currentColor"/></svg> <span class="num">${esc(p.label)}</span></a>`).join('')}${r.email?`<a class="pill g" href="mailto:${esc(r.email)}" data-stop>${esc(r.email)}</a>`:''}</div></div>`},
+ software:{list:'Software Licenses',title:'Software Assets',icon:['disc','#8a74b8'],desc:'ไลเซนส์ซอฟต์แวร์และ Serial',
+  titleOf:r=>r.product,
+  fields:[{k:'product',l:'ชื่อซอฟต์แวร์',full:1,t:'list'},{k:'serial',l:'Serial / License Key',full:1,t:'secret'},{k:'computer',l:'เครื่องที่ติดตั้ง'},{k:'qty',l:'จำนวน',t:'number'},{k:'type',l:'ประเภทไลเซนส์',t:'list'},{k:'service',l:'บริการ',t:'list'},{k:'status',l:'สถานะ',t:'list'},{k:'date',l:'วันที่ / วันหมดอายุ',t:'date'},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
+  filters:[{k:'product',l:'ซอฟต์แวร์'},{k:'status',l:'สถานะ'},{k:'type',l:'ประเภทไลเซนส์'}],sorts:[['no','ลำดับ'],['product','ชื่อ'],['date-','วันที่ล่าสุด']],
+  search:['product','serial','computer','type','status','note'],
+  card:r=>`${ico('key','#8a74b8')}<div class="bd"><div class="t">${esc(r.product)}</div><div class="m">${esc(r.computer||'ไม่ระบุเครื่อง')} · ${esc(r.type||'')}${r.qty>1?' · '+r.qty+' ไลเซนส์':''}</div><div class="m mono">${esc(r.serial)}</div></div><div class="r"><span class="badge ${/expire/i.test(r.status)?'b-bad':'b-ok'}">${esc(r.status||'-')}</span></div>`},
+ copier:{list:'Copier Users',title:'เครื่องถ่ายเอกสาร & ปริ้นเตอร์',icon:['printer','#5f7690'],desc:'รหัสผู้ใช้และสัญญาเช่า',
+  titleOf:r=>`${r.code} ${r.user}`,
+  fields:[{k:'code',l:'รหัสผู้ใช้'},{k:'name',l:'ชื่อบัญชี'},{k:'user',l:'ผู้ใช้'},{k:'room',l:'ห้อง / แผนก',t:'list'},{k:'status',l:'สถานะ',t:'select',o:[['use','ใช้งาน'],['left','ลาออก / ยกเลิก']]},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
+  filters:[{k:'room',l:'ห้อง / แผนก'},{k:'status',l:'สถานะ',fmt:v=>v==='left'?'ลาออก / ยกเลิก':'ใช้งาน'}],sorts:[['code','รหัส'],['room','ห้อง']],
+  search:['code','name','user','room','note'],
+  card:r=>`${ico('person','#5f7690')}<div class="bd"><div class="t">${esc(r.user||'-')}</div><div class="m">รหัส <b class="mono">${esc(r.code)}</b> · ${esc(r.name||'')} · ${esc(r.room||'')}</div></div><div class="r"><span class="badge ${r.status==='left'?'b-mute':'b-ok'}">${r.status==='left'?'ลาออก':'ใช้งาน'}</span></div>`,
+  sub:'contracts'},
+ contracts:{list:'Copier Contracts',title:'สัญญาเช่าเครื่องถ่ายเอกสาร',icon:['doc','#d9953a'],hidden:1,
+  titleOf:r=>r.serial,
+  fields:[{k:'serial',l:'Serial เครื่อง',full:1},{k:'place',l:'ที่ตั้ง',full:1,t:'list'},{k:'end',l:'วันสิ้นสุดสัญญา',t:'date'},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
+  filters:[{k:'place',l:'ที่ตั้ง'}],sorts:[['end','ใกล้หมดก่อน'],['place','ที่ตั้ง']],
+  search:['serial','place','note'],
+  card:r=>{const d=daysTo(r.end);const b=d==null?'':d<0?`<span class="badge b-bad">หมดแล้ว ${-d} วัน</span>`:d<=60?`<span class="badge b-warn">เหลือ ${d} วัน</span>`:`<span class="badge b-ok">เหลือ ${d} วัน</span>`;return `${ico('doc','#d9953a')}<div class="bd"><div class="t">${esc(r.place)}</div><div class="m">Serial <span class="mono">${esc(r.serial)}</span> · สิ้นสุด ${thDate(r.end)}</div>${r.note?`<div class="m">${esc(r.note)}</div>`:''}</div><div class="r">${b}</div>`}},
+ forms:{kind:'docs',list:'Form Format',title:'Form Format',icon:['doc','#d9953a'],desc:'แบบฟอร์มสำหรับดาวน์โหลด',pub:1,segs:['แผนก IT','โปรแกรมเมอร์'],
+  titleOf:r=>r.name,fields:[],filters:[{k:'sub',l:'หมวดย่อย',get:r=>subOf(r),fmt:v=>v||'ทั่วไป'},{k:'ext',l:'ชนิดไฟล์',fmt:v=>v.toUpperCase()||'-'}],sorts:[['name','ชื่อ ก-ฮ'],['mod-','อัปเดตล่าสุด']],search:['name','folder'],card:r=>docCard(r,1)},
+ docs:{kind:'docs',list:'Support Documents',title:'Support Document',icon:['book','#c9677f'],desc:'คู่มือและเอกสารช่วยเหลือ',pub:1,
+  titleOf:r=>r.name,fields:[],filters:[{k:'folder',l:'หมวด',fmt:v=>v||'ทั่วไป'},{k:'ext',l:'ชนิดไฟล์',fmt:v=>v.toUpperCase()||'-'}],sorts:[['name','ชื่อ ก-ฮ'],['mod-','อัปเดตล่าสุด']],search:['name','folder'],card:r=>docCard(r)},
+ wifi:{list:'WiFi Passwords',title:'รหัส WiFi',icon:['wifi','#3e9fa8'],desc:'ชื่อ WiFi และรหัสผ่าน',
+  titleOf:r=>r.ssid,
+  fields:[{k:'ssid',l:'ชื่อ WiFi (SSID) / Username',full:1},{k:'password',l:'Password',full:1,t:'secret'},{k:'place',l:'สถานที่',t:'list'},{k:'type',l:'ประเภท',t:'list'},{k:'ip',l:'IP (ถ้ามี)'},{k:'status',l:'สถานะ',t:'select',o:[['cur','ใช้งานปัจจุบัน'],['old','ข้อมูลเก่า']]},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
+  filters:[{k:'status',l:'สถานะ',fmt:v=>v==='old'?'ข้อมูลเก่า':'ใช้งานปัจจุบัน'},{k:'place',l:'สถานที่'}],sorts:[['no','ลำดับ'],['place','สถานที่']],
+  search:['ssid','place','type','ip','note'],
+  card:r=>`${ico('wifi','#3e9fa8')}<div class="bd"><div class="t">${esc(r.ssid)}</div><div class="m">${esc(r.place||'')}${r.type&&r.type!=='WiFi'?' · '+esc(r.type):''}${r.ip?' · <span class="mono">'+esc(r.ip)+'</span>':''}</div><div class="pw"><span class="v mono">••••••••</span><button class="cp" data-copypw="${esc(r._id)}">คัดลอกรหัส</button></div></div><div class="r"><span class="badge ${r.status==='old'?'b-mute':'b-ok'}">${r.status==='old'?'เก่า':'ใช้งาน'}</span></div>`}
+};
+const HOME=['assets','contacts','software','copier','wifi'];
+MODS.access={kind:'admin',title:'สิทธิ์การเข้าถึง',icon:['key','#c9677f'],sorts:[['x','']],filters:[],search:[],fields:[]};
+let isAdmin=false,myId='';
+const DOCS=['forms','docs'];
+const EXTC={pdf:['#d4634f','PDF'],doc:['#4a87c5','DOC'],docx:['#4a87c5','DOC'],xls:['#6c9a52','XLS'],xlsx:['#6c9a52','XLS'],xlsm:['#6c9a52','XLS'],csv:['#6c9a52','CSV'],ppt:['#d9953a','PPT'],pptx:['#d9953a','PPT'],png:['#8a74b8','IMG'],jpg:['#8a74b8','IMG'],jpeg:['#8a74b8','IMG'],zip:['#7d8a99','ZIP'],txt:['#7d8a99','TXT']};
+const fsize=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(0)+' KB':(n/1048576).toFixed(1)+' MB';
+const extIco=e=>{const [c,l]=EXTC[e]||['#7d8a99',(e||'FILE').slice(0,4).toUpperCase()];return `<div class="ic" style="--c:${c};font-size:9.5px;font-weight:800;letter-spacing:.02em">${l}<svg viewBox="0 0 24 24" style="display:none"></svg></div>`};
+const topOf=r=>(r.folder||'').split(' / ')[0];const subOf=r=>(r.folder||'').split(' / ').slice(1).join(' / ');
+const segMatch=(m,r,seg)=>topOf(r)===seg||(seg===m.segs[0]&&!m.segs.includes(topOf(r)));
+const docCard=(r,sg)=>`${extIco(r.ext)}<div class="bd"><div class="t">${esc(r.name)}</div><div class="m">${esc(sg?(subOf(r)||'ทั่วไป'):(r.folder||'ทั่วไป'))} · ${fsize(r.size)} · ${thDate(r.mod)}</div></div><div class="r"><button class="dlb" data-dl="${esc(r._id)}" aria-label="ดาวน์โหลด"><svg width="22" height="22" viewBox="0 0 24 24">${G.dl}</svg></button></div>`;
+
+
+/* ===== Graph / SharePoint ===== */
+let msal=null,account=null,siteId='',lists={},isIT=false,canSee=false,canUp={},me='';
+const DATA={};
+async function token(sc){sc=sc||SCOPES;
+  try{return (await msal.acquireTokenSilent({scopes:sc,account})).accessToken}
+  catch(e){await msal.acquireTokenRedirect({scopes:sc,account});throw e}
+}
+const ADM_SCOPES=['GroupMember.ReadWrite.All','User.ReadBasic.All'];
+async function ga(path,opt={}){const t=await token(ADM_SCOPES);const headers={Authorization:'Bearer '+t,...(opt.headers||{})};let body;if(opt.json){headers['Content-Type']='application/json';body=JSON.stringify(opt.json)}
+  const r=await fetch('https://graph.microsoft.com/v1.0'+path,{method:opt.method||'GET',headers,body});if(!r.ok){let m='';try{m=(await r.json()).error.message}catch(_){};const e=new Error(m||('Graph '+r.status));e.status=r.status;throw e}return r.status===204?null:r.json()}
+async function g(path,opt={}){
+  const t=await token();const headers={Authorization:'Bearer '+t,...(opt.headers||{})};let body;
+  if(opt.json){headers['Content-Type']='application/json';body=JSON.stringify(opt.json)}
+  const r=await fetch(path.startsWith('http')?path:'https://graph.microsoft.com/v1.0'+path,{method:opt.method||'GET',headers,body});
+  if(!r.ok){let b='';try{b=await r.text()}catch(_){};let m='';try{m=JSON.parse(b).error.message}catch(_){};const err=new Error((opt.method||'GET')+' '+path.split('?')[0]+(m?' : '+m:''));err.status=r.status;throw err}
+  return r.status===204?null:r.json();
+}
+const store={
+  async connect(){
+    if(DEMO){lists={};for(const k in MODS)lists[MODS[k].list]='demo';isIT=!new URLSearchParams(location.search).has('visitor');canSee=isIT;if(!isIT)for(const k in MODS)if(!MODS[k].pub)delete lists[MODS[k].list];return}
+    const u=new URL(CFG.siteUrl);
+    siteId=(await g(`/sites/${u.hostname}:${u.pathname.replace(/\/+$/,'')}`)).id;
+    let next=`/sites/${siteId}/lists?$select=id,displayName&$top=200`;lists={};
+    while(next){const r=await g(next);r.value.forEach(l=>lists[l.displayName]=l.id);next=r['@odata.nextLink']}
+    canSee=Object.values(MODS).some(m=>!m.pub&&lists[m.list]);
+    await Promise.all(DOCS.filter(k=>lists[MODS[k].list]).map(async k=>{try{const d=await this.drive(k);const ses=await g(`/drives/${d}/root:/.perm-check-${Date.now()}-${Math.random().toString(36).slice(2,8)}.tmp:/createUploadSession`,{method:'POST',json:{item:{'@microsoft.graph.conflictBehavior':'fail'}}});canUp[k]=true;fetch(ses.uploadUrl,{method:'DELETE'}).catch(()=>{})}catch(e){canUp[k]=false}}));
+    isIT=canSee&&Object.values(canUp).some(Boolean);
+  },
+  async load(key){
+    const m=MODS[key];const id=lists[m.list];if(!id)return null;
+    if(m.kind==='docs')return this.loadDocs(key);
+    if(DEMO){try{return JSON.parse(localStorage.getItem('itp-demo-'+key)||'null')||demoSeed(key)}catch(e){return []}}
+    let rows=[],next=`/sites/${siteId}/lists/${id}/items?$expand=fields($select=Title,Data)&$top=999`;
+    while(next){const r=await g(next);r.value.forEach(it=>{let d={};try{d=JSON.parse(it.fields.Data||'{}')}catch(e){}rows.push({...d,_id:it.id})});next=r['@odata.nextLink']}
+    return rows;
+  },
+
+  drives:{},
+  async drive(key){const m=MODS[key];if(this.drives[key])return this.drives[key];const d=await g(`/sites/${siteId}/lists/${lists[m.list]}/drive?$select=id`);return this.drives[key]=d.id},
+  async loadDocs(key){
+    if(DEMO){return (JSON.parse(localStorage.getItem('itp-demo-'+key)||'null')||[{_id:'f1',name:'แบบฟอร์มขอใช้อุปกรณ์ IT.docx',ext:'docx',size:48211,mod:'2026-11-01',folder:'ขอใช้บริการ',by:'IT'},{_id:'f2',name:'แบบฟอร์มขอรหัสผ่านใหม่.pdf',ext:'pdf',size:120400,mod:'2026-10-12',folder:'บัญชีผู้ใช้',by:'IT'},{_id:'f3',name:'คู่มือเชื่อมต่อ VPN.pdf',ext:'pdf',size:2400000,mod:'2026-09-03',folder:'',by:'IT'}])}
+    const d=await this.drive(key);const out=[];
+    const walk=async(path,folder,depth)=>{let next=`/drives/${d}/${path}/children?$top=999&$select=id,name,size,lastModifiedDateTime,folder,file,webUrl,lastModifiedBy`;
+      while(next){const r=await g(next);for(const it of r.value){if(it.folder){if(depth<2)await walk(`items/${it.id}`,folder?folder+' / '+it.name:it.name,depth+1)}else if(it.name!=='Forms'){const ext=(it.name.match(/\.([a-z0-9]+)$/i)||[])[1]?.toLowerCase()||'';out.push({_id:it.id,name:it.name,ext,size:it.size||0,mod:(it.lastModifiedDateTime||'').slice(0,10),folder,web:it.webUrl,by:it.lastModifiedBy?.user?.displayName||''})}}next=r['@odata.nextLink']}};
+    await walk('root','',0);return out;
+  },
+  async dlUrl(key,id){if(DEMO)return 'data:text/plain,demo';const d=await this.drive(key);const it=await g(`/drives/${d}/items/${id}`);return it['@microsoft.graph.downloadUrl']},
+  async upload(key,file,folder,prog){
+    if(DEMO){DATA[key].push({_id:'u'+Date.now(),name:file.name,ext:(file.name.split('.').pop()||'').toLowerCase(),size:file.size,mod:today(),folder,by:me});localStorage.setItem('itp-demo-'+key,JSON.stringify(DATA[key]));return}
+    const d=await this.drive(key);const path=(folder?folder.split(' / ').map(encodeURIComponent).join('/')+'/':'')+encodeURIComponent(file.name);
+    let it;
+    if(file.size<=4*1024*1024){const t=await token();const r=await fetch(`https://graph.microsoft.com/v1.0/drives/${d}/root:/${path}:/content?@microsoft.graph.conflictBehavior=replace`,{method:'PUT',headers:{Authorization:'Bearer '+t},body:file});if(!r.ok){const e=new Error('อัปโหลดไม่สำเร็จ ('+r.status+')');e.status=r.status;throw e}it=await r.json();prog&&prog(1)}
+    else{const ses=await g(`/drives/${d}/root:/${path}:/createUploadSession`,{method:'POST',json:{item:{'@microsoft.graph.conflictBehavior':'replace'}}});const CH=327680*10;
+      for(let o=0;o<file.size;o+=CH){const end=Math.min(o+CH,file.size);const r=await fetch(ses.uploadUrl,{method:'PUT',headers:{'Content-Range':`bytes ${o}-${end-1}/${file.size}`},body:file.slice(o,end)});if(!r.ok&&r.status!==202){throw new Error('อัปโหลดไม่สำเร็จ ('+r.status+')')}if(end===file.size)it=await r.json();prog&&prog(end/file.size)}}
+    const ext=(it.name.match(/\.([a-z0-9]+)$/i)||[])[1]?.toLowerCase()||'';
+    DATA[key]=DATA[key].filter(x=>x._id!==it.id);DATA[key].push({_id:it.id,name:it.name,ext,size:it.size,mod:(it.lastModifiedDateTime||'').slice(0,10),folder,web:it.webUrl,by:me});
+  },
+  async delDoc(key,id){if(!DEMO){const d=await this.drive(key);await g(`/drives/${d}/items/${id}`,{method:'DELETE'})}DATA[key]=DATA[key].filter(x=>x._id!==id);if(DEMO)localStorage.setItem('itp-demo-'+key,JSON.stringify(DATA[key]))},
+  async save(key,r){
+    const m=MODS[key];const {_id,...d}=r;
+    if(DEMO){const L=DATA[key];if(_id){const i=L.findIndex(x=>x._id===_id);L[i]={...d,_id}}else L.push({...d,_id:'d'+Date.now()});localStorage.setItem('itp-demo-'+key,JSON.stringify(L));return}
+    const fields={Title:String(m.titleOf(d)||'-').slice(0,250),Data:JSON.stringify(d)};
+    const id=lists[m.list];
+    if(_id){await g(`/sites/${siteId}/lists/${id}/items/${_id}/fields`,{method:'PATCH',json:fields});const i=DATA[key].findIndex(x=>x._id===_id);DATA[key][i]={...d,_id}}
+    else{const it=await g(`/sites/${siteId}/lists/${id}/items`,{method:'POST',json:{fields}});DATA[key].push({...d,_id:it.id})}
+  },
+  async del(key,_id){
+    if(DEMO){DATA[key]=DATA[key].filter(x=>x._id!==_id);localStorage.setItem('itp-demo-'+key,JSON.stringify(DATA[key]));return}
+    await g(`/sites/${siteId}/lists/${lists[MODS[key].list]}/items/${_id}`,{method:'DELETE'});DATA[key]=DATA[key].filter(x=>x._id!==_id);
+  }
+};
+function demoSeed(k){const S={contacts:[{no:1,company:'ตัวอย่าง ISP',contact:'คุณเอ',topic:'อินเทอร์เน็ต',phone:'02-123-4567 ต่อ 12 / 081-234-5678',email:'support@example.com'}],wifi:[{no:1,ssid:'DEMO_WIFI',password:'demo-pass-123',place:'สำนักงาน',type:'WiFi',status:'cur'}],software:[{no:1,product:'ตัวอย่างซอฟต์แวร์',serial:'XXXX-YYYY',computer:'PC-01',qty:1,type:'Stand Alone',service:'Perpetual',status:'Active',date:'2025-01-01'}],copier:[{code:'1001',name:'demo',user:'ผู้ใช้ทดสอบ',room:'ห้องทดสอบ',status:'use'}],contracts:[{serial:'SN123',place:'รง.1',end:'2026-12-31'}],assets:[{g:'hw',code:'0001',name:'โน้ตบุ๊กทดสอบ',type:'คอมพิวเตอร์ / โน้ตบุ๊ก / แท็บเล็ต',date:'2024-05-01',cost:25000,qty:1,unit:'Pc',dept:'IT',loc:'ร้านทดสอบ'},{g:'sw',code:'0002',name:'Windows 11',type:'ซอฟต์แวร์',date:'2023-02-01',cost:5900,qty:1,unit:'Pc',dept:'Sales',loc:''}]};return (S[k]||[]).map((r,i)=>({...r,_id:'s'+i}))}
+async function ensure(key){if(DATA[key])return DATA[key];DATA[key]=(await store.load(key))||null;return DATA[key]}
+const canEdit=key=>MODS[key].kind==='docs'?(DEMO?isIT:!!canUp[key]):(isIT&&!!lists[MODS[key].list]);
+const roleName=()=>isIT?'ทีม IT · แก้ไขได้ทุกระบบ':canSee?'ผู้บริหาร · ดูได้ทุกระบบ (แก้ไขไม่ได้)':Object.values(canUp).some(Boolean)?'ผู้อัปโหลดเอกสาร':'พนักงาน · ดูเบอร์ติดต่อ IT และเอกสาร';
+
+/* ===== สถานะหน้า ===== */
+let view='home',mode='loading',errMsg='';
+const ST={};const st=k=>ST[k]||(ST[k]={q:'',f:{},sort:MODS[k].sorts[0][0],lim:60,seg:MODS[k].segs?MODS[k].segs[0]:''});
+function setHeader(){
+  const home=view==='home';const mk=view==='contracts'?'copier':view;
+  $('back').classList.toggle('on',!home);
+  $('title').style.display=home?'':'none';$('sub').style.display=home?'':'none';
+  $('ntitle').textContent=home?'':MODS[mk].title;$('ntitle').classList.toggle('on',!home);
+  $('fab').classList.toggle('on',!home&&mode==='ready'&&canEdit(view));
+  $('who').classList.toggle('on',home&&mode==='ready');
+  if(home||mode!=='ready'){$('tools').innerHTML='';return}
+  if(view==='access'){$('tools').innerHTML=`<h1 style="font-size:30px;margin-top:0">สิทธิ์การเข้าถึง</h1><div class="sub">เพิ่ม/ลบคนในแต่ละกลุ่มสิทธิ์ของ IT Portal</div>`;return}
+  const s=st(view);const nf=Object.values(s.f).reduce((a,v)=>a+v.length,0);
+  $('tools').innerHTML=`<h1 style="font-size:30px;margin-top:0">${esc(MODS[mk].title)}</h1>${MODS[view].segs?`<div class="seg">${MODS[view].segs.map(g=>{const n=(DATA[view]||[]).filter(r=>segMatch(MODS[view],r,g)).length;return `<button data-fseg="${esc(g)}" class="${s.seg===g?'on':''}">${esc(g)}${DATA[view]?` <span style="opacity:.55">${n}</span>`:''}</button>`}).join('')}</div>`:''}${(view==='copier'||view==='contracts')?`<div class="seg"><button data-seg="copier" class="${view==='copier'?'on':''}">รหัสผู้ใช้</button><button data-seg="contracts" class="${view==='contracts'?'on':''}">สัญญาเช่า</button></div>`:''}
+  <div class="sbar"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="ค้นหา" value="${esc(s.q)}" autocomplete="off"></label><button class="fbtn" id="fopen"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M7 9h10M9 12.5h6M11 16h2"/></svg>${nf?`<b>${nf}</b>`:''}</button></div>
+  <div class="chips">${Object.entries(s.f).flatMap(([k,vs])=>vs.map(v=>{const F=MODS[view].filters.find(x=>x.k===k);return `<button class="chip" data-rmf="${esc(k)}" data-v="${esc(v)}">${esc(F&&F.fmt?F.fmt(v):v||'ไม่ระบุ')} <span>✕</span></button>`})).join('')}</div>`;
+  const q=$('q');q.oninput=()=>{s.q=q.value;s.lim=60;renderList()};
+}
+window.addEventListener('scroll',()=>$('hdr').classList.toggle('sc',scrollY>4),{passive:true});
+const fval=(F,r)=>F.get?F.get(r):(r[F.k]??'');
+function filtered(key){
+  const m=MODS[key],s=st(key);const q=s.q.trim().toLowerCase();
+  let L=(DATA[key]||[]).filter(r=>{
+    if(m.segs&&!segMatch(m,r,s.seg))return false;
+    for(const [k,vs] of Object.entries(s.f)){if(!vs.length)continue;const F=m.filters.find(x=>x.k===k);if(!vs.includes(String(fval(F,r))))return false}
+    if(q&&!m.search.map(k=>r[k]??'').join(' ').toLowerCase().replace(/-/g,'').includes(q.replace(/-/g,'')))return false;
+    return true});
+  const [fk,desc]=[s.sort.replace(/-$/,''),s.sort.endsWith('-')];
+  L.sort((a,b)=>{let x=a[fk],y=b[fk];if(typeof x==='number'||typeof y==='number'){x=+x||0;y=+y||0;return desc?y-x:x-y}x=String(x??'');y=String(y??'');return desc?y.localeCompare(x,'th'):x.localeCompare(y,'th',{numeric:true})});
+  return L;
+}
+const LOCKSVG=`<svg viewBox="0 0 24 24">${G.lock}</svg>`;
+function render(){
+  setHeader();const M=$('main');
+  if(mode==='loading'){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
+  if(mode==='signin'){M.innerHTML=`<div class="center"><div class="big">${LOCKSVG}</div><h2>เข้าสู่ระบบด้วยบัญชีบริษัท</h2><div>ใช้อีเมลและรหัสผ่าน Microsoft 365 (Outlook / Teams)</div><button class="cta" id="login">เข้าสู่ระบบ Microsoft 365</button></div>`;return}
+  if(mode==='err'){M.innerHTML=`<div class="center"><div class="big" style="color:#d4634f;background:color-mix(in srgb,#d4634f 14%,var(--card))"><svg viewBox="0 0 24 24">${G.alert}</svg></div><h2>เชื่อมต่อไม่สำเร็จ</h2><div style="font-size:14px">${esc(errMsg)}</div><button class="cta" id="retry">ลองใหม่</button></div>`;return}
+  if(view==='home'){renderHome();return}
+  renderList();
+}
+function renderHome(){
+  const UNIT={assets:'รายการ',contacts:'รายชื่อ',software:'ไลเซนส์',copier:'ผู้ใช้',wifi:'เครือข่าย',forms:'ไฟล์',docs:'ไฟล์'};
+  const cnt=k=>DATA[k]?DATA[k].length.toLocaleString():'–';
+  const sub={assets:()=>DATA.assets?'มูลค่า '+money(DATA.assets.reduce((a,r)=>a+(+r.cost||0),0))+' ฿':'',
+    copier:()=>DATA.contracts?(()=>{const n=DATA.contracts.filter(r=>{const d=daysTo(r.end);return d!=null&&d<=60}).length;return n?`<span style="color:var(--bad)">สัญญาต้องต่อ ${n}</span>`:'สัญญาปกติ'})():'',
+    wifi:()=>DATA.wifi?`ใช้งาน ${DATA.wifi.filter(r=>r.status!=='old').length} เครือข่าย`:'',
+    software:()=>DATA.software?`${new Set(DATA.software.map(r=>r.product)).size} ผลิตภัณฑ์`:'',
+    forms:()=>DATA.forms?MODS.forms.segs.map(g=>`${g} ${DATA.forms.filter(r=>segMatch(MODS.forms,r,g)).length}`).join(' · '):'',
+    contacts:()=>DATA.contacts?`${new Set(DATA.contacts.map(r=>r.company)).size} บริษัท`:''};
+  const card=k=>{const m=MODS[k];const ok=!!lists[m.list];if(!ok&&!(isIT||canSee))return '';
+    return `<button class="wd ${ok?'':'lock'}" data-open="${k}"><span class="wtop">${ico(m.icon[0],m.icon[1])}${CHEV}</span><span class="wt">${m.title}</span><span class="wn num">${ok?cnt(k):'—'}<small>${ok?UNIT[k]:'ไม่มีสิทธิ์'}</small></span><span class="ws">${ok&&sub[k]?sub[k]():(ok?m.desc:'')}</span></button>`};
+  const sys=HOME.map(card).join('')+`<a class="wd" href="${esc(CFG.cctvUrl)}" style="text-decoration:none;color:inherit"><span class="wtop">${ico('cam','#d4634f')}${CHEV}</span><span class="wt">สำรวจกล้องวงจรปิด (CCTV)</span><span class="wn" style="font-size:20px">FM-ITM-01-13</span><span class="ws">บันทึกตรวจรายเดือน · Export รายงาน</span></a>`;
+  const docs=DOCS.map(card).join('');
+  // recent docs
+  const recent=DOCS.flatMap(k=>(DATA[k]||[]).map(r=>({...r,_k:k}))).sort((a,b)=>String(b.mod).localeCompare(String(a.mod))).slice(0,5);
+  // alerts for IT
+  let alerts='';
+  if((isIT||canSee)&&DATA.contracts){const L=DATA.contracts.map(r=>({r,d:daysTo(r.end)})).filter(x=>x.d!=null&&x.d<=60).sort((a,b)=>a.d-b.d);
+    if(L.length)alerts=`<div class="gh">ต้องดำเนินการ</div><button class="alert" data-open="contracts"><span class="ic" style="--c:#d4634f"><svg viewBox="0 0 24 24">${G.alert}</svg></span><span class="ab"><b>สัญญาเช่าเครื่องถ่ายเอกสาร ${L.length} สัญญา</b><span>${L.filter(x=>x.d<0).length?`หมดอายุแล้ว ${L.filter(x=>x.d<0).length} สัญญา · `:''}${esc(L.slice(0,3).map(x=>x.r.place).join(', '))}${L.length>3?' …':''}</span></span>${CHEV}</button>`}
+  const hour=new Date().getHours();const greet=hour<12?'สวัสดีตอนเช้า':hour<17?'สวัสดีตอนบ่าย':'สวัสดีตอนเย็น';
+  $('main').innerHTML=`<div class="hello">${greet} คุณ${esc(String(me).split(' ')[0])} · ${thDate(today())}</div>
+  ${alerts}
+  <div class="gh">ระบบงาน IT</div><div class="wgrid">${sys}</div>
+  ${docs?`<div class="gh">เอกสารดาวน์โหลด</div><div class="wgrid two">${docs}</div>`:''}
+  ${isAdmin?`<div class="gh">ผู้ดูแลระบบ</div><div class="group"><button class="row" data-open="access">${ico('key','#c9677f')}<span class="rb"><span class="rt">สิทธิ์การเข้าถึง</span><span class="rv">3 กลุ่ม</span>${CHEV}</span></button></div>`:''}
+  ${recent.length?`<div class="gh">เอกสารล่าสุด</div><div class="list">${recent.map(r=>{const h=docCard(r).replace('data-dl=','data-dlk="'+r._k+'" data-dl=');const i=h.indexOf('</svg></div>')+12;return `<div class="it" role="button" data-doc="${r._k}" data-id="${esc(r._id)}">${h.slice(0,i)}<div class="bdw">${h.slice(i)}</div></div>`}).join('')}</div>`:''}
+  <div class="gf" style="margin-top:14px">สิทธิ์ของคุณ: ${roleName()}</div>`;
+}
+function renderList(){
+  if(view==='access'){renderAccess();return}
+  const key=view,m=MODS[key],s=st(key);const M=$('main');
+  if(!DATA[key]){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
+  const L=filtered(key);
+  const sum=m.summary?`<div class="sum">${m.summary(L).map(([v,l])=>`<div><b class="num">${v}</b>${l}</div>`).join('')}</div>`:'';
+  const row=r=>{const h=m.card(r);const i=h.indexOf('</svg></div>')+12;return `<div class="it" role="button" data-id="${esc(r._id)}">${h.slice(0,i)}<div class="bdw">${h.slice(i)}${m.kind==='docs'?'':`<span class="r" style="padding-top:3px">${CHEV}</span>`}</div></div>`};
+  M.innerHTML=`${sum}<div class="toolbar"><span class="cnt">${L.length.toLocaleString()} รายการ</span><span class="tl"><select class="sortsel" id="sort">${m.sorts.map(([v,l])=>`<option value="${v}" ${v===s.sort?'selected':''}>${l}</option>`).join('')}</select>${m.kind==='docs'?'':'<button class="sortsel" id="csv">ส่งออก</button>'}</span></div>
+  <div class="list">${L.slice(0,s.lim).map(row).join('')||'<div class="empty">ไม่พบรายการ</div>'}</div>
+  ${L.length>s.lim?`<button class="more" id="more">แสดงเพิ่มอีก ${L.length-s.lim} รายการ</button>`:''}`;
+  $('sort').onchange=e=>{s.sort=e.target.value;renderList()};
+  if($('csv'))$('csv').onclick=()=>exportCsv(key,L);
+  if($('more'))$('more').onclick=()=>{s.lim+=100;renderList()};
+}
+function exportCsv(key,L){
+  const m=MODS[key];const cols=m.fields;
+  const cell=v=>{v=String(v??'');return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  const csv='﻿'+[cols.map(c=>cell(c.l)).join(','),...L.map(r=>cols.map(c=>cell(c.t==='select'?((c.o.find(o=>o[0]===r[c.k])||[])[1]||r[c.k]):r[c.k])).join(','))].join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`${m.title}-${today()}.csv`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+
+/* ===== Sheet ===== */
+function openSheet(html){$('sheet').innerHTML='<div class="grab"></div>'+html;$('sheet').classList.add('on');$('scrim').classList.add('on');$('sheet').scrollTop=0}
+function closeSheet(){$('sheet').classList.remove('on');$('scrim').classList.remove('on')}
+$('scrim').onclick=closeSheet;
+const shh=(l,t,r)=>`<div class="shh">${l||'<span style="width:60px"></span>'}<span class="tt">${t||''}</span>${r||'<span style="width:60px"></span>'}</div>`;
+function showVal(c,r){const v=r[c.k];if(v==null||v==='')return '';if(c.t==='select')return esc((c.o.find(o=>o[0]===v)||[])[1]||v);if(c.t==='date')return thDate(v);if(c.k==='cost')return money(v)+' บาท';return esc(v)}
+function detail(key,id){
+  const m=MODS[key];const r=DATA[key].find(x=>x._id===id);if(!r)return;
+  const rows=m.fields.map(c=>{const v=r[c.k];if(v==null||v==='')return '';
+    if(c.t==='secret')return `<div><span class="k">${c.l}</span><span class="v mono" id="sec_${c.k}">••••••••</span><button class="cp" data-show="${c.k}">แสดง</button><button class="cp" data-cpv="${esc(v)}">คัดลอก</button></div>`;
+    if(c.t==='tel')return `<div><span class="k">${c.l}</span><span class="v">${phones(v).map(p=>`<a class="pill" style="margin:2px 4px 2px 0" href="tel:${esc(p.tel)}"><svg viewBox="0 0 24 24">${G.phone}</svg>${esc(p.label)}</a>`).join('')}</span></div>`;
+    if(c.t==='email')return `<div><span class="k">${c.l}</span><span class="v"><a href="mailto:${esc(v)}" style="color:var(--acc);text-decoration:none">${esc(v)}</a></span><button class="cp" data-cpv="${esc(v)}">คัดลอก</button></div>`;
+    return `<div><span class="k">${c.l}</span><span class="v">${showVal(c,r)}</span>${['code','serial','ssid','ip','doc'].includes(c.k)?`<button class="cp" data-cpv="${esc(v)}">คัดลอก</button>`:''}</div>`}).join('');
+  openSheet(`${shh('',m.title,`<button class="x b" id="d_close">เสร็จ</button>`)}<h2>${esc(m.titleOf(r))}</h2><div class="kv">${rows}</div>
+   ${key==='wifi'&&r.type!=='Router (หน้าตั้งค่า)'?`<div id="qrbox"></div>`:''}
+   <div class="btnlist">${key==='wifi'&&r.type!=='Router (หน้าตั้งค่า)'?`<button id="qrbtn">แสดง QR สำหรับเชื่อมต่อ WiFi</button>`:''}${canEdit(key)?`<button id="d_edit">แก้ไข</button><button class="d" id="d_del">ลบรายการ</button>`:''}</div>`);
+  const sh=$('sheet');
+  sh.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>{const el=$('sec_'+b.dataset.show);const on=el.textContent==='••••••••';el.textContent=on?r[b.dataset.show]:'••••••••';b.textContent=on?'ซ่อน':'แสดง'});
+  sh.querySelectorAll('[data-cpv]').forEach(b=>b.onclick=()=>copy(b.dataset.cpv));
+  $('d_close').onclick=closeSheet;
+  if($('d_edit'))$('d_edit').onclick=()=>edit(key,r);
+  if($('d_del'))$('d_del').onclick=()=>{openSheet(`${shh('',`ลบรายการ`,'')}<p style="text-align:center;color:var(--sub);margin:8px 0">${esc(m.titleOf(r))}<br>ลบแล้วกู้คืนไม่ได้</p><div class="btnlist"><button class="d" id="y" style="font-weight:600">ลบรายการ</button><button id="n">ยกเลิก</button></div>`);$('n').onclick=()=>detail(key,id);$('y').onclick=async()=>{try{await store.del(key,id);closeSheet();toast('ลบแล้ว');render()}catch(e){toast(e.status===403?'ไม่มีสิทธิ์ลบ':'ลบไม่สำเร็จ')}}};
+  if($('qrbtn'))$('qrbtn').onclick=async()=>{await loadQR();const box=$('qrbox');box.className='qr';box.innerHTML='';const we=s=>String(s).replace(/([\;,:"])/g,'\\$1');new QRCode(box,{text:`WIFI:T:WPA;S:${we(r.ssid)};P:${we(r.password)};;`,width:220,height:220});$('qrbtn').remove()};
+}
+
+async function download(key,id){const r=DATA[key].find(x=>x._id===id);toast('กำลังเตรียมไฟล์…');try{const u=await store.dlUrl(key,id);const a=document.createElement('a');a.href=u;a.download=r?r.name:'';document.body.appendChild(a);a.click();a.remove()}catch(e){toast('ดาวน์โหลดไม่สำเร็จ: '+e.message)}}
+function docDetail(key,id){
+  const m=MODS[key];const r=DATA[key].find(x=>x._id===id);if(!r)return;
+  openSheet(`${shh('',m.title,`<button class="x b" id="d_close">เสร็จ</button>`)}<div style="text-align:center;margin:10px 0 4px">${extIco(r.ext).replace('class="ic"','class="ic" style="width:64px;height:64px;border-radius:14px;font-size:16px;margin:0 auto;--c:'+(EXTC[r.ext]||['#7d8a99'])[0]+'"')}</div><h2 style="text-align:center">${esc(r.name)}</h2>
+   <div class="kv"><div><span class="k">หมวด</span><span class="v">${esc(r.folder||'ทั่วไป')}</span></div><div><span class="k">ขนาด</span><span class="v">${fsize(r.size)}</span></div><div><span class="k">อัปเดต</span><span class="v">${thDate(r.mod)}</span></div>${r.by?`<div><span class="k">โดย</span><span class="v">${esc(r.by)}</span></div>`:''}</div>
+   <button class="cta" id="d_dl" style="display:block;width:100%;margin-top:18px">ดาวน์โหลด</button>
+   <div class="btnlist">${r.web?`<button id="d_view">เปิดดูใน SharePoint</button>`:''}${canEdit(key)?`<button class="d" id="d_del">ลบไฟล์</button>`:''}</div>`);
+  $('d_close').onclick=closeSheet;$('d_dl').onclick=()=>download(key,id);
+  if($('d_view'))$('d_view').onclick=()=>window.open(r.web,'_blank');
+  if($('d_del'))$('d_del').onclick=()=>{openSheet(`${shh('','ลบไฟล์','')}<p style="text-align:center;color:var(--sub);margin:8px 0">${esc(r.name)}<br>ไฟล์จะย้ายไปถังรีไซเคิลของ SharePoint</p><div class="btnlist"><button class="d" id="y" style="font-weight:600">ลบไฟล์</button><button id="n">ยกเลิก</button></div>`);$('n').onclick=()=>docDetail(key,id);$('y').onclick=async()=>{try{await store.delDoc(key,id);closeSheet();toast('ลบแล้ว');render()}catch(e){toast(e.status===403?'ไม่มีสิทธิ์ลบ':'ลบไม่สำเร็จ')}}};
+}
+function uploadSheet(key){
+  const m=MODS[key];const seg=m.segs?st(key).seg:'';const cats=[...new Set((DATA[key]||[]).filter(x=>!seg||topOf(x)===seg).map(x=>seg?subOf(x):x.folder).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'th'));
+  openSheet(`${shh(`<button class="x" id="u_x">ยกเลิก</button>`,seg?'อัปโหลด · '+esc(seg):'อัปโหลดเอกสาร',`<button class="x b" id="u_s" disabled>อัปโหลด</button>`)}
+   <div class="formg"><label class="f" style="cursor:pointer"><span style="flex:1;color:var(--acc);padding:12px 0" id="u_lbl">เลือกไฟล์…</span><input type="file" id="u_f" multiple style="display:none"></label></div>
+   <div class="gf">เลือกได้หลายไฟล์ · ไฟล์ชื่อซ้ำในหมวดเดียวกันจะถูกแทนที่ด้วยไฟล์ใหม่</div>
+   <div class="formg"><div class="f"><label>หมวด</label><select id="u_c"><option value="">${seg?'ทั่วไป ('+esc(seg)+')':'ทั่วไป'}</option>${cats.map(c=>`<option>${esc(c)}</option>`).join('')}<option value="__new">+ หมวดใหม่…</option></select></div><div class="f" id="u_nw" style="display:none"><label>ชื่อหมวดใหม่</label><input id="u_n" placeholder="เช่น ฝ่ายบัญชี"></div></div>
+   <div class="gf" id="u_p"></div>`);
+  const f=$('u_f');f.onchange=()=>{const n=f.files.length;$('u_lbl').textContent=n?[...f.files].map(x=>x.name).join(', '):'เลือกไฟล์…';$('u_s').disabled=!n};
+  $('u_c').onchange=()=>{$('u_nw').style.display=$('u_c').value==='__new'?'':'none'};
+  $('u_x').onclick=closeSheet;
+  $('u_s').onclick=async()=>{let folder=$('u_c').value;if(folder==='__new'){folder=$('u_n').value.trim().replace(/[\\/:*?"<>|#%]/g,'-');if(!folder){toast('ใส่ชื่อหมวดใหม่');return}}
+    if(seg)folder=folder?seg+' / '+folder:seg;
+    const files=[...f.files];$('u_s').disabled=true;$('u_x').disabled=true;let ok=0;
+    for(let i=0;i<files.length;i++){const fl=files[i];try{await store.upload(key,fl,folder,p=>{$('u_p').textContent=`กำลังอัปโหลด ${i+1}/${files.length}: ${fl.name} ${Math.round(p*100)}%`});ok++}catch(e){toast((e.status===403?'ไม่มีสิทธิ์อัปโหลด':e.message)+': '+fl.name)}}
+    closeSheet();if(ok)toast(`อัปโหลดแล้ว ${ok} ไฟล์`);render()};
+}
+
+const ROLEM={};
+async function loadRoles(force){
+  if(DEMO){CFG.roles.forEach((r,i)=>ROLEM[r.id]=ROLEM[r.id]||(i===0?[{id:'u1',displayName:'สมชาย ไอที',mail:'somchai@unb.co.th'}]:[]));return}
+  await Promise.all(CFG.roles.map(async r=>{if(ROLEM[r.id]&&!force)return;let L=[],next=`/groups/${r.id}/members?$select=id,displayName,mail,userPrincipalName,jobTitle&$top=999`;while(next){const x=await ga(next.replace('https://graph.microsoft.com/v1.0',''));L=L.concat(x.value);next=x['@odata.nextLink']}ROLEM[r.id]=L.sort((a,b)=>String(a.displayName).localeCompare(String(b.displayName),'th'))}));
+}
+async function renderAccess(){
+  const M=$('main');
+  if(!CFG.roles.every(r=>ROLEM[r.id])){M.innerHTML='<div class="center"><div class="spin"></div></div>';try{await loadRoles()}catch(e){M.innerHTML=`<div class="center">โหลดรายชื่อไม่สำเร็จ<br><small>${esc(e.message)}</small></div>`;return}if(view!=='access')return}
+  M.innerHTML=CFG.roles.map(r=>{const L=ROLEM[r.id]||[];return `<div class="gh">${esc(r.name)} · ${L.length} คน</div><div class="group">
+    ${L.map(u=>`<div class="row" style="cursor:default">${ico('person',r.icon[1])}<span class="rb"><span class="rt" style="display:flex;flex-direction:column"><span>${esc(u.displayName||'-')}</span><small style="color:var(--sub);font-size:13px">${esc(u.mail||u.userPrincipalName||'')}${u.jobTitle?' · '+esc(u.jobTitle):''}</small></span><button class="cp" style="color:var(--bad)" data-rm="${esc(r.id)}" data-uid="${esc(u.id)}" data-nm="${esc(u.displayName||'')}">ลบ</button></span></div>`).join('')}
+    <button class="row" data-addto="${esc(r.id)}"><span class="ic" style="--c:var(--acc)"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="rb"><span class="rt" style="color:var(--acc)">เพิ่มคนเข้ากลุ่มนี้</span></span></button></div>
+    <div class="gf">${esc(r.desc)}</div>`}).join('')+`<div class="gh">ทุกคนในบริษัท</div><div class="group"><div class="row" style="cursor:default">${ico('building','#6c9a52')}<span class="rb"><span class="rt">พนักงานทั่วไป (อัตโนมัติ)</span></span></div></div><div class="gf">ทุกบัญชีของบริษัทดูเบอร์ติดต่อ IT และดาวน์โหลดเอกสารได้อยู่แล้ว ไม่ต้องเพิ่ม · เปลี่ยนสิทธิ์แล้วอาจใช้เวลาประมาณ 5–15 นาทีกว่าจะมีผล (ให้ผู้ใช้ออกจากระบบแล้วเข้าใหม่)</div>`;
+}
+function addSheet(gid){
+  const r=CFG.roles.find(x=>x.id===gid);
+  openSheet(`${shh(`<button class="x" id="a_x">ยกเลิก</button>`,'เพิ่มเข้า '+esc(r.name),'')}
+   <div class="sbar"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="a_q" type="search" placeholder="พิมพ์ชื่อหรืออีเมล" autocomplete="off"></label></div>
+   <div class="gf" id="a_h">พิมพ์อย่างน้อย 2 ตัวอักษร</div><div class="group" id="a_res" style="margin-top:8px"></div>`);
+  $('a_x').onclick=closeSheet;let tm;
+  $('a_q').oninput=()=>{clearTimeout(tm);tm=setTimeout(async()=>{const q=$('a_q').value.trim().replace(/"/g,'');if(q.length<2){$('a_res').innerHTML='';$('a_h').textContent='พิมพ์อย่างน้อย 2 ตัวอักษร';return}
+    $('a_h').textContent='กำลังค้นหา…';
+    try{let L;if(DEMO)L=[{id:'d'+q,displayName:'ทดสอบ '+q,mail:q+'@unb.co.th'}];else{const x=await ga(`/users?$search=${encodeURIComponent(`"displayName:${q}" OR "mail:${q}"`)}&$select=id,displayName,mail,userPrincipalName,jobTitle&$top=20`,{headers:{ConsistencyLevel:'eventual'}});L=x.value}
+      const have=new Set((ROLEM[gid]||[]).map(u=>u.id));
+      $('a_h').textContent=L.length?'แตะชื่อเพื่อเพิ่ม':'ไม่พบผู้ใช้';
+      $('a_res').innerHTML=L.map(u=>`<button class="row" data-pick="${esc(u.id)}" ${have.has(u.id)?'disabled style="opacity:.45"':''}>${ico('person','#7d8a99')}<span class="rb"><span class="rt" style="display:flex;flex-direction:column"><span>${esc(u.displayName)}</span><small style="color:var(--sub);font-size:13px">${esc(u.mail||u.userPrincipalName||'')}${have.has(u.id)?' · อยู่ในกลุ่มแล้ว':''}</small></span></span></button>`).join('');
+      $('a_res').querySelectorAll('[data-pick]').forEach(b=>b.onclick=async()=>{const u=L.find(x=>x.id===b.dataset.pick);b.disabled=true;
+        try{if(!DEMO)await ga(`/groups/${gid}/members/$ref`,{method:'POST',json:{'@odata.id':`https://graph.microsoft.com/v1.0/directoryObjects/${u.id}`}});(ROLEM[gid]=ROLEM[gid]||[]).push(u);closeSheet();toast(`เพิ่ม ${u.displayName} แล้ว`);render()}catch(e){b.disabled=false;toast(e.status===403?'ไม่มีสิทธิ์จัดการกลุ่มนี้':'เพิ่มไม่สำเร็จ: '+e.message)}});
+    }catch(e){$('a_h').textContent='ค้นหาไม่สำเร็จ: '+e.message}},350)};
+  setTimeout(()=>$('a_q').focus(),300);
+}
+function rmSheet(gid,uid,nm){
+  const r=CFG.roles.find(x=>x.id===gid);
+  openSheet(`${shh('','เอาออกจากกลุ่ม','')}<p style="text-align:center;color:var(--sub);margin:8px 0">เอา <b style="color:var(--ink)">${esc(nm)}</b> ออกจาก "${esc(r.name)}"?</p><div class="btnlist"><button class="d" id="y" style="font-weight:600">เอาออก</button><button id="n">ยกเลิก</button></div>`);
+  $('n').onclick=closeSheet;$('y').onclick=async()=>{try{if(!DEMO)await ga(`/groups/${gid}/members/${uid}/$ref`,{method:'DELETE'});ROLEM[gid]=(ROLEM[gid]||[]).filter(u=>u.id!==uid);closeSheet();toast('เอาออกแล้ว');render()}catch(e){toast(e.status===403?'ไม่มีสิทธิ์จัดการกลุ่มนี้':'ไม่สำเร็จ: '+e.message)}};
+}
+function loadQR(){return window.QRCode?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+function edit(key,r){
+  const m=MODS[key];r=r||{};const isNew=!r._id;
+  const opts=k=>[...new Set((DATA[key]||[]).map(x=>x[k]).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'th'));
+  const dl=m.fields.filter(c=>c.t==='list').map(c=>`<datalist id="dl_${c.k}">${opts(c.k).map(v=>`<option value="${esc(v)}">`).join('')}</datalist>`).join('');
+  const inp=c=>{const v=r[c.k]??(c.t==='select'?c.o[0][0]:'');
+    if(c.t==='select')return `<select id="e_${c.k}">${c.o.map(([a,b])=>`<option value="${a}" ${a===v?'selected':''}>${b}</option>`).join('')}</select>`;
+    if(c.t==='area')return `<textarea id="e_${c.k}" placeholder="${c.l}">${esc(v)}</textarea>`;
+    const type=c.t==='date'?'date':c.t==='number'?'number':c.t==='email'?'email':c.t==='tel'?'tel':'text';
+    return `<input id="e_${c.k}" type="${type}" placeholder="${c.t==='date'?'':'ระบุ'}" ${c.t==='number'?'inputmode="decimal" step="any"':''} ${c.t==='list'?`list="dl_${c.k}"`:''} ${c.t==='secret'?'autocapitalize="off" autocorrect="off" spellcheck="false" class="mono"':''} value="${esc(v)}">`};
+  const main=m.fields.filter(c=>c.t!=='area'),areas=m.fields.filter(c=>c.t==='area');
+  openSheet(`${shh(`<button class="x" id="e_x">ยกเลิก</button>`,isNew?'รายการใหม่':'แก้ไข',`<button class="x b" id="e_s">บันทึก</button>`)}
+   <div class="formg">${main.map(c=>`<div class="f"><label>${c.l}</label>${inp(c)}</div>`).join('')}</div>
+   ${areas.map(c=>`<div class="formg"><div class="f area"><label>${c.l}</label>${inp(c)}</div></div>`).join('')}${dl}`);
+  $('e_x').onclick=()=>isNew?closeSheet():detail(key,r._id);
+  $('e_s').onclick=async()=>{const d={...r};m.fields.forEach(c=>{let v=$('e_'+c.k).value.trim();if(c.t==='number')v=v===''?'':+v;d[c.k]=v});
+    const first=m.fields[0].k==='g'?m.fields[1]:m.fields[0];if(!String(d[first.k]||'').trim()&&!String(d[m.fields[2]?.k]||'').trim()){toast('กรอก '+first.l+' ก่อน');return}
+    if(isNew&&d.no==null&&(DATA[key]||[]).some(x=>x.no!=null))d.no=Math.max(0,...DATA[key].map(x=>+x.no||0))+1;
+    $('e_s').disabled=true;
+    try{await store.save(key,d);closeSheet();toast('บันทึกแล้ว');render()}catch(e){$('e_s').disabled=false;toast(e.status===403?'ไม่มีสิทธิ์แก้ไข':'บันทึกไม่สำเร็จ: '+e.message)}};
+}
+function filterSheet(key){
+  const m=MODS[key],s=st(key);const draft=JSON.parse(JSON.stringify(s.f));
+  const groups=m.filters.map(F=>{const cnt={};(DATA[key]||[]).forEach(r=>{const v=String(fval(F,r));cnt[v]=(cnt[v]||0)+1});
+    let vals=Object.keys(cnt).sort((a,b)=>F.sort==='desc'?b.localeCompare(a):a.localeCompare(b,'th'));
+    return `<div class="fgroup"><h3>${F.l}</h3><div class="opts">${vals.map(v=>`<label class="opt"><input type="checkbox" data-fk="${esc(F.k)}" value="${esc(v)}" ${(draft[F.k]||[]).includes(v)?'checked':''}><i>✓</i><span>${esc(F.fmt?F.fmt(v):v||'ไม่ระบุ')}</span><small class="num">${cnt[v]}</small></label>`).join('')}</div></div>`}).join('');
+  openSheet(`${shh(`<button class="x" id="f_clr">ล้าง</button>`,'ตัวกรอง',`<button class="x b" id="f_ok">เสร็จ</button>`)}<div class="gf" style="margin-top:0">เลือกได้หลายอย่างในแต่ละหัวข้อ</div>${groups}`);
+  $('f_clr').onclick=()=>{s.f={};closeSheet();s.lim=60;render()};
+  $('f_ok').onclick=()=>{const f={};$('sheet').querySelectorAll('[data-fk]:checked').forEach(c=>(f[c.dataset.fk]=f[c.dataset.fk]||[]).push(c.value));s.f=f;s.lim=60;closeSheet();render()};
+}
+
+/* ===== Events ===== */
+document.addEventListener('click',async ev=>{
+  const t=ev.target;
+  if(t.closest('[data-stop]'))return;
+  if(t.closest('#login')){msal.loginRedirect({scopes:SCOPES,prompt:'select_account'});return}
+  if(t.closest('#retry')){location.reload();return}
+  const cp=t.closest('[data-copypw]');if(cp){ev.stopPropagation();const r=DATA.wifi.find(x=>x._id===cp.dataset.copypw);if(r)copy(r.password);return}
+  const o=t.closest('[data-open]');if(o){go(o.dataset.open);return}
+  const ad=t.closest('[data-addto]');if(ad){addSheet(ad.dataset.addto);return}
+  const rmv=t.closest('[data-rm]');if(rmv){rmSheet(rmv.dataset.rm,rmv.dataset.uid,rmv.dataset.nm);return}
+  const fs=t.closest('[data-fseg]');if(fs){const s=st(view);s.seg=fs.dataset.fseg;s.f={};s.lim=60;render();return}
+  const sg=t.closest('[data-seg]');if(sg){go(sg.dataset.seg,true);return}
+  const db=t.closest('[data-dl]');if(db){ev.stopPropagation();download(db.dataset.dlk||view,db.dataset.dl);return}
+  const hd=t.closest('.it[data-doc]');if(hd){docDetail(hd.dataset.doc,hd.dataset.id);return}
+  const it=t.closest('.it[data-id]');if(it){(MODS[view].kind==='docs'?docDetail:detail)(view,it.dataset.id);return}
+  const rm=t.closest('[data-rmf]');if(rm){const s=st(view);s.f[rm.dataset.rmf]=(s.f[rm.dataset.rmf]||[]).filter(v=>v!==rm.dataset.v);render();return}
+  if(t.closest('#fopen')){filterSheet(view);return}
+});
+$('back').onclick=()=>{history.length>1&&location.hash?history.back():go('home')};
+$('fab').onclick=()=>MODS[view].kind==='docs'?uploadSheet(view):edit(view,null);
+$('who').onclick=()=>{openSheet(`${shh('','บัญชี',`<button class="x b" id="w_x">เสร็จ</button>`)}<div class="kv"><div><span class="k">ชื่อ</span><span class="v">${esc(me)}</span></div><div><span class="k">สิทธิ์</span><span class="v">${roleName()}</span></div></div><div class="btnlist"><button class="d" id="w_out">ออกจากระบบ</button></div>`);$('w_x').onclick=closeSheet;$('w_out').onclick=()=>{if(DEMO){location.href=location.pathname}else msal.logoutRedirect({account})}};
+async function go(key,replace){
+  if(key==='access'?!isAdmin:(key!=='home'&&!lists[MODS[key].list])){toast('ไม่มีสิทธิ์เข้าถึง');return}
+  view=key;const h=key==='home'?'':'#'+key;if(location.hash!==h)history[replace?'replaceState':'pushState'](null,'',location.pathname+location.search+h);
+  window.scrollTo(0,0);render();
+  if(key!=='home'&&key!=='access'&&!DATA[key]){try{await ensure(key);if(view===key)render()}catch(e){toast('โหลดไม่สำเร็จ: '+e.message)}}
+}
+window.addEventListener('popstate',()=>{const k=location.hash.slice(1);view=MODS[k]?k:'home';closeSheet();render();if(view!=='home')ensure(view).then(()=>render()).catch(()=>{})});
+
+/* ===== Start ===== */
+(async()=>{
+  try{
+    if(DEMO){me=isIT?'ทีม IT (ทดลอง)':'ทดลอง';}
+    else{
+      if(!window.msal)throw new Error('โหลดระบบเข้าสู่ระบบของ Microsoft ไม่ได้');
+      msal=new window.msal.PublicClientApplication({auth:{clientId:CFG.clientId,authority:'https://login.microsoftonline.com/'+CFG.tenantId,redirectUri:location.origin+location.pathname},cache:{cacheLocation:'localStorage'}});
+      await msal.initialize();const res=await msal.handleRedirectPromise();
+      account=(res&&res.account)||msal.getAllAccounts()[0]||null;
+      if(!account){mode='signin';render();return}
+      me=account.name||account.username;
+    }
+    await store.connect();
+    if(!DEMO){try{const me2=await g('/me?$select=id');myId=me2.id;const o=await ga(`/groups/${CFG.roles[0].id}/owners?$select=id`);isAdmin=o.value.some(x=>x.id===myId)}catch(e){isAdmin=false}}else isAdmin=isIT;
+    if(DEMO)me=isIT?'ทีม IT (ทดลอง)':'พนักงาน (ทดลอง)';
+    $('who').innerHTML=`<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9.5" r="3.4" fill="currentColor"/><path d="M5.5 18.5a7.5 7.5 0 0 1 13 0" fill="currentColor"/></svg>${esc(me.split(' ')[0])}`;
+    mode='ready';const k=location.hash.slice(1);
+    if(k==='access'&&isAdmin)view=k;else if(MODS[k]&&lists[MODS[k].list])view=k;else if(!isIT&&lists['IT Contacts']&&!location.hash)view='home';
+    render();
+    if(view!=='home')await ensure(view).then(render);
+    await Promise.all([...HOME,'contracts',...DOCS].filter(k=>lists[MODS[k].list]).map(k=>ensure(k).catch(()=>{})));if(view==='home')render();
+  }catch(e){mode='err';errMsg=(e.status?('Graph '+e.status+' '):'')+(e.message||e);render()}
+})();
+</script>
+</body></html>
