@@ -177,7 +177,7 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 <script>
 if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
 /* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
-const APP_VERSION='2026-11-17.14';
+const APP_VERSION='2026-11-17.15';
 async function checkUpdate(){
   try{
     if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
@@ -375,7 +375,7 @@ const store={
 function demoSeed(k){const S={contacts:[{no:1,company:'ตัวอย่าง ISP',contact:'คุณเอ',topic:'อินเทอร์เน็ต',phone:'02-123-4567 ต่อ 12 / 081-234-5678',email:'support@example.com'}],wifi:[{no:1,ssid:'DEMO_WIFI',password:'demo-pass-123',place:'สำนักงาน',type:'WiFi',status:'cur'}],software:[{no:1,product:'ตัวอย่างซอฟต์แวร์',serial:'XXXX-YYYY',computer:'PC-01',qty:1,type:'Stand Alone',service:'Perpetual',status:'Active',date:'2025-01-01'}],copier:[{code:'1001',name:'demo',user:'ผู้ใช้ทดสอบ',room:'ห้องทดสอบ',status:'use'}],contracts:[{serial:'SN123',place:'รง.1',end:'2026-12-31'}],assets:[{g:'hw',code:'0001',name:'โน้ตบุ๊กทดสอบ',type:'คอมพิวเตอร์ / โน้ตบุ๊ก / แท็บเล็ต',date:'2024-05-01',cost:25000,qty:1,unit:'Pc',dept:'IT',loc:'ร้านทดสอบ'},{g:'sw',code:'0002',name:'Windows 11',type:'ซอฟต์แวร์',date:'2023-02-01',cost:5900,qty:1,unit:'Pc',dept:'Sales',loc:''}]};return (S[k]||[]).map((r,i)=>({...r,_id:'s'+i}))}
 async function ensure(key){if(DATA[key])return DATA[key];DATA[key]=(await store.load(key))||null;return DATA[key]}
 const canEdit=key=>MODS[key].kind==='docs'?(DEMO?isIT:!!canUp[key]):(isIT&&!!lists[MODS[key].list]);
-const roleName=()=>isIT?'ทีม IT · แก้ไขได้ทุกระบบ':canSee?'ผู้บริหาร · ดูได้ทุกระบบ (แก้ไขไม่ได้)':Object.values(canUp).some(Boolean)?'ผู้อัปโหลดเอกสาร':'พนักงาน · ดูเบอร์ติดต่อ IT และเอกสาร';
+const roleName=()=>isIT?'ทีม IT · แก้ไขได้ทุกระบบ':canSee?'พนักงาน · ดูได้ทุกระบบ (แก้ไขไม่ได้)':Object.values(canUp).some(Boolean)?'ผู้อัปโหลดเอกสาร':'พนักงาน · ดูเบอร์ติดต่อ IT และเอกสาร';
 
 /* ===== สถานะหน้า ===== */
 let view='home',mode='loading',errMsg='';
@@ -627,7 +627,7 @@ window.addEventListener('popstate',()=>{const k=location.hash.slice(1);view=MODS
       me=account.name||account.username;
     }
     await store.connect();
-    if(!DEMO){try{const me2=await g('/me?$select=id');myId=me2.id;const o=await ga(`/groups/${CFG.roles[0].id}/owners?$select=id`);isAdmin=o.value.some(x=>x.id===myId)}catch(e){isAdmin=false}}else isAdmin=isIT;
+    isAdmin=false;
     if(DEMO)me=isIT?'ทีม IT (ทดลอง)':'พนักงาน (ทดลอง)';
     $('who').innerHTML=`<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9.5" r="3.4" fill="currentColor"/><path d="M5.5 18.5a7.5 7.5 0 0 1 13 0" fill="currentColor"/></svg>${esc(me.split(' ')[0])}`;
     mode='ready';const k=location.hash.slice(1);
