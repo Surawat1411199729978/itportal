@@ -259,8 +259,8 @@ const MODS={
   filters:[{k:'place',l:'ที่ตั้ง'}],sorts:[['end','ใกล้หมดก่อน'],['place','ที่ตั้ง']],
   search:['serial','place','note'],
   card:r=>{const d=daysTo(r.end);const b=d==null?'':d<0?`<span class="badge b-bad">หมดแล้ว ${-d} วัน</span>`:d<=60?`<span class="badge b-warn">เหลือ ${d} วัน</span>`:`<span class="badge b-ok">เหลือ ${d} วัน</span>`;return `${ico('doc','#d9953a')}<div class="bd"><div class="t">${esc(r.place)}</div><div class="m">Serial <span class="mono">${esc(r.serial)}</span> · สิ้นสุด ${thDate(r.end)}</div>${r.note?`<div class="m">${esc(r.note)}</div>`:''}</div><div class="r">${b}</div>`}},
- forms:{kind:'docs',list:'Form Format',title:'Form Format',icon:['doc','#d9953a'],desc:'แบบฟอร์มสำหรับดาวน์โหลด',pub:1,
-  titleOf:r=>r.name,fields:[],filters:[{k:'folder',l:'หมวด',fmt:v=>v||'ทั่วไป'},{k:'ext',l:'ชนิดไฟล์',fmt:v=>v.toUpperCase()||'-'}],sorts:[['name','ชื่อ ก-ฮ'],['mod-','อัปเดตล่าสุด']],search:['name','folder'],card:r=>docCard(r)},
+ forms:{kind:'docs',list:'Form Format',title:'Form Format',icon:['doc','#d9953a'],desc:'แบบฟอร์มสำหรับดาวน์โหลด',pub:1,segs:['แผนก IT','โปรแกรมเมอร์'],
+  titleOf:r=>r.name,fields:[],filters:[{k:'sub',l:'หมวดย่อย',get:r=>subOf(r),fmt:v=>v||'ทั่วไป'},{k:'ext',l:'ชนิดไฟล์',fmt:v=>v.toUpperCase()||'-'}],sorts:[['name','ชื่อ ก-ฮ'],['mod-','อัปเดตล่าสุด']],search:['name','folder'],card:r=>docCard(r,1)},
  docs:{kind:'docs',list:'Support Documents',title:'Support Document',icon:['book','#c9677f'],desc:'คู่มือและเอกสารช่วยเหลือ',pub:1,
   titleOf:r=>r.name,fields:[],filters:[{k:'folder',l:'หมวด',fmt:v=>v||'ทั่วไป'},{k:'ext',l:'ชนิดไฟล์',fmt:v=>v.toUpperCase()||'-'}],sorts:[['name','ชื่อ ก-ฮ'],['mod-','อัปเดตล่าสุด']],search:['name','folder'],card:r=>docCard(r)},
  wifi:{list:'WiFi Passwords',title:'รหัส WiFi',icon:['wifi','#3e9fa8'],desc:'ชื่อ WiFi และรหัสผ่าน',
@@ -275,7 +275,9 @@ const DOCS=['forms','docs'];
 const EXTC={pdf:['#d4634f','PDF'],doc:['#4a87c5','DOC'],docx:['#4a87c5','DOC'],xls:['#6c9a52','XLS'],xlsx:['#6c9a52','XLS'],xlsm:['#6c9a52','XLS'],csv:['#6c9a52','CSV'],ppt:['#d9953a','PPT'],pptx:['#d9953a','PPT'],png:['#8a74b8','IMG'],jpg:['#8a74b8','IMG'],jpeg:['#8a74b8','IMG'],zip:['#7d8a99','ZIP'],txt:['#7d8a99','TXT']};
 const fsize=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(0)+' KB':(n/1048576).toFixed(1)+' MB';
 const extIco=e=>{const [c,l]=EXTC[e]||['#7d8a99',(e||'FILE').slice(0,4).toUpperCase()];return `<div class="ic" style="--c:${c};font-size:9.5px;font-weight:800;letter-spacing:.02em">${l}<svg viewBox="0 0 24 24" style="display:none"></svg></div>`};
-const docCard=r=>`${extIco(r.ext)}<div class="bd"><div class="t">${esc(r.name)}</div><div class="m">${esc(r.folder||'ทั่วไป')} · ${fsize(r.size)} · ${thDate(r.mod)}</div></div><div class="r"><button class="dlb" data-dl="${esc(r._id)}" aria-label="ดาวน์โหลด"><svg width="22" height="22" viewBox="0 0 24 24">${G.dl}</svg></button></div>`;
+const topOf=r=>(r.folder||'').split(' / ')[0];const subOf=r=>(r.folder||'').split(' / ').slice(1).join(' / ');
+const segMatch=(m,r,seg)=>topOf(r)===seg||(seg===m.segs[0]&&!m.segs.includes(topOf(r)));
+const docCard=(r,sg)=>`${extIco(r.ext)}<div class="bd"><div class="t">${esc(r.name)}</div><div class="m">${esc(sg?(subOf(r)||'ทั่วไป'):(r.folder||'ทั่วไป'))} · ${fsize(r.size)} · ${thDate(r.mod)}</div></div><div class="r"><button class="dlb" data-dl="${esc(r._id)}" aria-label="ดาวน์โหลด"><svg width="22" height="22" viewBox="0 0 24 24">${G.dl}</svg></button></div>`;
 
 
 /* ===== Graph / SharePoint ===== */
@@ -350,7 +352,7 @@ const canEdit=key=>isIT&&!!lists[MODS[key].list];
 
 /* ===== สถานะหน้า ===== */
 let view='home',mode='loading',errMsg='';
-const ST={};const st=k=>ST[k]||(ST[k]={q:'',f:{},sort:MODS[k].sorts[0][0],lim:60});
+const ST={};const st=k=>ST[k]||(ST[k]={q:'',f:{},sort:MODS[k].sorts[0][0],lim:60,seg:MODS[k].segs?MODS[k].segs[0]:''});
 function setHeader(){
   const home=view==='home';const mk=view==='contracts'?'copier':view;
   $('back').classList.toggle('on',!home);
@@ -360,7 +362,7 @@ function setHeader(){
   $('who').classList.toggle('on',home&&mode==='ready');
   if(home||mode!=='ready'){$('tools').innerHTML='';return}
   const s=st(view);const nf=Object.values(s.f).reduce((a,v)=>a+v.length,0);
-  $('tools').innerHTML=`<h1 style="font-size:30px;margin-top:0">${esc(MODS[mk].title)}</h1>${(view==='copier'||view==='contracts')?`<div class="seg"><button data-seg="copier" class="${view==='copier'?'on':''}">รหัสผู้ใช้</button><button data-seg="contracts" class="${view==='contracts'?'on':''}">สัญญาเช่า</button></div>`:''}
+  $('tools').innerHTML=`<h1 style="font-size:30px;margin-top:0">${esc(MODS[mk].title)}</h1>${MODS[view].segs?`<div class="seg">${MODS[view].segs.map(g=>{const n=(DATA[view]||[]).filter(r=>segMatch(MODS[view],r,g)).length;return `<button data-fseg="${esc(g)}" class="${s.seg===g?'on':''}">${esc(g)}${DATA[view]?` <span style="opacity:.55">${n}</span>`:''}</button>`}).join('')}</div>`:''}${(view==='copier'||view==='contracts')?`<div class="seg"><button data-seg="copier" class="${view==='copier'?'on':''}">รหัสผู้ใช้</button><button data-seg="contracts" class="${view==='contracts'?'on':''}">สัญญาเช่า</button></div>`:''}
   <div class="sbar"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="ค้นหา" value="${esc(s.q)}" autocomplete="off"></label><button class="fbtn" id="fopen"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M7 9h10M9 12.5h6M11 16h2"/></svg>${nf?`<b>${nf}</b>`:''}</button></div>
   <div class="chips">${Object.entries(s.f).flatMap(([k,vs])=>vs.map(v=>{const F=MODS[view].filters.find(x=>x.k===k);return `<button class="chip" data-rmf="${esc(k)}" data-v="${esc(v)}">${esc(F&&F.fmt?F.fmt(v):v||'ไม่ระบุ')} <span>✕</span></button>`})).join('')}</div>`;
   const q=$('q');q.oninput=()=>{s.q=q.value;s.lim=60;renderList()};
@@ -370,6 +372,7 @@ const fval=(F,r)=>F.get?F.get(r):(r[F.k]??'');
 function filtered(key){
   const m=MODS[key],s=st(key);const q=s.q.trim().toLowerCase();
   let L=(DATA[key]||[]).filter(r=>{
+    if(m.segs&&!segMatch(m,r,s.seg))return false;
     for(const [k,vs] of Object.entries(s.f)){if(!vs.length)continue;const F=m.filters.find(x=>x.k===k);if(!vs.includes(String(fval(F,r))))return false}
     if(q&&!m.search.map(k=>r[k]??'').join(' ').toLowerCase().replace(/-/g,'').includes(q.replace(/-/g,'')))return false;
     return true});
@@ -393,6 +396,7 @@ function renderHome(){
     copier:()=>DATA.contracts?(()=>{const n=DATA.contracts.filter(r=>{const d=daysTo(r.end);return d!=null&&d<=60}).length;return n?`<span style="color:var(--bad)">สัญญาต้องต่อ ${n}</span>`:'สัญญาปกติ'})():'',
     wifi:()=>DATA.wifi?`ใช้งาน ${DATA.wifi.filter(r=>r.status!=='old').length} เครือข่าย`:'',
     software:()=>DATA.software?`${new Set(DATA.software.map(r=>r.product)).size} ผลิตภัณฑ์`:'',
+    forms:()=>DATA.forms?MODS.forms.segs.map(g=>`${g} ${DATA.forms.filter(r=>segMatch(MODS.forms,r,g)).length}`).join(' · '):'',
     contacts:()=>DATA.contacts?`${new Set(DATA.contacts.map(r=>r.company)).size} บริษัท`:''};
   const card=k=>{const m=MODS[k];const ok=!!lists[m.list];if(!ok&&!isIT)return '';
     return `<button class="wd ${ok?'':'lock'}" data-open="${k}"><span class="wtop">${ico(m.icon[0],m.icon[1])}${CHEV}</span><span class="wt">${m.title}</span><span class="wn num">${ok?cnt(k):'—'}<small>${ok?UNIT[k]:'ไม่มีสิทธิ์'}</small></span><span class="ws">${ok&&sub[k]?sub[k]():(ok?m.desc:'')}</span></button>`};
@@ -469,16 +473,17 @@ function docDetail(key,id){
   if($('d_del'))$('d_del').onclick=()=>{openSheet(`${shh('','ลบไฟล์','')}<p style="text-align:center;color:var(--sub);margin:8px 0">${esc(r.name)}<br>ไฟล์จะย้ายไปถังรีไซเคิลของ SharePoint</p><div class="btnlist"><button class="d" id="y" style="font-weight:600">ลบไฟล์</button><button id="n">ยกเลิก</button></div>`);$('n').onclick=()=>docDetail(key,id);$('y').onclick=async()=>{try{await store.delDoc(key,id);closeSheet();toast('ลบแล้ว');render()}catch(e){toast(e.status===403?'ไม่มีสิทธิ์ลบ':'ลบไม่สำเร็จ')}}};
 }
 function uploadSheet(key){
-  const m=MODS[key];const cats=[...new Set((DATA[key]||[]).map(x=>x.folder).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'th'));
-  openSheet(`${shh(`<button class="x" id="u_x">ยกเลิก</button>`,'อัปโหลดเอกสาร',`<button class="x b" id="u_s" disabled>อัปโหลด</button>`)}
+  const m=MODS[key];const seg=m.segs?st(key).seg:'';const cats=[...new Set((DATA[key]||[]).filter(x=>!seg||topOf(x)===seg).map(x=>seg?subOf(x):x.folder).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'th'));
+  openSheet(`${shh(`<button class="x" id="u_x">ยกเลิก</button>`,seg?'อัปโหลด · '+esc(seg):'อัปโหลดเอกสาร',`<button class="x b" id="u_s" disabled>อัปโหลด</button>`)}
    <div class="formg"><label class="f" style="cursor:pointer"><span style="flex:1;color:var(--acc);padding:12px 0" id="u_lbl">เลือกไฟล์…</span><input type="file" id="u_f" multiple style="display:none"></label></div>
    <div class="gf">เลือกได้หลายไฟล์ · ไฟล์ชื่อซ้ำในหมวดเดียวกันจะถูกแทนที่ด้วยไฟล์ใหม่</div>
-   <div class="formg"><div class="f"><label>หมวด</label><select id="u_c"><option value="">ทั่วไป</option>${cats.map(c=>`<option>${esc(c)}</option>`).join('')}<option value="__new">+ หมวดใหม่…</option></select></div><div class="f" id="u_nw" style="display:none"><label>ชื่อหมวดใหม่</label><input id="u_n" placeholder="เช่น ฝ่ายบัญชี"></div></div>
+   <div class="formg"><div class="f"><label>หมวด</label><select id="u_c"><option value="">${seg?'ทั่วไป ('+esc(seg)+')':'ทั่วไป'}</option>${cats.map(c=>`<option>${esc(c)}</option>`).join('')}<option value="__new">+ หมวดใหม่…</option></select></div><div class="f" id="u_nw" style="display:none"><label>ชื่อหมวดใหม่</label><input id="u_n" placeholder="เช่น ฝ่ายบัญชี"></div></div>
    <div class="gf" id="u_p"></div>`);
   const f=$('u_f');f.onchange=()=>{const n=f.files.length;$('u_lbl').textContent=n?[...f.files].map(x=>x.name).join(', '):'เลือกไฟล์…';$('u_s').disabled=!n};
   $('u_c').onchange=()=>{$('u_nw').style.display=$('u_c').value==='__new'?'':'none'};
   $('u_x').onclick=closeSheet;
   $('u_s').onclick=async()=>{let folder=$('u_c').value;if(folder==='__new'){folder=$('u_n').value.trim().replace(/[\\/:*?"<>|#%]/g,'-');if(!folder){toast('ใส่ชื่อหมวดใหม่');return}}
+    if(seg)folder=folder?seg+' / '+folder:seg;
     const files=[...f.files];$('u_s').disabled=true;$('u_x').disabled=true;let ok=0;
     for(let i=0;i<files.length;i++){const fl=files[i];try{await store.upload(key,fl,folder,p=>{$('u_p').textContent=`กำลังอัปโหลด ${i+1}/${files.length}: ${fl.name} ${Math.round(p*100)}%`});ok++}catch(e){toast((e.status===403?'ไม่มีสิทธิ์อัปโหลด':e.message)+': '+fl.name)}}
     closeSheet();if(ok)toast(`อัปโหลดแล้ว ${ok} ไฟล์`);render()};
@@ -522,6 +527,7 @@ document.addEventListener('click',async ev=>{
   if(t.closest('#retry')){location.reload();return}
   const cp=t.closest('[data-copypw]');if(cp){ev.stopPropagation();const r=DATA.wifi.find(x=>x._id===cp.dataset.copypw);if(r)copy(r.password);return}
   const o=t.closest('[data-open]');if(o){go(o.dataset.open);return}
+  const fs=t.closest('[data-fseg]');if(fs){const s=st(view);s.seg=fs.dataset.fseg;s.f={};s.lim=60;render();return}
   const sg=t.closest('[data-seg]');if(sg){go(sg.dataset.seg,true);return}
   const db=t.closest('[data-dl]');if(db){ev.stopPropagation();download(db.dataset.dlk||view,db.dataset.dl);return}
   const hd=t.closest('.it[data-doc]');if(hd){docDetail(hd.dataset.doc,hd.dataset.id);return}
