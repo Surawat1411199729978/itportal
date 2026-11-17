@@ -177,7 +177,7 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 <script>
 if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
 /* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
-const APP_VERSION='2026-11-17.22';
+const APP_VERSION='2026-11-17.23';
 async function checkUpdate(){
   try{
     if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
@@ -852,6 +852,84 @@ function rpReport(){
     const old=b.innerHTML;b.disabled=true;b.innerHTML='<div class="spin"></div>';
     try{await (k==='xlsx'?rpExportXlsx:k==='pdf'?rpExportPdf:rpExportImg)(L,ym,by());toast('สร้างไฟล์แล้ว')}catch(e){toast('สร้างไฟล์ไม่สำเร็จ: '+e.message)}finally{b.disabled=false;b.innerHTML=old}});
 }
+/* ---- รายงานตามแบบฟอร์มจริง FM-ITM-01-05 (ใช้ไฟล์ต้นฉบับเป็นแม่แบบ) ---- */
+let RP_TPL=null,RP_LOGO='',RP_TPLP=null;
+const RP_TPL_PATH='_template/FM-ITM-01-05.xlsx';
+function rpTpl(){if(RP_TPL)return Promise.resolve(RP_TPL);if(RP_TPLP)return RP_TPLP;
+  return RP_TPLP=(async()=>{await loadLib('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js','JSZip');const d=await rpDriveId();const it=await g(`/drives/${d}/root:/${RP_TPL_PATH}`);const r=await fetch(it['@microsoft.graph.downloadUrl']);if(!r.ok)throw new Error('โหลดแม่แบบไม่สำเร็จ');const buf=await r.arrayBuffer();
+    try{const z=await JSZip.loadAsync(buf);const img=Object.keys(z.files).find(n=>/^xl\/media\/.+\.(png|jpe?g)$/i.test(n));if(img)RP_LOGO=URL.createObjectURL(await z.file(img).async('blob'))}catch(e){}
+    RP_TPL=buf;const P=$('p_prev');if(P&&$('p_m'))$('p_m').onchange();return buf})().catch(e=>{RP_TPLP=null;throw e})}
+const RP_V2CSS=`.fmx.v2{width:1123px;padding:0;background:#fff;color:#000;font-family:Tahoma,"Sarabun","Noto Sans Thai",sans-serif;font-size:11px;line-height:1.3}.fmx.v2 .fpg{height:775px;box-sizing:border-box;padding:16px 20px 8px;position:relative;overflow:hidden;background:#fff}.fmprev .fmx.v2 .fpg+.fpg{border-top:1px dashed #bbb}.fmx.v2 table{border-collapse:collapse;width:100%;table-layout:fixed}.fmx.v2 td,.fmx.v2 th{border:1px solid #000;padding:2px 5px;vertical-align:middle;word-break:break-word;height:auto;font-size:11px;white-space:normal;background:none}.fmx.v2 .fhd td{font-family:"Sarabun","TH Sarabun New",Tahoma,sans-serif}.fmx.v2 .fco{font-size:22px;font-weight:700;text-align:center;height:40px}.fmx.v2 .fwf{font-size:22px;font-weight:700;text-align:center}.fmx.v2 .ftt{font-size:15px;font-weight:700;text-align:center}.fmx.v2 .flb{font-size:10px;text-align:right;border-right:0}.fmx.v2 .fvl{font-size:10px;font-weight:700;text-align:center}.fmx.v2 .flg{text-align:center}.fmx.v2 .flg img{max-height:72px;max-width:150px}.fmx.v2 .fmt{margin-top:8px}.fmx.v2 .fmt td{height:24px;text-align:center;font-size:11.5px}.fmx.v2 .fmt .fb{font-weight:700}.fmx.v2 .fins{font-size:9.5px;margin:3px 0 4px;white-space:nowrap;overflow:hidden}.fmx.v2 th{background:#f2f2f2;font-weight:700;text-align:center;font-size:9.5px;line-height:1.2;padding:2px 2px}.fmx.v2 .fd td{height:24px;font-size:10px;vertical-align:middle;padding:1px 4px;line-height:1.2}.fmx.v2 .fd td.fc{text-align:center;white-space:nowrap}.fmx.v2 .fd .fok{background:#c6efce;color:#006100}.fmx.v2 .fd .fwt{background:#ffeb9c;color:#9c5700}.fmx.v2 .fd .fng{background:#ffc7ce;color:#9c0006}.fmx.v2 .fcl{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.25}.fmx.v2 .fsm{text-align:right;font-weight:700;font-size:10.5px;margin:3px 0}.fmx.v2 .flgd{font-size:9px;line-height:1.35}.fmx.v2 .fsig{display:flex;gap:0;margin-top:8px;border:1px solid #000}.fmx.v2 .fsig>div{flex:1;display:flex;flex-direction:column;text-align:center;border:0;border-right:1px solid #000;font-size:11px;padding:0;line-height:1.3}.fmx.v2 .fsig>div:last-child{border-right:0}.fmx.v2 .fsig b{display:block;background:#f2f2f2;border-bottom:1px solid #000;padding:4px;font-size:11.5px}.fmx.v2 .fsig i{display:block;height:46px;border-bottom:1px solid #000}.fmx.v2 .fsig span{display:block;padding:3px;border-bottom:1px solid #000}.fmx.v2 .fsig span:last-child{border-bottom:0}.fmx.v2 .fft{position:absolute;left:20px;bottom:6px;font-size:8px}@media print{.fmx.v2{width:auto!important;zoom:.9}.fmx.v2 .fpg{height:auto;padding:0;border:0!important;page-break-after:always}.fmx.v2 .fft{position:static;margin-top:4px}}`;
+function rpFormHTML(L,ym,by){const [y,m]=ym.split('-');if(!RP_LOGO&&!RP_TPLP&&!DEMO)rpTpl().catch(()=>{});
+  const pages=[];for(let i=0;i<Math.max(1,L.length);i+=12)pages.push(L.slice(i,i+12));
+  const cls=r=>r.result==='done'?'ok':r.result==='fail'?'ng':['doing','parts','outside'].includes(r.result)?'wt':'';
+  const pg=(rows,k)=>{const s=rpSum(rows);const body=Array.from({length:12},(_,i)=>{const r=rows[i],n=k*12+i+1;if(!r)return `<tr><td class="fc">${n}</td>${'<td></td>'.repeat(11)}</tr>`;
+      return `<tr><td class="fc">${n}</td><td class="fc">${esc(r.no)}</td><td class="fc">${thD(r.date)}</td><td><div class="fcl">${esc((r.by||'')+(r.dept?' / '+r.dept:''))}</div></td><td class="fc">${esc(rpType(r.type)[1])}</td><td><div class="fcl">${esc(r.symptom)}</div></td><td><div class="fcl">${esc(r.fix)}</div></td><td class="fc">${thD(r.doneDate)}</td><td class="fc"><b>${r.days??''}</b></td><td class="fc f${cls(r)}">${esc(r.result?RP_RES_TXT[r.result]:'')}</td><td><div class="fcl">${esc(r.advice)}</div></td><td><div class="fcl">${esc(r.note)}</div></td></tr>`}).join('');
+    return `<div class="fpg"><table class="fhd"><colgroup><col style="width:21%"><col style="width:47%"><col style="width:22%"><col style="width:10%"></colgroup>
+    <tr><td colspan="4" class="fco">บริษัท ยูเนียนเบลท์ อินเตอร์เนชั่นแนล จำกัด</td></tr>
+    <tr><td rowspan="4" class="flg">${RP_LOGO?`<img src="${RP_LOGO}">`:'<b style="font-size:30px;color:#1a7f37">UNB</b>'}</td><td rowspan="2" class="fwf">เอกสาร : Work Form</td><td class="flb">รหัสเอกสาร (Doc No) :</td><td class="fvl">FM-ITM-01-05</td></tr>
+    <tr><td class="flb">แก้ไขครั้งที่ (Revision) :</td><td class="fvl">01</td></tr>
+    <tr><td rowspan="2" class="ftt">เรื่อง / Title : แบบฟอร์มบันทึกแจ้งซ่อม</td><td class="flb">วันที่บังคับใช้ (Effective date) :</td><td class="fvl">...../...../........</td></tr>
+    <tr><td class="flb">หน้าที่ (Page) :</td><td class="fvl">${k+1}</td></tr></table>
+    <table class="fmt"><colgroup><col style="width:9%"><col style="width:13%"><col style="width:9%"><col style="width:11%"><col style="width:13%"><col style="width:27%"><col style="width:8%"><col style="width:10%"></colgroup><tr><td class="fb">ประจำเดือน</td><td>${TH_FULL[+m-1]}</td><td class="fb">ปี (พ.ศ.)</td><td>${+y+543}</td><td class="fb">ผู้บันทึก (ฝ่าย IT)</td><td>${esc(by)}</td><td class="fb">แผ่นที่</td><td>${k+1}</td></tr></table>
+    <div class="fins">วิธีกรอก :  กรอกเฉพาะช่องสีเหลือง  •  ช่องที่มี ▼ ให้เลือกจากรายการ  •  วันที่กรอกแบบ วว/ดด/ปปปป  •  ช่องสีเทาคำนวณให้อัตโนมัติ  •  ส่วนที่ 1 ผู้แจ้งกรอก  /  ส่วนที่ 2 ฝ่าย IT กรอกหลังซ่อม</div>
+    <table class="fd"><colgroup>${[3.2,7.8,6.8,11.3,8.6,16.1,16.1,6.8,4.8,8.4,12.5,11.4].map(w=>`<col style="width:${w}%">`).join('')}</colgroup>
+    <tr><th colspan="6">ส่วนที่ 1  ข้อมูลการแจ้งซ่อม  (ผู้แจ้งกรอก)</th><th colspan="6">ส่วนที่ 2  ผลการซ่อม  (ฝ่าย IT กรอก)</th></tr>
+    <tr><th>ลำดับ</th><th>เลขที่<br>ใบแจ้งซ่อม</th><th>วันที่แจ้ง<br>(วว/ดด/ปปปป)</th><th>ผู้แจ้ง / แผนก</th><th>ประเภทอุปกรณ์ ▼</th><th>อาการเสีย<br>(อธิบายสั้น ๆ)</th><th>การแก้ไข<br>(สิ่งที่ทำ / อะไหล่ที่เปลี่ยน)</th><th>วันที่ซ่อมเสร็จ<br>(วว/ดด/ปปปป)</th><th>ใช้เวลา<br>(วัน)</th><th>ผลการซ่อม ▼</th><th>ข้อเสนอแนะ<br>(วิธีป้องกัน)</th><th>หมายเหตุ</th></tr>${body}</table>
+    <div class="fsm">สรุป :  แจ้งซ่อมทั้งหมด ${s.all} รายการ    ซ่อมเสร็จ ${s.done}    กำลังดำเนินการ / รออะไหล่ / ส่งซ่อมภายนอก ${s.open}    ซ่อมไม่ได้ ${s.fail}</div>
+    <div class="flgd">ประเภทอุปกรณ์ :  คอมพิวเตอร์ / โน้ตบุ๊ก  /  CPU  /  ปริ้นเตอร์  /  เครื่องถ่ายเอกสาร  /  จอมอนิเตอร์  /  อื่นๆ (ระบุในอาการเสีย)<br>ผลการซ่อม :  ซ่อมเสร็จ  /  กำลังดำเนินการ  /  รออะไหล่  /  ส่งซ่อมภายนอก  /  ซ่อมไม่ได้ / เปลี่ยนใหม่</div>
+    <div class="fsig"><div><b>ผู้จัดทำ (Prepared by)</b><i></i><span>( ${esc(by)} )</span><span>วันที่ ....../....../......</span></div><div><b>ผู้ทบทวน (Reviewed by)</b><i></i><span>( ........................................ )</span><span>วันที่ ....../....../......</span></div><div><b>ผู้อนุมัติ (Approved by)</b><i></i><span>( ........................................ )</span><span>วันที่ ....../....../......</span></div></div>
+    <div class="fft">FM-ITM-01-05 Rev.01</div></div>`};
+  return `<style>${RP_V2CSS}</style><div class="fmx v2">${pages.map(pg).join('')}</div>`}
+async function rpExportXlsx(L,ym,by){
+  const buf=await rpTpl();const z=await JSZip.loadAsync(buf);const [y,m]=ym.split('-');
+  const DP=new DOMParser(),XS=new XMLSerializer();const HEAD='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+  const rd=async n=>DP.parseFromString(await z.file(n).async('string'),'application/xml');const wr=(n,doc)=>z.file(n,HEAD+XS.serializeToString(doc).replace(/^<\?xml[^>]*\?>\s*/,''));
+  const NS='http://schemas.openxmlformats.org/spreadsheetml/2006/main',RN='http://schemas.openxmlformats.org/officeDocument/2006/relationships',PR='http://schemas.openxmlformats.org/package/2006/relationships',CT='http://schemas.openxmlformats.org/package/2006/content-types';
+  const xe=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const wb=await rd('xl/workbook.xml'),wrel=await rd('xl/_rels/workbook.xml.rels'),ct=await rd('[Content_Types].xml');
+  const sheets=[...wb.getElementsByTagNameNS(NS,'sheet')];const main=sheets.find(s=>s.getAttribute('name')==='แบบฟอร์ม')||sheets[0];
+  const rels=[...wrel.getElementsByTagNameNS(PR,'Relationship')];const relOf=id=>rels.find(r=>r.getAttribute('Id')===id);
+  const res=(base,t)=>{if(t.startsWith('/'))return t.slice(1);const p=base.split('/');p.pop();for(const s of t.split('/')){if(s==='..')p.pop();else if(s!=='.')p.push(s)}return p.join('/')};
+  const relsPath=p=>p.replace(/([^/]+)$/,'_rels/$1.rels');
+  const rmPart=p=>{if(z.file(p))z.remove(p);[...ct.getElementsByTagNameNS(CT,'Override')].filter(o=>o.getAttribute('PartName')==='/'+p).forEach(o=>o.remove())};
+  const drawOf=async sp=>{const rp=relsPath(sp);if(!z.file(rp))return null;const d=await rd(rp);const r=[...d.getElementsByTagNameNS(PR,'Relationship')].find(r=>/\/drawing$/.test(r.getAttribute('Type')));return r?res(sp,r.getAttribute('Target')):null};
+  const mainPath=res('xl/workbook.xml',relOf(main.getAttributeNS(RN,'id')).getAttribute('Target'));
+  for(const s of sheets.filter(s=>s!==main)){const r=relOf(s.getAttributeNS(RN,'id'));const p=res('xl/workbook.xml',r.getAttribute('Target'));const dp=await drawOf(p);if(dp&&dp!==await drawOf(mainPath)){rmPart(dp);if(z.file(relsPath(dp)))z.remove(relsPath(dp))}if(z.file(relsPath(p)))z.remove(relsPath(p));rmPart(p);r.remove();s.remove()}
+  rels.filter(r=>/calcChain$/.test(r.getAttribute('Type'))).forEach(r=>{rmPart(res('xl/workbook.xml',r.getAttribute('Target')));r.remove()});
+  [...wb.getElementsByTagNameNS(NS,'definedNames')].forEach(d=>d.remove());
+  const bv=wb.getElementsByTagNameNS(NS,'workbookView')[0];if(bv){bv.removeAttribute('activeTab');bv.removeAttribute('firstSheet')}
+  const cp=wb.getElementsByTagNameNS(NS,'calcPr')[0];if(cp)cp.setAttribute('fullCalcOnLoad','1');
+  const sheetStr=await z.file(mainPath).async('string');const sheetRels=z.file(relsPath(mainPath))?await z.file(relsPath(mainPath)).async('string'):null;
+  const drawPath=await drawOf(mainPath);const drawStr=drawPath?await z.file(drawPath).async('string'):null;const drawRels=drawPath&&z.file(relsPath(drawPath))?await z.file(relsPath(drawPath)).async('string'):null;
+  const ser=s=>{if(!s)return '';const [a,b,c]=s.split('-').map(Number);return Math.round((Date.UTC(a,b-1,c)-Date.UTC(1899,11,30))/864e5)};
+  const pages=[];for(let i=0;i<Math.max(1,L.length);i+=12)pages.push(L.slice(i,i+12));
+  const names=pages.length>1?pages.map((_,k)=>`แผ่นที่ ${k+1}`):['แบบฟอร์ม'];
+  let maxId=Math.max(0,...[...wb.getElementsByTagNameNS(NS,'sheet')].map(s=>+s.getAttribute('sheetId')||0));
+  const shEl=wb.getElementsByTagNameNS(NS,'sheets')[0];const dn=wb.createElementNS(NS,'definedNames');shEl.parentNode.insertBefore(dn,shEl.nextSibling);
+  for(let k=0;k<pages.length;k++){const rows=pages[k];const doc=DP.parseFromString(sheetStr,'application/xml');const cells={};[...doc.getElementsByTagNameNS(NS,'c')].forEach(c=>cells[c.getAttribute('r')]=c);
+    const clr=c=>{while(c.firstChild)c.removeChild(c.firstChild);c.removeAttribute('t')};
+    const S=(ref,v)=>{const c=cells[ref];if(!c)return;clr(c);if(v===''||v==null)return;c.setAttribute('t','inlineStr');const is=doc.createElementNS(NS,'is'),t=doc.createElementNS(NS,'t');t.setAttributeNS('http://www.w3.org/XML/1998/namespace','xml:space','preserve');t.textContent=String(v);is.appendChild(t);c.appendChild(is)};
+    const N=(ref,v)=>{const c=cells[ref];if(!c)return;clr(c);if(v===''||v==null)return;const e=doc.createElementNS(NS,'v');e.textContent=String(v);c.appendChild(e)};
+    S('C8',TH_FULL[+m-1]);S('F8',String(+y+543));S('H8',by);N('L8',k+1);N('L6',k+1);
+    const W={B:13,D:18.9,E:14.4,F:27,G:27,J:14,K:21,L:19};
+    for(let i=0;i<12;i++){const R=12+i,r=rows[i];N('A'+R,k*12+i+1);
+      if(!r){'BCDEFGHIJKL'.split('').forEach(c=>S(c+R,''));continue}
+      const v={B:r.no,D:(r.by||'')+(r.dept?' / '+r.dept:''),E:rpType(r.type)[1],F:r.symptom,G:r.fix,J:r.result?RP_RES_TXT[r.result]:'',K:r.advice,L:r.note};
+      'BDEFGJKL'.split('').forEach(c=>S(c+R,v[c]||''));N('C'+R,ser(r.date));N('H'+R,ser(r.doneDate));N('I'+R,r.days===''||r.days==null?'':r.days);
+      const lines=Math.max(1,...Object.keys(v).map(c=>Math.ceil(String(v[c]||'').length/(W[c]*1.15))));const row=cells['A'+R]&&cells['A'+R].parentNode;if(row&&lines>1){row.setAttribute('ht',String(Math.max(24,lines*12+6)));row.setAttribute('customHeight','1')}}
+    const s=rpSum(rows);S('A24',`สรุป :  แจ้งซ่อมทั้งหมด ${s.all} รายการ    ซ่อมเสร็จ ${s.done}    กำลังดำเนินการ / รออะไหล่ / ส่งซ่อมภายนอก ${s.open}    ซ่อมไม่ได้ ${s.fail}`);
+    if(k>0)[...doc.getElementsByTagNameNS(NS,'sheetView')].forEach(v=>v.removeAttribute('tabSelected'));
+    let sp=mainPath,el=main;
+    if(k>0){sp=`xl/worksheets/sheetRP${k+1}.xml`;const rid=`rIdRP${k+1}`;const rel=wrel.createElementNS(PR,'Relationship');rel.setAttribute('Id',rid);rel.setAttribute('Type','http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet');rel.setAttribute('Target',`worksheets/sheetRP${k+1}.xml`);wrel.documentElement.appendChild(rel);
+      el=wb.createElementNS(NS,'sheet');el.setAttribute('sheetId',String(++maxId));el.setAttributeNS(RN,'r:id',rid);shEl.appendChild(el);
+      const o=ct.createElementNS(CT,'Override');o.setAttribute('PartName','/'+sp);o.setAttribute('ContentType','application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml');ct.documentElement.appendChild(o);
+      if(sheetRels){let sr=sheetRels;if(drawPath){const dn2=`xl/drawings/drawingRP${k+1}.xml`;sr=sr.replace(/Target="[^"]*drawings\/[^"]+"/,`Target="../drawings/drawingRP${k+1}.xml"`);z.file(dn2,drawStr.replace('( ........................................ )',`( ${xe(by)} )`));if(drawRels)z.file(relsPath(dn2),drawRels);const o2=ct.createElementNS(CT,'Override');o2.setAttribute('PartName','/'+dn2);o2.setAttribute('ContentType','application/vnd.openxmlformats-officedocument.drawing+xml');ct.documentElement.appendChild(o2)}z.file(relsPath(sp),sr)}}
+    else if(drawPath)z.file(drawPath,drawStr.replace('( ........................................ )',`( ${xe(by)} )`));
+    el.setAttribute('name',names[k]);wr(sp,doc);
+    const d=wb.createElementNS(NS,'definedName');d.setAttribute('name','_xlnm.Print_Area');d.setAttribute('localSheetId',String(k));d.textContent=`'${names[k]}'!$A$1:$L$37`;dn.appendChild(d)}
+  wr('xl/workbook.xml',wb);wr('xl/_rels/workbook.xml.rels',wrel);wr('[Content_Types].xml',ct);
+  const blob=await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',compression:'DEFLATE'});rpSaveFile(blob,`FM-ITM-01-05_${ym}.xlsx`)}
 /* ---- events ---- */
 document.addEventListener('click',ev=>{const t=ev.target;if(!t.closest)return;
   const f=t.closest('[data-rpf]');if(f){RPF=f.dataset.rpf;render();return}
