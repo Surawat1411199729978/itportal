@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Check list SO">
+<meta name="theme-color" content="#ffffff">
+<title>Check list SO · UNB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.3/lib/msal-browser.min.js"></script>
+<style>
+:root{
+  --bg:#ffffff; --card:#f4f4f4; --ink:#000; --muted:#707070; --line:#dddddd;
+  --accent:#000; --accent-ink:#fff; --blue:#2189ff;
+  --s-new:#8f8f8f; --s-prod:#f28c00; --s-ready:#2189ff; --s-partial:#7a5af8; --s-done:#00a862;
+  --danger:#e4002b;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#000; --card:#1b1b1b; --ink:#fff; --muted:#a0a0a0; --line:#333; --accent:#fff; --accent-ink:#000; }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Thai","Inter",-apple-system,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+.mono{font-family:"Inter",-apple-system,sans-serif;font-variant-numeric:tabular-nums;font-size:.92em;letter-spacing:0}
+button{font:inherit;color:inherit;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+
+header{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  padding:calc(var(--safe-t) + 14px) 20px 0;border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;gap:10px}
+.top h1{font-size:26px;font-weight:800;margin:0;letter-spacing:-.02em;line-height:1.15}
+.iconbtn{width:40px;height:40px;border-radius:50%;border:0;background:var(--card);display:grid;place-items:center;font-size:18px;font-weight:700}
+.sync{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:4px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+.dot.ok{background:var(--s-done)} .dot.warn{background:var(--s-prod)}
+.search{margin-top:14px;position:relative}
+.search input{width:100%;padding:12px 16px 12px 42px;border-radius:999px;border:0;background:var(--card);font-size:16px;outline:none}
+.search input:focus{box-shadow:0 0 0 2px var(--ink)}
+.search span{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--ink);font-weight:700}
+.chips{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;margin:12px 0 12px;background:var(--card);border-radius:16px;padding:4px}
+.chips .chip{border:0;background:none;border-radius:12px;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:0;color:var(--muted);font-size:12.5px;font-weight:600;white-space:nowrap}
+.chips .chip b{font-size:21px;font-weight:800;line-height:1.15;color:var(--ink);font-family:"Inter",-apple-system,sans-serif}
+.chips .chip.on{background:var(--bg);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.chips .chip.red b{color:var(--danger)}
+.chips .chip.green b{color:var(--s-done)}
+
+main{padding:20px 16px calc(var(--safe-b) + 100px);max-width:780px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px}
+.stat{background:var(--card);border-radius:20px;padding:16px 14px}
+.stat .n{font-size:30px;font-weight:800;line-height:1;letter-spacing:-.02em;font-family:"Inter",-apple-system,sans-serif}
+.stat .l{font-size:12.5px;color:var(--muted);margin-top:6px}
+.stat.alert .n{color:var(--danger)}
+
+.po{background:var(--card);border-radius:24px;margin-bottom:12px;overflow:hidden}
+.po-h{display:flex;align-items:center;gap:12px;padding:18px 20px 16px;width:100%;border:0;background:none;text-align:left}
+.po-h .t{flex:1;min-width:0}
+.po-h .num{font-weight:800;font-size:18px;letter-spacing:-.01em}
+.po-h .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+.bar{height:4px;border-radius:2px;background:color-mix(in srgb,var(--ink) 10%,transparent);overflow:hidden;margin-top:10px}
+.bar>div{height:100%;background:var(--ink)}
+.chev{width:32px;height:32px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-size:12px;transition:transform .2s;flex:none}
+.po.closed .chev{transform:rotate(-90deg)}
+.po.closed .rows{display:none}
+.rows{padding:0 10px 10px}
+.row{display:block;width:100%;border:0;border-radius:16px;background:var(--bg);text-align:left;padding:14px 14px;margin-top:6px}
+.row:first-child{margin-top:0}
+.row:active{transform:scale(.99)}
+.r1{display:flex;gap:10px;align-items:flex-start}
+.spec{flex:1;font-weight:600;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.badge{flex:none;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;color:#fff;white-space:nowrap}
+.r2{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:12.5px;color:var(--muted)}
+.r2 .late{color:var(--danger);font-weight:700}
+.qty{color:var(--ink);font-weight:700}
+.empty{text-align:center;color:var(--muted);padding:56px 16px}
+.empty .big{font-size:40px}
+.notice{background:var(--card);border-radius:16px;padding:12px 16px;font-size:13px;margin-bottom:16px;color:var(--muted)}
+
+.fab{position:fixed;right:20px;bottom:calc(var(--safe-b) + 20px);z-index:20;height:52px;padding:0 22px 0 18px;border-radius:999px;border:0;background:var(--accent);color:var(--accent-ink);font-size:15px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;align-items:center;gap:6px}
+.fab b{font-size:22px;font-weight:400;line-height:1}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--bg);border-radius:28px 28px 0 0;max-height:92vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);padding:8px 20px calc(var(--safe-b) + 20px);max-width:780px;margin:0 auto}
+.sheet.on{transform:none}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--line);margin:4px auto 14px}
+.sheet h2{font-size:22px;font-weight:800;margin:0 0 4px;letter-spacing:-.02em}
+.sheet .meta{font-size:12.5px;color:var(--muted);margin-bottom:18px}
+.seg{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.seg button{border:1px solid var(--ink);background:none;border-radius:999px;padding:8px 16px;font-size:13.5px;font-weight:600}
+.seg button.on{color:#fff;border-color:transparent}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 10px}
+.f{display:flex;flex-direction:column;gap:6px}
+.f.full{grid-column:1/-1}
+.f label{font-size:12.5px;color:var(--muted);font-weight:600;padding-left:4px}
+.f input,.f textarea,.f select{width:100%;border:0;background:var(--card);border-radius:14px;padding:12px 14px;font-size:16px;-webkit-appearance:none;appearance:none;min-height:48px;outline:none}
+.f input:focus,.f textarea:focus{box-shadow:0 0 0 2px var(--ink)}
+.f textarea{min-height:72px;resize:vertical}
+.stepper{display:flex;align-items:stretch;border-radius:14px;overflow:hidden;background:var(--card)}
+.stepper button{width:52px;border:0;background:none;font-size:22px}
+.stepper input{background:none!important;text-align:center;min-width:0;font-weight:700;box-shadow:none!important}
+.hint{font-size:12px;color:var(--muted);padding-left:4px}
+.actions{display:flex;gap:8px;margin-top:20px}
+.actions+.actions{margin-top:8px}
+.btn{flex:1;border:1px solid var(--ink);background:none;border-radius:999px;padding:13px 16px;font-weight:700;font-size:14.5px}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ok{background:none;color:var(--ink);border-color:var(--ink)}
+.btn.del{color:var(--danger);border-color:transparent}
+.menu .btn{display:flex;width:100%;text-align:left;margin-bottom:8px;font-weight:600;background:var(--card);border-color:transparent;border-radius:16px;padding:16px}
+.toast{position:fixed;left:50%;bottom:calc(var(--safe-b) + 90px);transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-size:14px;font-weight:600;z-index:40;opacity:0;transition:.2s;pointer-events:none;max-width:90vw;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.confirm{display:none;background:var(--card);border-radius:16px;padding:14px;margin-top:12px;font-size:14px;font-weight:600}
+.confirm.on{display:block}
+
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border-radius:999px;padding:4px;margin-top:14px}
+.tabs button{border:0;background:none;border-radius:999px;padding:9px 6px;font-weight:700;font-size:14.5px;color:var(--muted)}
+.tabs button.on{background:var(--ink);color:var(--bg)}
+.tabs button b{font-weight:700;opacity:.6;margin-left:4px}
+.so{display:flex;align-items:stretch;background:var(--card);border-radius:20px;margin-bottom:8px;overflow:hidden}
+.so.checked{opacity:.55}
+.so-check{flex:none;width:58px;border:0;background:none;display:grid;place-items:center}
+.box{width:26px;height:26px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;font-size:15px;font-weight:800;color:var(--bg)}
+.so.checked .box{background:var(--s-done);border-color:var(--s-done);color:#fff}
+.so-main{flex:1;min-width:0;border:0;background:none;text-align:left;padding:14px 16px 14px 0}
+.so-main .t1{display:flex;gap:8px;align-items:center}
+.so-main .sono{flex:1;font-weight:800;font-size:16.5px;letter-spacing:-.01em}
+.so.checked .sono{text-decoration:line-through}
+.so-main .amt{font-weight:700;font-family:"Inter",-apple-system,sans-serif;font-variant-numeric:tabular-nums;margin-top:2px}
+.link-po{color:var(--blue);font-weight:600}
+.typebar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.typebar.one{grid-template-columns:1fr}
+.typebar{margin-top:2px}
+.typesel select{padding:9px 34px 9px 14px;font-size:15px}
+.typesel{position:relative;flex:1}
+.typesel select{width:100%;-webkit-appearance:none;appearance:none;border:1.5px solid var(--ink);background:var(--bg);border-radius:999px;padding:10px 40px 10px 16px;font-size:16px;font-weight:700;color:var(--ink);outline:none}
+.typesel::after{content:"▼";position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:11px;pointer-events:none}
+.files{display:flex;flex-direction:column;gap:6px}
+.fileitem{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:14px;padding:10px 12px}
+.fileitem a{flex:1;min-width:0;color:var(--ink);font-weight:600;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fileitem .fdel{border:0;background:none;color:var(--muted);font-size:14px;font-weight:700;padding:4px 6px;border-radius:999px;white-space:nowrap}
+.fileitem .fdel.arm{background:var(--danger);color:#fff;padding:4px 10px}
+.attach{width:100%;border:1.5px dashed var(--line);background:none;border-radius:14px;padding:12px;font-weight:700;margin-top:6px}
+.pdfbar{display:flex;gap:8px;margin-bottom:14px}
+.pdfbar .btn{flex:1;background:var(--card);border-color:transparent;border-radius:16px;padding:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+.ex{background:var(--card);border-radius:18px;padding:14px;margin-bottom:10px}
+.ex.off{opacity:.45}
+.ex-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ex-h input[type=checkbox]{width:22px;height:22px;accent-color:var(--ink)}
+.ex-h b{flex:1;font-size:16px}
+.ex .grid .f input{background:var(--bg)}
+.ex-items{font-size:12.5px;color:var(--muted);margin-top:8px}
+.spin{display:inline-block;width:16px;height:16px;border:2.5px solid var(--line);border-top-color:var(--ink);border-radius:50%;animation:sp 1s linear infinite;vertical-align:-3px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.drop{width:100%;display:flex;align-items:center;gap:14px;text-align:left;border:2px dashed color-mix(in srgb,var(--ink) 30%,transparent);background:none;border-radius:20px;padding:16px 18px;transition:.15s}
+.drop:active,.drop.over{background:var(--card);border-color:var(--ink)}
+.drop-ic{font-size:30px}
+.drop b{font-size:15px}
+.dropcover{position:fixed;inset:0;z-index:50;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;text-align:center;border:3px dashed var(--ink);margin:10px;border-radius:28px;font-size:18px;pointer-events:none}
+.dropcover.on{display:flex}
+.lines{margin-top:8px;display:flex;flex-direction:column;gap:2px}
+.ln{display:flex;gap:8px;font-size:13px;line-height:1.35}
+.ln .q{flex:none;font-weight:700;min-width:44px;text-align:right;font-family:"Inter",-apple-system,sans-serif}
+.ln .s{flex:1;min-width:0}
+.ln .c{display:block;font-size:11.5px;color:var(--muted);font-family:"Inter",-apple-system,sans-serif}
+.ln .a{flex:none;color:var(--muted);font-family:"Inter",-apple-system,sans-serif;font-size:12.5px}
+.so-lines{border-top:1px solid var(--line);margin-top:10px;padding-top:8px}
+.so-lines .more{font-size:12.5px;color:var(--muted);margin-top:2px}
+.ltable{background:var(--card);border-radius:16px;padding:12px 14px}
+.ltable .ln{padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.ltable .ln:first-child{border-top:0}
+.pdfbtn{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--ink);background:var(--bg);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;margin-top:8px}
+.fileitem .fview{flex:1;min-width:0;border:0;background:none;text-align:left;color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0}
+.viewer{position:fixed;inset:0;z-index:60;background:#2b2b2b;display:none;flex-direction:column}
+.viewer.on{display:flex}
+.viewer-h{display:flex;align-items:center;gap:10px;padding:calc(var(--safe-t) + 10px) 14px 10px;background:#111;color:#fff}
+.viewer-h b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
+.viewer-h button,.viewer-h a{border:0;background:#fff;color:#000;border-radius:999px;padding:7px 14px;font-weight:700;font-size:14px;text-decoration:none}
+.viewer-b{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:10px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.viewer-b canvas{width:100%;max-width:900px;background:#fff;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.4)}
+.viewer-b .msg{color:#ddd;margin-top:40px;text-align:center}
+.lchk{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--ink);background:none;display:grid;place-items:center;font-size:14px;font-weight:800;color:transparent;padding:0;margin-top:-2px}
+.lchk.on{background:var(--s-done);border-color:var(--s-done);color:#fff}
+.ln.done .s,.ln.done .q{text-decoration:line-through;color:var(--muted)}
+.ln .tick{flex:none;width:16px;color:var(--s-done);font-weight:800}
+.sum{margin-top:10px;border-top:1.5px solid var(--ink);padding-top:8px;font-size:14px}
+.sum .r{display:flex;justify-content:space-between;padding:2px 0}
+.sum .r span:last-child{font-family:"Inter",-apple-system,sans-serif;font-variant-numeric:tabular-nums}
+.sum .r.total{font-weight:800;font-size:16px;padding-top:4px}
+.prog{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px;font-weight:700}
+.prog .bar{flex:1;margin:0}
+.donebtn{width:100%;margin-top:10px;border:0;background:var(--s-done);color:#fff;border-radius:999px;padding:11px;font-weight:700}
+.fileitem .od{flex:none;font-size:12.5px;font-weight:700;text-decoration:none;color:#0364b8;border:0;background:none;padding:2px 4px;white-space:nowrap}
+.fileitem .od.up{color:var(--muted)}
+.odbar{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);margin-top:6px}
+.odbar a{color:#0364b8;font-weight:700;text-decoration:none}
+.navseg{display:flex;background:var(--card);border-radius:12px;padding:3px;margin:0 0 12px}
+.navseg a{flex:1;text-align:center;padding:7px 4px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;white-space:nowrap}
+.navseg a.on{background:var(--bg);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+</style>
+</head>
+<body>
+<header>
+  <div class="navseg"><a href="./">KPI</a><a href="./#meet">นัดประชุม</a><a class="on">Check list SO</a></div>
+  <div class="top">
+    <div style="flex:1;min-width:0">
+      <h1 id="title">Check list SO</h1>
+      <div class="sync"><span class="dot" id="dot"></span><span id="syncTxt">กำลังเชื่อมต่อ…</span></div>
+    </div>
+    <button class="iconbtn" id="menuBtn" aria-label="เมนู">⋯</button>
+  </div>
+  <div class="tabs" id="tabs" style="display:none"><button data-v="del" class="on">งานจัดส่ง</button><button data-v="so">SO กำลังผลิต</button></div>
+  <div class="search"><span style="display:flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg></span><input id="q" type="search" placeholder="ค้นหา P/O, รหัส, สเปก, SO, INV" autocomplete="off"></div>
+  <div class="typebar" style="margin:10px 0 12px" id="typebar"><div class="typesel"><select id="stSel" aria-label="สถานะ"></select></div><div class="typesel" id="soTypeWrap"><select id="soType" aria-label="ประเภท SO"></select></div></div>
+</header>
+
+<main>
+  <div id="notice"></div>
+  <div class="pdfbar" id="pdfbar" style="display:none"><button class="drop" id="readPdfBtn"><span class="drop-ic">📄</span><span><b>โยนไฟล์ใบ SO (PDF) มาวางที่นี่</b><br><span class="hint">หรือแตะเพื่อเลือกไฟล์ · ระบบจะกรอกข้อมูลให้ก่อน แล้วค่อยกดบันทึก</span></span></button></div>
+<div class="dropcover" id="dropcover"><div><div style="font-size:48px">📄</div><b>ปล่อยไฟล์ PDF เพื่อให้ระบบกรอกข้อมูล</b></div></div>
+  <div class="stats" id="stats"></div>
+  <div id="list"></div>
+</main>
+
+<button class="fab" id="addBtn" aria-label="เพิ่มรายการ"><b>+</b><span id="fabTxt">เพิ่มรายการ</span></button>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet"></div>
+<div class="toast" id="toast"></div>
+<div class="viewer" id="viewer"><div class="viewer-h"><b id="vName"></b><a id="vOpen" href="#" target="_blank" rel="noopener">เปิดนอกแอป</a><button id="vClose">ปิด</button></div><div class="viewer-b" id="vBody"></div></div>
+<input type="file" id="file" accept=".xlsx,.xls,.csv" hidden>
+<input type="file" id="pdfIn" accept="application/pdf,.pdf" multiple hidden>
+<input type="file" id="pdfRead" accept="application/pdf,.pdf" multiple hidden>
+
+<script>
+const STATUS=[
+  {k:'new',t:'รอดำเนินการ',v:'--s-new'},
+  {k:'prod',t:'กำลังผลิต',v:'--s-prod'},
+  {k:'ready',t:'พร้อมส่ง',v:'--s-ready'},
+  {k:'partial',t:'ส่งบางส่วน',v:'--s-partial'},
+  {k:'done',t:'ส่งครบแล้ว',v:'--s-done'},
+];
+const SMAP=Object.fromEntries(STATUS.map(s=>[s.k,s]));
+const LS_KEY='delivery-tracker-local-v1';
+
+let mode='loading', items={}, filter='open', query='', closedPO=new Set(), editing=null;
+const OD={server:'Microsoft 365',driveId:'b!lRPNjkRZt0K8KUVW6_ppOqe5kh4dkolBr8pobBO6DehBfTSnJN_wRo81zG9fDuGz',folderId:'01JUTDRQD77EQCNYAP3NCJ3IU4CWDG2KD2',folderUrl:'https://unboffice-my.sharepoint.com/personal/surawat_unboffice_onmicrosoft_com/Documents/Check%20list%20SO'};
+let mcpApi=null, mcpFileArgs=false;
+let view='so', soItems={}, soFilter='open', soType='all', stF='all', soSt='all', assetsApi=null, attachCtx=null, sampleApi=null, sampleImages=false;
+try{soType=localStorage.getItem('dt-sotype')||'all'}catch(e){}
+const SO_TYPES=['SOR','SOB','SOT','SOL'];
+const soTypeOf=s=>{const m=String(s.so||'').toUpperCase().match(/^SO[A-Z]/);return m?m[0]:'อื่นๆ'};
+const SO_STATUS=[
+  {k:'prod',t:'กำลังผลิต',v:'--s-prod'},
+  {k:'ready',t:'พร้อมส่ง',v:'--s-ready'},
+  {k:'done',t:'ส่งแล้ว',v:'--s-done'},
+  {k:'issue',t:'มีปัญหา',v:'--danger'},
+];
+const SOMAP=Object.fromEntries(SO_STATUS.map(s=>[s.k,s]));
+const LS_SO='delivery-tracker-so-v1';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>{const n=parseFloat(String(v??'').replace(/,/g,''));return isFinite(n)?n:0};
+const fmt=n=>{n=num(n);return Number.isInteger(n)?String(n):n.toFixed(2).replace(/0+$/,'').replace(/\.$/,'')};
+const money=n=>num(n)?num(n).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}):'';
+const todayStr=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const thDate=s=>{if(!s)return'';const [y,m,d]=s.split('-').map(Number);if(!y)return s;const M=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];return d+' '+M[m-1]+' '+String((y+543)%100).padStart(2,'0')};
+const remainOf=it=>Math.max(0,num(it.qty)-num(it.delivered));
+const isLate=it=>it.status!=='done'&&it.date&&it.date<todayStr();
+const sanitize=s=>String(s).replace(/[^A-Za-z0-9_\-.~:@+]/g,'_').slice(0,120)||'x';
+
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('on'),2200)}
+function setSync(state,txt){$('dot').className='dot '+(state||'');$('syncTxt').textContent=txt}
+
+/* ---------- storage ---------- */
+function loadLocal(){try{const o=JSON.parse(localStorage.getItem(LS_KEY)||'{}');return Object.fromEntries(Object.entries(o).map(([k,v])=>[k,{...v,id:k}]))}catch(e){return{}}}
+function saveLocal(){try{localStorage.setItem(LS_KEY,JSON.stringify(items))}catch(e){}}
+async function writeItem(id,data){
+  data.updatedAt=new Date().toISOString();
+  items[id]={...data,id};
+  render();
+  if(mode==='db'){
+    try{const body={...data};delete body.id;await db.collection('items').doc(id).set(body)}
+    catch(e){
+      if(e&&e.code==='unavailable'){await new Promise(r=>setTimeout(r,600+Math.random()*600));try{const b={...data};delete b.id;await db.collection('items').doc(id).set(b);return}catch(_){}}
+      toast(e&&e.code==='invalid_argument'?'คุณไม่มีสิทธิ์แก้ไขข้อมูลนี้':'บันทึกไม่สำเร็จ ลองอีกครั้ง');
+    }
+  } else saveLocal();
+}
+async function removeItem(id){
+  delete items[id];render();
+  if(mode==='db'){try{await db.collection('items').doc(id).delete()}catch(e){toast('ลบไม่สำเร็จ')}}
+  else saveLocal();
+}
+
+function loadLocalSO(){try{const o=JSON.parse(localStorage.getItem(LS_SO)||'{}');return Object.fromEntries(Object.entries(o).map(([k,v])=>[k,{...v,id:k}]))}catch(e){return{}}}
+function saveLocalSO(){try{localStorage.setItem(LS_SO,JSON.stringify(soItems))}catch(e){}}
+async function writeSO(id,data){
+  data={...data};delete data.id;data.updatedAt=new Date().toISOString();
+  soItems[id]={...data,id};render();
+  if(mode==='db'){
+    try{await db.collection('so').doc(id).set(data)}
+    catch(e){
+      if(e&&e.code==='unavailable'){await new Promise(r=>setTimeout(r,600+Math.random()*600));try{await db.collection('so').doc(id).set(data);return}catch(_){}}
+      toast(e&&e.code==='invalid_argument'?'คุณไม่มีสิทธิ์แก้ไขข้อมูลนี้':'บันทึกไม่สำเร็จ ลองอีกครั้ง');
+    }
+  } else saveLocalSO();
+}
+async function removeSO(id){
+  delete soItems[id];render();
+  if(mode==='db'){try{await db.collection('so').doc(id).delete()}catch(e){toast('ลบไม่สำเร็จ')}}
+  else saveLocalSO();
+}
+
+/* ---------- Microsoft 365 sign-in + SharePoint storage (list 'Sale KPI', type so/del · files in Documents/Check list SO) ---------- */
+const CFG={clientId:'73241ae0-9aa1-49fe-b2c7-caa2449a0091',tenantId:'410b700e-bb2a-46d2-b4c0-449aec007d0e',siteUrl:'https://unboffice.sharepoint.com/sites/ITPortal'};
+const SCOPES=['User.Read','Sites.ReadWrite.All'],SP_LIST='Sale KPI',SP_DIR='Check list SO';
+let msalApp=null,account=null,siteId='',listId='',driveId='',me='',errMsg='',spFolderUrl='';
+const spIds={},spChain={};
+async function token(){
+  try{return (await msalApp.acquireTokenSilent({scopes:SCOPES,account})).accessToken}
+  catch(e){await msalApp.acquireTokenRedirect({scopes:SCOPES,account});throw e}}
+async function g(path,opt={}){
+  const t=await token();const headers={Authorization:'Bearer '+t,...(opt.headers||{})};let body=opt.body;
+  if(opt.json!==undefined){headers['Content-Type']='application/json';body=JSON.stringify(opt.json)}
+  let r;
+  for(let a=0;;a++){
+    r=await fetch(path.startsWith('http')?path:'https://graph.microsoft.com/v1.0'+path,{method:opt.method||'GET',headers,body});
+    if(![429,500,502,503,504].includes(r.status)||a>=4)break;
+    const ra=+r.headers.get('Retry-After');await new Promise(z=>setTimeout(z,ra>0?Math.min(ra,10)*1000:600*(a+1)));
+  }
+  if(!r.ok){let m='';try{m=(await r.json()).error.message}catch(_){};const e=new Error(m||('HTTP '+r.status));e.status=r.status;throw e}
+  if(opt.raw)return r;
+  return r.status===204?null:r.json();
+}
+const spErr=e=>({code:e&&(e.status===401||e.status===403)?'invalid_argument':e&&(e.status===429||e.status>=500)?'unavailable':'error',message:e&&e.message});
+async function spSet(c,k,body){
+  const key=c+'/'+k;const run=async()=>{
+    const fields={Title:(c==='so'?'SO-':'DEL-')+k,Data:JSON.stringify({type:c==='so'?'so':'del',key:k,v:body})};
+    try{const rid=spIds[key];
+      if(rid)await g(`/sites/${siteId}/lists/${listId}/items/${rid}/fields`,{method:'PATCH',json:fields});
+      else{const it=await g(`/sites/${siteId}/lists/${listId}/items`,{method:'POST',json:{fields}});spIds[key]=it.id}
+    }catch(e){if(e&&e.status===404&&spIds[key]){delete spIds[key];return run()}throw spErr(e)}};
+  const p=(spChain[key]||Promise.resolve()).then(run,run);spChain[key]=p.catch(()=>{});return p;
+}
+async function spDel(c,k){
+  const key=c+'/'+k;const run=async()=>{const rid=spIds[key];if(!rid)return;
+    try{await g(`/sites/${siteId}/lists/${listId}/items/${rid}`,{method:'DELETE'})}catch(e){if(e.status!==404)throw spErr(e)}delete spIds[key]};
+  const p=(spChain[key]||Promise.resolve()).then(run,run);spChain[key]=p.catch(()=>{});return p;
+}
+const db={collection:c=>({doc:k=>({set:b=>spSet(c,k,b),delete:()=>spDel(c,k)})})};
+async function spLoad(){
+  const ni={},ns={},best={};
+  let next=`/sites/${siteId}/lists/${listId}/items?$expand=fields($select=Title,Data)&$top=999`;
+  while(next){const r=await g(next);
+    r.value.forEach(it=>{let d=null;try{d=JSON.parse(it.fields.Data||'')}catch(_){}
+      if(!d||(d.type!=='so'&&d.type!=='del')||!d.key||!d.v)return;
+      const c=d.type==='so'?'so':'items',key=c+'/'+d.key,u=String(d.v.updatedAt||'');
+      if(best[key]!=null&&best[key]>u)return;best[key]=u;spIds[key]=it.id;
+      (d.type==='so'?ns:ni)[d.key]={...d.v,id:d.key}});
+    next=r['@odata.nextLink']}
+  items=ni;soItems=ns;
+}
+async function refresh(){if(mode!=='db'||refresh.busy)return;refresh.busy=true;try{await spLoad();setSync('ok','เชื่อม SharePoint แล้ว · '+me);if(!$('sheet').classList.contains('on'))render()}catch(e){setSync('warn','โหลดข้อมูลล่าสุดไม่สำเร็จ')}finally{refresh.busy=false}}
+/* files */
+const spPath=n=>encodeURIComponent(SP_DIR)+'/'+encodeURIComponent(n);
+async function spUpload(file,name){
+  name=String(name||file.name).replace(/[\\/:*?"<>|#%]/g,'_');
+  if(file.size<=4*1048576){const it=await g(`/drives/${driveId}/root:/${spPath(name)}:/content?@microsoft.graph.conflictBehavior=rename`,{method:'PUT',body:file,headers:{'Content-Type':'application/pdf'}});return it}
+  const ses=await g(`/drives/${driveId}/root:/${spPath(name)}:/createUploadSession`,{method:'POST',json:{item:{'@microsoft.graph.conflictBehavior':'rename'}}});
+  const CH=5*327680*2;let it=null;
+  for(let o=0;o<file.size;o+=CH){const end=Math.min(o+CH,file.size);
+    const r=await fetch(ses.uploadUrl,{method:'PUT',headers:{'Content-Range':`bytes ${o}-${end-1}/${file.size}`},body:file.slice(o,end)});
+    if(!r.ok)throw new Error('HTTP '+r.status);if(r.status===200||r.status===201)it=await r.json()}
+  return it;
+}
+async function spFetch(id){return g(`/drives/${driveId}/items/${id}/content`,{raw:true})}
+const fileRecOf=id=>{for(const s of [...Object.values(soItems),...Object.values(items)])for(const f of (s.files||[]))if(f.id===id)return f;return null};
+function makeAssets(){return {
+  upload:async(file,o)=>{if(file.size>20*1048576)throw{code:'too_large'};
+    const so=attachCtx&&attachCtx.kind==='so'&&soItems[attachCtx.id]?soItems[attachCtx.id].so:(o&&o.so)||'';
+    const name=(so&&!String(file.name).toUpperCase().includes(String(so).toUpperCase())?so+' - ':'')+file.name;
+    try{const it=await spUpload(file,name);return {id:it.id,sizeBytes:it.size,url:it.webUrl,name:it.name}}catch(e){throw {code:e&&e.code||'error'}}},
+  delete:id=>g(`/drives/${driveId}/items/${id}`,{method:'DELETE'})}}
+function showSignin(){mode='signin';setSync('warn','ยังไม่ได้เข้าสู่ระบบ');render()}
+async function init(){
+  render();
+  try{
+    msalApp=new window.msal.PublicClientApplication({auth:{clientId:CFG.clientId,authority:'https://login.microsoftonline.com/'+CFG.tenantId,redirectUri:location.origin+location.pathname},cache:{cacheLocation:'localStorage'}});
+    await msalApp.handleRedirectPromise().catch(()=>{});
+    account=msalApp.getActiveAccount()||msalApp.getAllAccounts()[0]||null;
+    if(!account){showSignin();return}
+    msalApp.setActiveAccount(account);me=account.name||account.username;
+    setSync('','กำลังโหลดจาก SharePoint…');
+    const u=new URL(CFG.siteUrl);siteId=(await g(`/sites/${u.hostname}:${u.pathname}?$select=id`)).id;
+    let next=`/sites/${siteId}/lists?$select=id,displayName&$top=200`;
+    while(next&&!listId){const r=await g(next);const l=r.value.find(x=>x.displayName===SP_LIST);if(l)listId=l.id;next=r['@odata.nextLink']}
+    if(!listId)throw new Error('ไม่พบ list "'+SP_LIST+'" ใน SharePoint');
+    const d=await g(`/sites/${siteId}/drive?$select=id,webUrl`);driveId=d.id;spFolderUrl=d.webUrl+'/'+encodeURIComponent(SP_DIR);
+    await spLoad();
+    mode='db';assetsApi=makeAssets();sampleApi={};
+    setSync('ok','เชื่อม SharePoint แล้ว · '+me);render();
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refresh()});
+  }catch(e){if(mode==='signin')return;errMsg=e&&e.message||String(e);mode='err';setSync('warn','เชื่อม SharePoint ไม่สำเร็จ');render()}
+}
+
+/* ---------- render ---------- */
+function filtered(){
+  const q=query.trim().toLowerCase();
+  return Object.values(items).filter(it=>{
+    if(filter==='open'&&it.status==='done')return false;
+    if(filter==='late'&&!isLate(it))return false;
+    if(SMAP[filter]&&it.status!==filter)return false;
+    if(q){const hay=[it.po,it.code,it.spec,it.so,it.inv,it.note].join(' ').toLowerCase();if(!q.split(/\s+/).every(w=>hay.includes(w)))return false}
+    return true;
+  });
+}
+function render(){
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
+  const soOpen=Object.values(soItems).filter(s=>!s.checked).length;
+  const delOpen=Object.values(items).filter(i=>i.status!=='done').length;
+  $('tabs').children[0].innerHTML='งานจัดส่ง'+(delOpen?`<b>${delOpen}</b>`:'');
+  $('tabs').children[1].innerHTML='SO กำลังผลิต'+(soOpen?`<b>${soOpen}</b>`:'');
+  $('title').textContent='Check list SO';
+  $('q').placeholder=view==='so'?'ค้นหา SO, P/O, QT':'ค้นหา P/O, รหัส, สเปก, SO, INV';
+  $('fabTxt').textContent=view==='so'?'วางรายการ SO':'เพิ่มรายการ';
+  $('addBtn').style.display=mode==='db'?'':'none';
+  if(mode==='signin'||mode==='err'){$('stats').innerHTML='';$('pdfbar').style.display='none';$('notice').innerHTML='';$('typebar').style.display='none';
+    $('list').innerHTML=mode==='signin'?`<div class="empty"><div class="big">🔐</div><b>เข้าสู่ระบบด้วยบัญชีบริษัท</b><br><span class="hint">ใช้อีเมลและรหัสผ่าน Microsoft 365 · ข้อมูลเก็บใน SharePoint ของบริษัท</span><br><br><button class="btn pri" id="loginBtn" style="flex:none;padding:12px 22px">เข้าสู่ระบบ Microsoft 365</button></div>`:`<div class="empty"><div class="big">⚠️</div><b>เชื่อม SharePoint ไม่สำเร็จ</b><br><span class="hint">${esc(errMsg)}</span><br><br><button class="btn pri" onclick="location.reload()" style="flex:none;padding:10px 18px">ลองใหม่</button></div>`;
+    if($('loginBtn'))$('loginBtn').onclick=()=>msalApp.loginRedirect({scopes:SCOPES});return}
+  $('typebar').style.display='';
+  $('notice').innerHTML=false?`<div class="notice">เปิดหน้านี้นอก claude.ai จึงบันทึกไว้ในเครื่องนี้เท่านั้น เปิดผ่านลิงก์ claude.ai เพื่อซิงก์ข้อมูลทุกเครื่อง</div>`:'';
+  $('pdfbar').style.display=view==='so'&&sampleApi?'':'none';
+  if(view==='so')return renderSO();
+  renderDel();
+}
+function renderDel(){
+  const all=Object.values(items);
+  const count=k=>all.filter(i=>i.status===k).length;
+  const late=all.filter(isLate).length, open=all.filter(i=>i.status!=='done').length;
+  const opts=[{k:'open',t:'ค้างส่ง',n:open},{k:'late',t:'⚠ เลยกำหนด',n:late},{k:'all',t:'ทั้งหมด',n:all.length},...STATUS.map(s=>({k:s.k,t:s.t,n:count(s.k)}))];
+  if(!opts.some(o=>o.k===filter))filter='open';
+  $('typebar').className='typebar one';$('soTypeWrap').style.display='none';$('stSel').parentElement.style.display='';
+  $('stSel').innerHTML=opts.map(o=>`<option value="${o.k}">${esc(o.t)} (${o.n})</option>`).join('');
+  $('stSel').value=filter;
+
+  const remainUnits=all.reduce((s,i)=>s+remainOf(i),0);
+  const poOpen=new Set(all.filter(i=>i.status!=='done').map(i=>i.po)).size;
+  $('stats').innerHTML=mode==='loading'&&!all.length?'':`
+    <div class="stat"><div class="n">${poOpen}</div><div class="l">P/O ค้างส่ง</div></div>
+    <div class="stat" style="grid-column:span 2"><div class="n">${fmt(remainUnits)}</div><div class="l">จำนวนคงค้าง (ชิ้น)</div></div>`;
+
+  const list=filtered();
+  if(!all.length){
+    $('list').innerHTML=mode==='loading'?`<div class="empty">กำลังโหลด…</div>`:`<div class="empty"><div class="big">📦</div>ยังไม่มีรายการ<br><br><button class="btn pri" onclick="$('file').click()" style="flex:none;padding:10px 18px">นำเข้าไฟล์ Excel</button></div>`;
+    return;
+  }
+  if(!list.length){$('list').innerHTML=`<div class="empty">ไม่พบรายการที่ตรงกับตัวกรอง</div>`;return}
+
+  const groups={};list.forEach(it=>{(groups[it.po]=groups[it.po]||[]).push(it)});
+  const poKeys=Object.keys(groups).sort((a,b)=>{
+    const la=groups[a].some(isLate),lb=groups[b].some(isLate);if(la!==lb)return la?-1:1;
+    const na=Math.min(...groups[a].map(i=>num(i.no)||9999)),nb=Math.min(...groups[b].map(i=>num(i.no)||9999));return na-nb});
+  $('list').innerHTML=poKeys.map(po=>{
+    const rows=groups[po].sort((a,b)=>num(a.no)-num(b.no));
+    const allOfPO=all.filter(i=>i.po===po);
+    const tq=allOfPO.reduce((s,i)=>s+num(i.qty),0), td=allOfPO.reduce((s,i)=>s+Math.min(num(i.delivered),num(i.qty)),0);
+    const pct=tq?Math.round(td/tq*100):0;
+    const dates=allOfPO.filter(i=>i.status!=='done'&&i.date).map(i=>i.date).sort();
+    return `<section class="po ${closedPO.has(po)?'closed':''}">
+      <button class="po-h" data-po="${esc(po)}">
+        <div class="t"><div class="num">P/O <span class="mono">${esc(po)}</span></div>
+        <div class="sub">${allOfPO.length} รายการ · ส่งแล้ว ${pct}%${dates[0]?' · กำหนด '+thDate(dates[0]):''}</div>
+        <div class="bar"><div style="width:${pct}%"></div></div></div>
+        <span class="chev">▼</span>
+      </button>
+      <div class="rows">${rows.map(rowHTML).join('')}</div>
+    </section>`}).join('');
+}
+function rowHTML(it){
+  const s=SMAP[it.status]||SMAP.new, late=isLate(it);
+  const bits=[];
+  bits.push(`<span class="mono">${esc(it.code)}</span>`);
+  bits.push(`<span>คงค้าง <span class="qty">${fmt(remainOf(it))}</span>/${fmt(it.qty)}</span>`);
+  if(it.date)bits.push(`<span class="${late?'late':''}">${late?'⚠ เลยกำหนด ':'ส่ง '}${thDate(it.date)}</span>`);
+  if(it.so)bits.push(`<span>SO ${esc(it.so)}</span>`);
+  if(it.inv)bits.push(`<span>INV ${esc(it.inv)}</span>`);
+  if(num(it.amount))bits.push(`<span>฿${money(it.amount)}</span>`);
+  if(it.files&&it.files.length)bits.push(clipBadge(it.files));
+  return `<button class="row" data-id="${esc(it.id)}">
+    <div class="r1"><div class="spec">${esc(it.spec||'(ไม่มีสเปก)')}</div><span class="badge" style="background:var(${s.v})">${s.t}</span></div>
+    <div class="r2">${bits.join('')}</div>
+    ${it.note?`<div class="r2" style="color:var(--ink)">📝 ${esc(it.note)}</div>`:''}
+  </button>`;
+}
+
+/* ---------- sheet: edit ---------- */
+function openSheet(html){$('sheet').innerHTML='<div class="grab"></div>'+html;$('sheet').scrollTop=0;$('sheet').classList.add('on');$('scrim').classList.add('on')}
+function closeSheet(){$('sheet').classList.remove('on');$('scrim').classList.remove('on');editing=null;attachCtx=null;if(pdfCtl){pdfCtl.abort();pdfCtl=null}}
+$('scrim').onclick=closeSheet;
+
+function openEditor(id){
+  const isNew=!id;
+  const it=isNew?{po:'',code:'',spec:'',qty:1,delivered:0,status:'new',so:'',inv:'',date:'',amount:'',note:''}:{...items[id]};
+  editing={id,isNew,status:it.status||'new'};
+  openSheet(`
+    <h2>${isNew?'เพิ่มรายการ':esc(it.spec||it.code)}</h2>
+    <div class="meta">${isNew?'กรอกข้อมูลรายการใหม่':`P/O <span class="mono">${esc(it.po)}</span> · <span class="mono">${esc(it.code)}</span>`}</div>
+    <div class="seg" id="seg">${STATUS.map(s=>`<button data-s="${s.k}" class="${it.status===s.k?'on':''}" style="${it.status===s.k?`background:var(${s.v})`:''}">${s.t}</button>`).join('')}</div>
+    <div class="grid">
+      ${isNew?`
+      <div class="f"><label>P/O No.</label><input id="e_po" inputmode="numeric" value="${esc(it.po)}"></div>
+      <div class="f"><label>BQMS Code</label><input id="e_code" value="${esc(it.code)}"></div>
+      <div class="f full"><label>Specification</label><input id="e_spec" value="${esc(it.spec)}"></div>
+      <div class="f"><label>P/O Qty</label><input id="e_qty" type="number" inputmode="decimal" value="${esc(it.qty)}"></div>`:''}
+      <div class="f ${isNew?'':'full'}"><label>ส่งแล้ว (จาก ${fmt(it.qty)})</label>
+        <div class="stepper"><button type="button" data-step="-1">−</button><input id="e_del" type="number" inputmode="decimal" value="${fmt(it.delivered)}"><button type="button" data-step="1">+</button></div>
+        <span class="hint" id="remainHint">คงค้าง ${fmt(remainOf(it))}</span></div>
+      <div class="f"><label>SO</label><input id="e_so" value="${esc(it.so)}" autocomplete="off"></div>
+      <div class="f"><label>INV</label><input id="e_inv" value="${esc(it.inv)}" autocomplete="off"></div>
+      <div class="f"><label>วันที่ส่ง (Delivery Date)</label><input id="e_date" type="date" value="${esc(it.date)}"></div>
+      <div class="f"><label>Amount (บาท)</label><input id="e_amt" type="number" inputmode="decimal" step="0.01" value="${esc(it.amount)}"></div>
+      <div class="f full"><label>หมายเหตุ</label><textarea id="e_note" placeholder="เช่น รอวัตถุดิบ, ลูกค้าขอเลื่อน">${esc(it.note)}</textarea></div>
+      ${filesBlock('item',id,it.files)}
+    </div>
+    ${!isNew&&it.updatedAt?`<div class="hint" style="margin-top:10px">แก้ไขล่าสุด ${new Date(it.updatedAt).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'})}</div>`:''}
+    <div class="actions">
+      ${!isNew&&it.status!=='done'?`<button class="btn ok" id="e_full">✓ ส่งครบ</button>`:''}
+      <button class="btn pri" id="e_save">บันทึก</button>
+    </div>
+    <div class="actions"><button class="btn" id="e_cancel">ยกเลิก</button>${isNew?'':`<button class="btn del" id="e_delbtn">ลบรายการ</button>`}</div>
+    <div class="confirm" id="e_confirm">ลบรายการนี้ถาวร?<div class="actions"><button class="btn" id="e_no">ไม่ลบ</button><button class="btn del" id="e_yes">ลบ</button></div></div>
+  `);
+  refreshFiles();
+  const qtyOf=()=>isNew?num($('e_qty').value):num(it.qty);
+  const upd=()=>{$('remainHint').textContent='คงค้าง '+fmt(Math.max(0,qtyOf()-num($('e_del').value)))};
+  $('e_del').oninput=upd; if(isNew)$('e_qty').oninput=upd;
+  $('sheet').querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{let v=num($('e_del').value)+Number(b.dataset.step);v=Math.max(0,Math.min(qtyOf()||v,v));$('e_del').value=fmt(v);upd()});
+  $('seg').onclick=e=>{const b=e.target.closest('button');if(!b)return;editing.status=b.dataset.s;
+    $('seg').querySelectorAll('button').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.style.background=on?`var(${SMAP[x.dataset.s].v})`:''})};
+  $('e_cancel').onclick=closeSheet;
+  $('e_save').onclick=()=>saveEditor(it,false);
+  if($('e_full'))$('e_full').onclick=()=>saveEditor(it,true);
+  if($('e_delbtn')){$('e_delbtn').onclick=()=>$('e_confirm').classList.add('on');$('e_no').onclick=()=>$('e_confirm').classList.remove('on');
+    $('e_yes').onclick=async()=>{const id=editing.id;closeSheet();await removeItem(id);toast('ลบแล้ว')}}
+}
+async function saveEditor(orig,full){
+  const isNew=editing.isNew;
+  const d={...orig};delete d.id;
+  if(isNew){d.po=$('e_po').value.trim();d.code=$('e_code').value.trim();d.spec=$('e_spec').value.trim();d.qty=num($('e_qty').value);
+    if(!d.po||!d.qty){toast('กรอก P/O และจำนวนก่อน');return}
+    const maxNo=Math.max(0,...Object.values(items).map(i=>num(i.no)));d.no=maxNo+1;}
+  d.delivered=Math.min(num($('e_del').value),num(d.qty));
+  d.so=$('e_so').value.trim();d.inv=$('e_inv').value.trim();d.date=$('e_date').value;
+  d.amount=$('e_amt').value===''?'':num($('e_amt').value);d.note=$('e_note').value.trim();
+  d.status=editing.status;
+  if(attachCtx&&attachCtx.kind==='item'&&attachCtx.id===editing.id)d.files=[...attachCtx.files];
+  if(full){d.delivered=num(d.qty);d.status='done';if(!d.date)d.date=todayStr()}
+  else{
+    // keep status consistent with quantities
+    if(remainOf(d)===0&&num(d.qty)>0)d.status='done';
+    else if(d.status==='done'&&remainOf(d)>0)d.status=num(d.delivered)>0?'partial':'ready';
+    else if(num(d.delivered)>0&&['new','prod','ready'].includes(d.status)&&editing.status===orig.status)d.status='partial';
+  }
+  let id=editing.id;
+  if(isNew){id=sanitize(d.po+'_'+(d.code||'item'));let n=2;while(items[id])id=sanitize(d.po+'_'+(d.code||'item'))+'_'+n++}
+  closeSheet();
+  await writeItem(id,d);
+  toast(full?'บันทึกส่งครบแล้ว ✓':'บันทึกแล้ว');
+}
+
+/* ---------- menu, import, export ---------- */
+function openMenu(){
+  openSheet(`<h2>เมนู</h2><div class="meta">${Object.keys(soItems).length} SO</div>
+  <div class="menu">
+    <button class="btn" id="m_imp" style="display:none"></button>
+    <button class="btn" id="m_so">🏭 วางรายการ SO ที่กำลังผลิต (คัดลอกจากโปรแกรม)</button>
+    <button class="btn" id="m_pdf">📄 อ่านใบ SO จาก PDF แล้วกรอกให้อัตโนมัติ</button>
+    <a class="btn" href="${esc(spFolderUrl||'#')}" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">☁️ เปิดโฟลเดอร์ SharePoint (Check list SO)</a>
+    <button class="btn" id="m_copy">📋 คัดลอกรายการ SO เป็นตาราง (วางใน Excel/LINE ได้)</button>
+    <button class="btn" id="m_expand" style="display:none"></button>
+    <button class="btn" id="m_out">🚪 ออกจากระบบ${me?' ('+esc(me)+')':''}</button>
+  </div>
+  <div class="hint" style="margin:0 2px 12px">ติดตั้งบน iPhone: เปิดลิงก์ใน Safari → ปุ่มแชร์ → “เพิ่มไปยังหน้าจอโฮม”</div>
+  <button class="btn" id="m_close" style="width:100%">ปิด</button>`);
+  $('m_close').onclick=closeSheet;
+  $('m_out').onclick=()=>{if(msalApp)msalApp.logoutRedirect({account})};
+  $('m_imp').onclick=()=>{closeSheet();$('file').click()};
+  $('m_copy').onclick=copySOTable;
+  $('m_so').onclick=openSOPaste;
+  $('m_pdf').onclick=()=>{closeSheet();startPdfRead()};
+  $('m_expand').onclick=()=>{if(closedPO.size)closedPO.clear();else Object.values(items).forEach(i=>closedPO.add(i.po));closeSheet();render()};
+}
+async function copySOTable(){
+  const head=['SO','ประเภท','P/O','QT','วันที่','ยอดรวม','สถานะ','เสร็จ','เช็คแล้ว','หมายเหตุ'];
+  const rows=Object.values(soItems).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).map(s=>{const m=soSum(s);return [s.so,soTypeOf(s),s.po,s.qt,s.date,num(s.amount)?num(s.amount).toFixed(2):'',(SOMAP[s.status]||SOMAP.prod).t,s.checked?'✓':'',m.n?`${m.done}/${m.n}`:'',s.note]});
+  const tsv=[head,...rows].map(r=>r.map(v=>String(v??'').replace(/[\t\n]/g,' ')).join('\t')).join('\n');
+  try{await navigator.clipboard.writeText(tsv);toast('คัดลอกแล้ว '+rows.length+' SO')}
+  catch(e){openSheet(`<h2>คัดลอกข้อมูล</h2><div class="meta">กดค้างที่กล่องด้านล่าง → เลือกทั้งหมด → คัดลอก</div><div class="f"><textarea style="min-height:50vh;font-size:12px" readonly>${esc(tsv)}</textarea></div><div class="actions"><button class="btn" onclick="closeSheet()">ปิด</button></div>`)}
+}
+async function copyTable(){
+  const head=['No.','P/O No.','SO','INV','Delivery Date','BQMS Code','Specification','P/O Qty','Delivered','Remain Qty','Amount','Status','Note'];
+  const rows=Object.values(items).sort((a,b)=>num(a.no)-num(b.no)).map(i=>[i.no,i.po,i.so,i.inv,i.date,i.code,i.spec,fmt(i.qty),fmt(i.delivered),fmt(remainOf(i)),i.amount,(SMAP[i.status]||SMAP.new).t,i.note]);
+  const tsv=[head,...rows].map(r=>r.map(v=>String(v??'').replace(/[\t\n]/g,' ')).join('\t')).join('\n');
+  try{await navigator.clipboard.writeText(tsv);toast('คัดลอกแล้ว '+rows.length+' แถว')}
+  catch(e){openSheet(`<h2>คัดลอกข้อมูล</h2><div class="meta">กดค้างที่กล่องด้านล่าง → เลือกทั้งหมด → คัดลอก</div><div class="f"><textarea style="min-height:50vh;font-size:12px" readonly>${esc(tsv)}</textarea></div><div class="actions"><button class="btn" onclick="closeSheet()">ปิด</button></div>`)}
+}
+$('file').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  if(!window.XLSX){toast('ตัวอ่านไฟล์ยังโหลดไม่เสร็จ ลองอีกครั้ง');return}
+  try{
+    const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:true});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+    const hi=rows.findIndex(r=>r&&r.some(c=>String(c||'').trim().toLowerCase()==='p/o no.'));
+    if(hi<0){toast('ไม่พบหัวคอลัมน์ “P/O No.” ในไฟล์');return}
+    const H=rows[hi].map(c=>String(c||'').trim().toLowerCase());
+    const col=n=>H.indexOf(n);
+    const C={no:col('no.'),po:col('p/o no.'),so:col('so'),inv:col('inv'),date:col('delivery date'),code:col('bqms code'),spec:col('specification'),qty:col('p/o qty'),remain:col('remain qty'),amount:col('amount'),check:col('check')};
+    const get=(r,k)=>C[k]>=0?r[C[k]]:null;
+    const toDate=v=>{if(!v)return'';if(v instanceof Date)return v.getFullYear()+'-'+String(v.getMonth()+1).padStart(2,'0')+'-'+String(v.getDate()).padStart(2,'0');
+      const s=String(v).trim();let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0');
+      m=s.match(/^(\d{1,2})[\/.](\d{1,2})[\/.](\d{2,4})$/);if(m){let y=+m[3];if(y<100)y+=2000;if(y>2400)y-=543;return y+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0')}return''};
+    const existingByKey={};Object.values(items).forEach(i=>{existingByKey[i.po+'|'+i.code]=existingByKey[i.po+'|'+i.code]||[];existingByKey[i.po+'|'+i.code].push(i)});
+    const used=new Set();let added=0,updated=0;const writes=[];
+    for(const r of rows.slice(hi+1)){
+      const po=String(get(r,'po')??'').trim();if(!po)continue;
+      const code=String(get(r,'code')??'').trim(), qty=num(get(r,'qty')), remainRaw=get(r,'remain');
+      const remain=remainRaw==null||remainRaw===''?qty:num(remainRaw);
+      const delivered=Math.max(0,qty-remain);
+      const key=po+'|'+code;const ex=(existingByKey[key]||[]).find(i=>!used.has(i.id));
+      const fileVals={so:String(get(r,'so')??'').trim(),inv:String(get(r,'inv')??'').trim(),date:toDate(get(r,'date')),amount:get(r,'amount')==null?'':num(get(r,'amount'))};
+      if(ex){
+        used.add(ex.id);const d={...ex};delete d.id;
+        d.qty=qty;d.spec=String(get(r,'spec')??d.spec);d.no=num(get(r,'no'))||d.no;
+        d.delivered=Math.max(num(d.delivered),delivered);
+        for(const k of ['so','inv','date','amount'])if(fileVals[k]!==''&&!d[k])d[k]=fileVals[k];
+        if(remainOf(d)===0&&qty>0)d.status='done';
+        writes.push([ex.id,d]);updated++;
+      }else{
+        let id=sanitize(po+'_'+(code||'item'));let n=2;while(items[id]||writes.some(w=>w[0]===id))id=sanitize(po+'_'+(code||'item'))+'_'+n++;
+        const chk=get(r,'check')===true;
+        const d={no:num(get(r,'no')),po,code,spec:String(get(r,'spec')??''),qty,delivered,...fileVals,note:'',
+          status:(remain===0&&qty>0)||chk?'done':delivered>0?'partial':'new'};
+        writes.push([id,d]);added++;
+      }
+    }
+    if(!writes.length){toast('ไม่พบรายการในไฟล์');return}
+    toast(`กำลังนำเข้า ${writes.length} รายการ…`);
+    for(const [id,d] of writes)await writeItem(id,d);
+    toast(`นำเข้าแล้ว: ใหม่ ${added} · อัปเดต ${updated}`);
+  }catch(err){console.error(err);toast('อ่านไฟล์ไม่สำเร็จ')}
+};
+
+
+/* ---------- paste SO list (in production) ---------- */
+function openSOPaste(){
+  openSheet(`<h2>วางรายการ SO ที่กำลังผลิต</h2>
+  <div class="meta">ในโปรแกรมขาย เลือกแถว (Ctrl+A) → คัดลอก (Ctrl+C) แล้ววางที่นี่ ระบบจะเพิ่ม SO เข้าเช็คลิสต์ให้</div>
+  <div class="f"><textarea id="so_txt" style="min-height:40vh;font-size:13px" placeholder="13/11/2569	SOB6911-117	QT6911-04882	2112795925	C-2369	…	2,782.00	Open"></textarea></div>
+  <div id="so_prev" class="hint" style="margin-top:8px"></div>
+  <div class="actions"><button class="btn" id="so_cancel">ยกเลิก</button><button class="btn pri" id="so_go">นำเข้า</button></div>`);
+  $('so_cancel').onclick=closeSheet;
+  const prev=()=>{const r=parseSO($('so_txt').value);$('so_prev').textContent=r.rows.length?`พบ ${r.rows.length} SO · ตรงกับรายการในแอป ${r.matchedItems.length} รายการ`+(r.unmatched.length?` · ไม่พบ P/O: ${r.unmatched.join(', ')}`:''):''};
+  $('so_txt').oninput=prev;
+  $('so_go').onclick=async()=>{
+    const r=parseSO($('so_txt').value);
+    if(!r.rows.length){toast('ไม่พบเลข SO ในข้อความ');return}
+    closeSheet();
+    const poSet=new Set(Object.values(items).map(i=>String(i.po)));
+    let soNew=0;
+    for(const row of r.rows){
+      const id=sanitize(row.so);const ex=soItems[id];
+      const iso=(m=>m?`${+m[3]>2400?+m[3]-543:m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`:'')(String(row.date).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/));
+      const d=ex?{...ex}:{so:row.so,status:'prod',checked:false,note:''};
+      d.po=row.po||d.po||'';d.qt=row.qt||d.qt||'';if(iso)d.date=iso;if(row.amt)d.amount=num(row.amt);
+      if(!ex)soNew++;
+      await writeSO(id,d);
+    }
+    for(const it of r.matchedItems){
+      const sos=r.byPO[it.po];const d={...items[it.id]};delete d.id;
+      const cur=String(d.so||'').split(/\s*,\s*/).filter(Boolean);
+      sos.forEach(s=>{if(!cur.includes(s.so))cur.push(s.so)});
+      d.so=cur.join(', ');
+      if(['new',''].includes(d.status||'')||!d.status)d.status='prod';
+      const info=sos.map(s=>`${s.so}${s.amt?' ฿'+s.amt:''}${s.qt?' ('+s.qt+')':''}`).join(' · ');
+      if(!String(d.note||'').includes(sos[0].so))d.note=[d.note,`เปิด SO ${sos[0].date||''} · ${info}`].filter(Boolean).join('\n');
+      await writeItem(it.id,d);
+    }
+    toast(`เพิ่ม SO ใหม่ ${soNew} ใบ · อัปเดต ${r.rows.length-soNew} ใบ`);
+  };
+}
+function parseSO(txt){
+  const pos=new Set(Object.values(items).map(i=>String(i.po)));
+  const rows=[],byPO={},unmatched=[];
+  txt.split(/\r?\n/).forEach(line=>{
+    const cells=line.split(/\t|\s{2,}/).map(c=>c.trim()).filter(Boolean);
+    const so=cells.find(c=>/^SO[A-Z]*\d{4}-\d+$/i.test(c)); if(!so)return;
+    const qt=cells.find(c=>/^QT\d{4}-\d+$/i.test(c))||'';
+    const date=(cells.find(c=>/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(c))||'');
+    const po=cells.find(c=>pos.has(c))||cells.find(c=>c!==so&&c!==qt&&/^(\d{8,}|PO\d+)$/i.test(c))||'';
+    const amt=[...cells].reverse().find(c=>/^\d{1,3}(,\d{3})*\.\d{2}$|^\d+\.\d{2}$/.test(c))||'';
+    rows.push({so,qt,date,po,amt});
+    if(pos.has(po))(byPO[po]=byPO[po]||[]).push({so,qt,date:date.replace(/\/(\d{2})(\d{2})$/,'/$2'),amt});
+    else if(po&&!unmatched.includes(po))unmatched.push(po);
+  });
+  const matchedItems=Object.values(items).filter(i=>byPO[i.po]&&i.status!=='done');
+  return {rows,byPO,unmatched,matchedItems};
+}
+
+
+/* ---------- SO checklist ---------- */
+function renderSO(){
+  const every=Object.values(soItems);
+  const types=[...new Set([...SO_TYPES,...every.map(soTypeOf)])];
+  const tc=t=>every.filter(s=>soTypeOf(s)===t);
+  $('typebar').className='typebar';$('soTypeWrap').style.display='';$('stSel').parentElement.style.display='';
+  $('soType').innerHTML=`<option value="all">ประเภท: ทั้งหมด</option>`+types.map(t=>{const l=tc(t);const open=l.filter(s=>!s.checked).length;return `<option value="${esc(t)}">ประเภท ${esc(t)} (${l.length})</option>`}).join('');
+  if(soType!=='all'&&!types.includes(soType))soType='all';
+  $('soType').value=soType;
+  const all=soType==='all'?every:tc(soType);
+  const q=query.trim().toLowerCase();
+  const done=all.filter(s=>s.checked).length;
+  const sopts=[{k:'open',t:'ยังไม่เสร็จ',n:all.length-done},{k:'checked',t:'✓ เสร็จแล้ว',n:done},{k:'all',t:'ทั้งหมด',n:all.length},
+    ...SO_STATUS.filter(s=>s.k!=='done').map(s=>({k:s.k,t:s.t,n:all.filter(x=>!x.checked&&(x.status||'prod')===s.k).length}))];
+  if(!sopts.some(o=>o.k===soFilter))soFilter='open';
+  $('stSel').innerHTML=sopts.map(o=>`<option value="${o.k}">${esc(o.t)} (${o.n})</option>`).join('');
+  $('stSel').value=soFilter;
+  const openAmt=all.filter(s=>!s.checked).reduce((t,s)=>t+num(s.amount),0);
+  $('stats').innerHTML=mode==='loading'&&!all.length?'':`
+    <div class="stat"><div class="n">${done}<span style="font-size:18px;color:var(--muted)">/${all.length}</span></div><div class="l">เสร็จแล้ว</div></div>
+    <div class="stat" style="grid-column:span 2"><div class="n">฿${money(openAmt)||'0.00'}</div><div class="l">ยอด SO ที่ยังไม่เสร็จ</div></div>
+    <div class="stat" style="grid-column:1/-1;display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;padding:12px 14px">
+      <div><div class="l" style="margin:0">ยอดรวมทั้งหมด</div><b style="font-size:17px">฿${money(all.reduce((t,s)=>t+num(s.amount),0))||'0.00'}</b></div>
+      <div style="text-align:right"><div class="l" style="margin:0">เสร็จแล้ว</div><b style="font-size:17px;color:var(--s-done)">฿${money(all.filter(s=>s.checked).reduce((t,s)=>t+num(s.amount),0))||'0.00'}</b></div>
+    </div>`;
+  if(!every.length){$('list').innerHTML=mode==='loading'?`<div class="empty">กำลังโหลด…</div>`:`<div class="empty"><div class="big">🏭</div>ยังไม่มี SO<br><span class="hint">โยนไฟล์ PDF ใบ SO ด้านบน หรือกด “วางรายการ SO”</span></div>`;return}
+  const list=all.filter(s=>{
+    if(soFilter==='open'&&s.checked)return false;
+    if(soFilter==='checked'&&!s.checked)return false;
+    if(SOMAP[soFilter]&&(s.checked||(s.status||'prod')!==soFilter))return false;
+    if(q){const hay=[s.so,s.po,s.qt,s.note].join(' ').toLowerCase();if(!q.split(/\s+/).every(w=>hay.includes(w)))return false}
+    return true;
+  }).sort((a,b)=>(a.checked-b.checked)||String(b.date||'').localeCompare(String(a.date||''))||String(b.so).localeCompare(String(a.so)));
+  if(!list.length){$('list').innerHTML=`<div class="empty">ไม่พบ SO ที่ตรงกับตัวกรอง${soType!=='all'?` (ประเภท ${esc(soType)})`:''}</div>`;return}
+  const poSet=new Set(Object.values(items).map(i=>String(i.po)));
+  $('list').innerHTML=list.map(s=>{
+    const st=SOMAP[s.status]||SOMAP.prod;const inDel=poSet.has(String(s.po));
+    return `<div class="so ${s.checked?'checked':''}">
+      <button class="so-check" data-check="${esc(s.id)}" aria-label="ทำเครื่องหมายเสร็จ"><span class="box">${s.checked?'✓':''}</span></button>
+      <button class="so-main" data-so="${esc(s.id)}">
+        <div class="t1"><span class="sono">${esc(s.so)}</span><span class="badge" style="background:var(${st.v})">${st.t}</span></div>
+        <div class="r2"><span>P/O ${inDel?`<span class="link-po">${esc(s.po)}</span>`:esc(s.po)}</span>${s.date?`<span>${thDate(s.date)}</span>`:''}${s.qt?`<span>${esc(s.qt)}</span>`:''}</div>
+        ${num(s.amount)?`<div class="amt">฿${money(s.amount)}</div>`:''}
+        ${s.note?`<div class="r2" style="color:var(--ink)">📝 ${esc(s.note)}</div>`:''}
+        ${s.lines&&s.lines.length?`<div class="so-lines">${progHTML(s)}${linesHTML(s.lines,3)}</div>`:''}
+        ${s.files&&s.files.length?`<span class="pdfbtn" data-view="${esc(s.files[0].id)}" data-vname="${esc(s.files[0].name)}">📄 ดู PDF${s.files.length>1?` (${s.files.length})`:''}</span>`:''}
+      </button>
+    </div>`}).join('');
+}
+async function toggleSO(id){
+  const s={...soItems[id]};if(!s)return;
+  s.checked=!s.checked;
+  if(s.checked&&s.status!=='issue')s.status='done';
+  if(!s.checked&&s.status==='done')s.status='prod';
+  await writeSO(id,s);
+  if(s.checked)toast(`${s.so} เสร็จแล้ว ✓`);
+}
+function openSOEditor(id){
+  const s={...soItems[id]};let st=s.status||'prod';
+  const poSet=new Set(Object.values(items).map(i=>String(i.po)));
+  openSheet(`<h2>${esc(s.so)}</h2>
+    <div class="meta">P/O <span class="mono">${esc(s.po)}</span>${s.qt?' · '+esc(s.qt):''}${s.date?' · เปิด '+thDate(s.date):''}${num(s.amount)?' · ฿'+money(s.amount):''}</div>
+    <div class="seg" id="sseg">${SO_STATUS.map(x=>`<button data-s="${x.k}" class="${st===x.k?'on':''}" style="${st===x.k?`background:var(${x.v})`:''}">${x.t}</button>`).join('')}</div>
+    <div class="grid">
+      <div class="f full"><label>รายการตามใบสั่งขาย${s.lines&&s.lines.length?` (${s.lines.length})`:''}</label><div id="s_lines">${linesBlockInner(s)}</div></div>
+      ${filesBlock('so',id,s.files)}
+      <div class="f full"><label>หมายเหตุ</label><textarea id="s_note" placeholder="เช่น รอวัตถุดิบ, นัดส่ง 20/11">${esc(s.note)}</textarea></div>
+    </div>
+    ${poSet.has(String(s.po))?`<div class="actions"><button class="btn" id="s_goto">ดูงานจัดส่งของ P/O นี้ →</button></div>`:''}
+    <div class="actions"><button class="btn" id="s_cancel">ยกเลิก</button><button class="btn pri" id="s_save">บันทึก</button></div>
+    <div class="actions"><button class="btn del" id="s_del">ลบ SO นี้</button></div>
+    <div class="confirm" id="s_confirm">ลบ ${esc(s.so)} ออกจากเช็คลิสต์?<div class="actions"><button class="btn" id="s_no">ไม่ลบ</button><button class="btn del" id="s_yes">ลบ</button></div></div>`);
+  refreshFiles();
+  $('sseg').onclick=e=>{const b=e.target.closest('button');if(!b)return;st=b.dataset.s;
+    $('sseg').querySelectorAll('button').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.style.background=on?`var(${SOMAP[x.dataset.s].v})`:''})};
+  $('s_cancel').onclick=closeSheet;
+  $('s_save').onclick=async()=>{const c={...(soItems[id]||s)};c.status=st;c.note=$('s_note').value.trim();if(attachCtx&&attachCtx.kind==='so'&&attachCtx.id===id)c.files=[...attachCtx.files];c.checked=st==='done';closeSheet();await writeSO(id,c);toast('บันทึกแล้ว')};
+  if($('s_goto'))$('s_goto').onclick=()=>{closeSheet();setView('del');filter='all';query=String(s.po);$('q').value=query;render();window.scrollTo({top:0})};
+  $('s_del').onclick=()=>$('s_confirm').classList.add('on');$('s_no').onclick=()=>$('s_confirm').classList.remove('on');
+  $('s_yes').onclick=async()=>{closeSheet();await removeSO(id);toast('ลบแล้ว')};
+}
+function setView(v){view=v;try{localStorage.setItem('dt-view',v)}catch(e){};query='';$('q').value='';render();window.scrollTo({top:0})}
+$('stSel').onchange=e=>{if(view==='so')soFilter=e.target.value;else filter=e.target.value;render();window.scrollTo({top:0})};
+$('soType').onchange=e=>{soType=e.target.value;try{localStorage.setItem('dt-sotype',soType)}catch(_){};render();window.scrollTo({top:0})};
+$('tabs').onclick=e=>{const b=e.target.closest('[data-v]');if(b&&b.dataset.v!==view)setView(b.dataset.v)};
+
+
+/* ---------- PDF attachments ---------- */
+const kb=n=>n>1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB';
+function filesBlock(kind,id,files){
+  attachCtx=id?{kind,id,files:[...(files||[])]}:null;
+  return `<div class="f full" style="margin-top:4px"><label>ไฟล์ PDF แนบ</label><div class="files" id="fileList"></div><div id="attachWrap"></div></div>`;
+}
+function refreshFiles(){
+  const L=$('fileList'),W=$('attachWrap');if(!L||!W)return;
+  if(!attachCtx){L.innerHTML='<span class="hint">บันทึกรายการก่อน แล้วจึงแนบไฟล์ได้</span>';W.innerHTML='';return}
+  const fs=attachCtx.files;
+  L.innerHTML=fs.length?fs.map((f,i)=>`<div class="fileitem"><button type="button" class="fview" data-view="${esc(f.id)}" data-vname="${esc(f.name)}">📄 ${esc(f.name)}</button><span class="hint">${kb(f.size||0)}</span>${(f.url||f.od)?`<a class="od" href="${esc(f.url||f.od)}" target="_blank" rel="noopener">☁️ SharePoint</a>`:(mcpApi&&attachCtx.kind==='so'?(odBusy.has(f.id)?'<span class="od up"><span class="spin"></span></span>':`<button type="button" class="od up" data-od="${i}">☁️ ส่งขึ้น</button>`):'')}${assetsApi?`<button type="button" class="fdel" data-fi="${i}">✕</button>`:''}</div>`).join(''):'<span class="hint">ยังไม่มีไฟล์</span>';
+  W.innerHTML=(mode==='db'?`<div class="odbar">☁️ ไฟล์ที่แนบจะถูกเก็บใน SharePoint · <a href="${esc(spFolderUrl)}" target="_blank" rel="noopener">เปิดโฟลเดอร์</a></div>`:'')+(assetsApi?`<button type="button" class="attach" id="attachBtn">📎 แนบไฟล์ PDF</button>`:'<span class="hint">เข้าสู่ระบบก่อนจึงแนบไฟล์ได้</span>');
+}
+async function persistFiles(c=attachCtx){
+  if(!c)return;
+  if(c.kind==='so'){if(soItems[c.id])await writeSO(c.id,{...soItems[c.id],files:[...c.files]})}
+  else if(items[c.id]){const d={...items[c.id],files:[...c.files]};delete d.id;await writeItem(c.id,d)}
+}
+$('sheet').addEventListener('click',async e=>{
+  if(e.target.closest('#attachBtn')){$('pdfIn').click();return}
+  const v=e.target.closest('[data-view]');if(v){openViewer(v.dataset.view,v.dataset.vname);return}
+  const odb=e.target.closest('[data-od]');
+  if(odb&&attachCtx&&attachCtx.kind==='so'){const rec=attachCtx.files[+odb.dataset.od];if(!rec)return;
+    try{const r=await spFetch(rec.id);syncOD(attachCtx.id,rec,await r.blob())}catch(_){toast('เปิดไฟล์ไม่ได้')}
+    return}
+  const lc=e.target.closest('[data-lc]');
+  if(lc&&attachCtx&&attachCtx.kind==='so'){
+    const id=attachCtx.id;const s={...soItems[id]};if(!s.lines)return;
+    const i=+lc.dataset.lc;s.lines=s.lines.map((l,j)=>j===i?{...l,checked:!l.checked}:l);
+    $('s_lines').innerHTML=linesBlockInner(s);
+    await writeSO(id,s);
+    if(s.lines.every(l=>l.checked))toast('เช็คครบทุกรายการแล้ว ✓');
+    return}
+  if(e.target.closest('#soAllDone')&&attachCtx&&attachCtx.kind==='so'){
+    const id=attachCtx.id;const s={...soItems[id],checked:true,status:'done'};
+    if(attachCtx.files)s.files=[...attachCtx.files];
+    closeSheet();await writeSO(id,s);toast(`${s.so} เสร็จแล้ว ✓`);return}
+  if(e.target.closest('#readLinesBtn')&&attachCtx&&attachCtx.kind==='so'){
+    const s=soItems[attachCtx.id];const f=s&&s.files&&s.files[s.files.length-1];if(!f)return;
+    try{const r=await spFetch(f.id);readLinesInto(attachCtx.id,await r.blob())}catch(_){toast('เปิดไฟล์ไม่ได้')}
+    return}
+  const del=e.target.closest('[data-fi]');if(!del||!attachCtx)return;
+  if(!del.classList.contains('arm')){del.classList.add('arm');del.textContent='ลบ?';setTimeout(()=>{if(del.isConnected){del.classList.remove('arm');del.textContent='✕'}},3000);return}
+  const i=+del.dataset.fi;const f=attachCtx.files[i];if(!f)return;
+  attachCtx.files.splice(i,1);refreshFiles();await persistFiles();
+  try{await assetsApi.delete(f.id)}catch(err){}
+  toast('ลบไฟล์แล้ว');
+});
+$('pdfIn').onchange=async e=>{
+  const list=[...e.target.files];e.target.value='';if(!list.length||!attachCtx||!assetsApi)return;
+  const ctx=attachCtx;let ok=0;
+  for(const file of list){
+    const isPdf=/\.pdf$/i.test(file.name)||file.type==='application/pdf';
+    if(!isPdf){toast('รับเฉพาะไฟล์ PDF');continue}
+    toast(`กำลังอัปโหลด ${file.name}…`);
+    try{
+      let r;try{r=await assetsApi.upload(file,{type:'application/pdf'})}
+      catch(err){if(err&&err.code==='store_unavailable'){await new Promise(z=>setTimeout(z,1200));r=await assetsApi.upload(file,{type:'application/pdf'})}else throw err}
+      const rec={id:r.id,name:r.name||file.name,url:r.url,size:r.sizeBytes||file.size,at:new Date().toISOString()};ctx.files.push(rec);ok++;
+      if(attachCtx===ctx)refreshFiles();
+      await persistFiles(ctx);
+      if(ctx.kind==='so'&&sampleApi)readLinesInto(ctx.id,file);
+      if(ctx.kind==='so')syncOD(ctx.id,rec,file);
+    }catch(err){
+      const c=err&&err.code;
+      toast(c==='too_large'?'ไฟล์ใหญ่เกิน 20 MB':c==='quota_or_state'?'พื้นที่เก็บไฟล์เต็ม':c==='unsupported_type'?'ไฟล์นี้ไม่ใช่ PDF ที่ถูกต้อง':'อัปโหลดไม่สำเร็จ ลองอีกครั้ง');
+    }
+  }
+  if(ok)toast(`แนบแล้ว ${ok} ไฟล์ ✓`);
+};
+const clipBadge=f=>f&&f.length?`<span>📎 ${f.length} ไฟล์</span>`:'';
+
+
+
+/* ---------- OneDrive backup ---------- */
+const blobB64=b=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]||'');r.onerror=rej;r.readAsDataURL(b)});
+function odErr(e){
+  const c=e&&e.code;
+  if(c==='needs_reauth')return 'ต้องเชื่อมต่อ Microsoft 365 ใหม่ (claude.ai → Settings → Connectors)';
+  if(c==='server_not_connected'||c==='selection_required')return 'ยังไม่ได้เชื่อม Microsoft 365 ใน claude.ai';
+  if(c==='not_in_manifest'||c==='approval_required'||c==='not_granted')return 'ยังไม่ได้อนุญาตให้แอปใช้ OneDrive';
+  if(c==='tool_error')return 'OneDrive ไม่รับไฟล์: '+String(e.message||'').slice(0,80);
+  return 'ส่งขึ้น OneDrive ไม่สำเร็จ ลองอีกครั้ง';
+}
+async function toOneDrive(blob,filename){
+  const input={driveId:OD.driveId,parentItemId:OD.folderId,filename,conflictBehavior:'rename'};
+  input.contentBase64=mcpFileArgs?{$file:{data:blob,name:filename,type:'application/pdf'}}:await blobB64(blob);
+  const r=await mcpApi.callTool(OD.server,'sharepoint_upload_file',input);
+  const p=r&&r.payload;let url=p&&typeof p==='object'&&(p.webUrl||p.web_url);
+  if(!url){const t=(typeof p==='string'?p:'')+'\n'+((r&&r.content)||[]).map(c=>c.text||'').join('\n');const m=t.match(/webUrl"?\s*[:=]\s*"?(https?:\/\/[^\s"]+)/);url=m&&m[1]}
+  return url||OD.folderUrl;
+}
+const odBusy=new Set();
+async function syncOD(id,rec,blob){
+  if(!mcpApi||!rec||odBusy.has(rec.id))return;
+  if(blob.size>1048576){toast('ไฟล์ใหญ่เกิน 1 MB — เก็บในแอปแล้ว แต่ส่งขึ้น OneDrive ไม่ได้');return}
+  odBusy.add(rec.id);if(attachCtx&&attachCtx.id===id)refreshFiles();
+  const so=(soItems[id]&&soItems[id].so)||'';
+  const fname=(so&&!String(rec.name).toUpperCase().includes(so)?so+' - ':'')+rec.name;
+  try{
+    const url=await toOneDrive(blob,fname);
+    const put=fs=>(fs||[]).map(f=>f.id===rec.id?{...f,od:url}:f);
+    if(attachCtx&&attachCtx.id===id)attachCtx.files=put(attachCtx.files);
+    if(soItems[id])await writeSO(id,{...soItems[id],files:put(soItems[id].files)});
+    toast('บันทึกลง OneDrive แล้ว ☁️');
+  }catch(e){toast(odErr(e))}
+  finally{odBusy.delete(rec.id);if(attachCtx&&attachCtx.id===id)refreshFiles()}
+}
+
+/* ---------- read SO from PDF ---------- */
+let pdfCtl=null;
+function startPdfRead(){
+  if(!sampleApi){toast('กรุณาเข้าสู่ระบบก่อน');return}
+  $('pdfRead').click();
+}
+async function pdfToContent(file){
+  const lib=window.pdfjsLib;if(!lib)throw{code:'nolib'};
+  lib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const pdf=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+  const pages=Math.min(pdf.numPages,8);let text='';const imgs=[];
+  for(let p=1;p<=pages;p++){
+    const page=await pdf.getPage(p);const tc=await page.getTextContent();
+    let line='',lastY=null;const lines=[];
+    for(const it of tc.items){const y=Math.round(it.transform[5]);if(lastY!==null&&Math.abs(y-lastY)>3){lines.push(line);line=''}line+=(line&&!line.endsWith(' ')?' ':'')+it.str;lastY=y}
+    if(line)lines.push(line);
+    text+=`\n--- หน้า ${p} ---\n`+lines.join('\n');
+  }
+  if(text.replace(/[\s\-หน้า\d]/g,'').length<40&&sampleImages){
+    for(let p=1;p<=Math.min(pages,3);p++){
+      const page=await pdf.getPage(p);const vp=page.getViewport({scale:1.6});
+      const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+      await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+      imgs.push(await new Promise(r=>c.toBlob(r,'image/jpeg',.85)));
+    }
+  }
+  return {text:text.slice(0,60000),imgs,pages:pdf.numPages};
+}
+
+const SO_PROMPT_HEAD=content=>`คุณคือผู้ช่วยดึงข้อมูลจากเอกสาร "ใบสั่งขาย / Sales Order (SO)" ของบริษัทไทย
+${content.imgs.length?'เอกสารแนบมาเป็นรูปภาพหน้า PDF':'ข้อความด้านล่างถอดมาจากไฟล์ PDF (ลำดับบรรทัดอาจสลับบ้าง)'}
+
+ให้ตอบเป็น JSON array เท่านั้น 1 object ต่อ 1 ใบ SO ที่พบ (ไฟล์เดียวอาจมีหลายใบ) รูปแบบ:
+[{"so":"SOB6911-117","po":"2112795925","qt":"QT6911-04882","date":"2026-11-13","amount":2782.00,"customer":"ชื่อลูกค้า","items":[{"no":1,"code":"RC00300B-029442","spec":"[A82] A82","qty":2,"unit":"เส้น","price":1300.00,"amount":2600.00}]}]
+
+กติกา:
+- so = เลขที่ใบสั่งขาย ขึ้นต้นด้วย SO เช่น SOB/SOT/SOR/SOL ตามด้วยตัวเลข-ตัวเลข
+- po = เลขที่ใบสั่งซื้อของลูกค้า (Customer PO / P/O No. / เลขที่ PO) ถ้าไม่พบให้เป็น ""
+- qt = เลขอ้างอิงใบเสนอราคา (Reference / QT...) ถ้าไม่พบให้เป็น ""
+- date = วันที่ของใบ SO รูปแบบ YYYY-MM-DD ปี ค.ศ. (ถ้าเป็น พ.ศ. ให้ลบ 543 เช่น 13/11/2569 → 2026-11-13)
+- amount = ยอดรวมสุทธิทั้งใบ (รวม VAT ถ้ามี) เป็นตัวเลข ไม่มีจุลภาค ถ้าไม่พบให้เป็น null
+- items = รายการสินค้าทุกบรรทัดในใบ เรียงตามเอกสาร: no (ลำดับ), code (รหัสสินค้า/BQMS Code ถ้ามี ไม่มีให้เป็น ""), spec (รายละเอียดสินค้าเต็ม), qty (ตัวเลข), unit (หน่วย ถ้ามี), price (ราคาต่อหน่วย ตัวเลขหรือ null), amount (จำนวนเงินของบรรทัด ตัวเลขหรือ null)
+- ห้ามเดาค่าที่ไม่มีในเอกสาร ถ้าไม่ใช่ใบ SO เลย ให้ตอบ []
+`;
+function normLines(arr){
+  if(!Array.isArray(arr))return[];
+  return arr.slice(0,80).filter(x=>x&&(x.spec||x.code)).map((x,i)=>({no:num(x.no)||i+1,code:String(x.code??'').trim(),spec:String(x.spec??'').trim(),qty:num(x.qty),unit:String(x.unit??'').trim(),price:x.price==null||x.price===''?'':num(x.price),amount:x.amount==null||x.amount===''?'':num(x.amount)}));
+}
+function linesHTML(lines,max,check){
+  if(!lines||!lines.length)return'';
+  const show=max?lines.slice(0,max):lines;
+  return show.map((l,i)=>`<div class="ln ${l.checked?'done':''}">${check?`<button type="button" class="lchk ${l.checked?'on':''}" data-lc="${i}" aria-label="เช็ครายการ">✓</button>`:(lines.some(x=>x.checked)?`<span class="tick">${l.checked?'✓':''}</span>`:'')}<span class="q">${fmt(l.qty)}${l.unit?' '+esc(l.unit):''}</span><span class="s">${esc(l.spec||l.code)}${l.code&&l.spec?`<span class="c">${esc(l.code)}</span>`:''}</span>${num(l.amount)?`<span class="a">฿${money(l.amount)}</span>`:''}</div>`).join('')
+    +(max&&lines.length>max?`<div class="more">+ อีก ${lines.length-max} รายการ</div>`:'');
+}
+
+function soSum(s){
+  const L=(s&&s.lines)||[];const n=L.length,done=L.filter(l=>l.checked).length;
+  const sub=L.reduce((t,l)=>t+num(l.amount),0);
+  const total=num(s&&s.amount)||sub;
+  const vat=sub&&total>sub+0.005?total-sub:0;
+  return {n,done,sub,vat,total};
+}
+function sumHTML(s){
+  const m=soSum(s);if(!m.n)return'';
+  const pct=Math.round(m.done/m.n*100);
+  return `<div class="sum">
+    ${m.sub?`<div class="r"><span>รวมเป็นเงิน (${m.n} รายการ)</span><span>฿${money(m.sub)}</span></div>`:''}
+    ${m.vat?`<div class="r"><span>VAT ${Math.round(m.vat/m.sub*100)}%</span><span>฿${money(m.vat)}</span></div>`:''}
+    <div class="r total"><span>ยอดรวมทั้งสิ้น</span><span>฿${money(m.total)||'0.00'}</span></div>
+  </div>`;
+}
+function progHTML(s){
+  const m=soSum(s);if(!m.n)return'';
+  return `<div class="prog"><span>เช็คแล้ว ${m.done}/${m.n}</span><div class="bar"><div style="width:${Math.round(m.done/m.n*100)}%"></div></div></div>`;
+}
+function soPrompt(content){
+  return SO_PROMPT_HEAD(content)+(content.imgs.length?'':'\nข้อความในเอกสาร:\n'+content.text);
+}
+/* ---------- read SO from PDF (form FM-SAL-01-08, text layer) ---------- */
+const beISO=s=>{const m=String(s||'').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(!m)return'';let y=+m[3];if(y>2400)y-=543;return y+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0')};
+const isNum=s=>/^-?\d{1,3}(,\d{3})*(\.\d+)?$|^-?\d+(\.\d+)?$/.test(String(s).trim());
+function joinRun(arr){arr=arr.slice().sort((a,b)=>a.x-b.x);let s='',end=null;
+  for(const i of arr){const t=i.s;if(s&&end!=null&&i.x-end>1.5&&!/\s$/.test(s)&&!/^\s/.test(t))s+=' ';s+=t;end=i.x+(i.w||0)}
+  return s.replace(/\s+/g,' ').trim()}
+async function pdfOrders(blob){
+  const lib=window.pdfjsLib;if(!lib)throw{code:'nolib'};
+  lib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const pdf=await lib.getDocument({data:new Uint8Array(await blob.arrayBuffer())}).promise;
+  const orders=[];let cur=null,anyText=false;
+  for(let p=1;p<=Math.min(pdf.numPages,40);p++){
+    const page=await pdf.getPage(p);const tc=await page.getTextContent();
+    const T=tc.items.filter(i=>i.str&&i.str.trim()).map(i=>({s:i.str,x:i.transform[4],y:i.transform[5],w:i.width||0}));
+    if(T.length>8)anyText=true;
+    const near=(y,xlo,xhi,re)=>T.filter(i=>Math.abs(i.y-y)<=4&&i.x>=xlo&&i.x<=xhi&&(!re||re.test(i.s.trim()))).sort((a,b)=>a.x-b.x)[0];
+    const soIt=T.find(i=>/^SO[A-Z]{0,3}\d{4}-\d+$/i.test(i.s.trim()));
+    if(soIt){const so=soIt.s.trim().toUpperCase();
+      if(!cur||cur.so!==so){cur={so,po:'',qt:'',date:'',due:'',amount:'',customer:'',items:[]};orders.push(cur)}
+      const d=near(soIt.y-17,soIt.x-30,soIt.x+90,/^\d{1,2}\/\d{1,2}\/\d{4}$/);if(d&&!cur.date)cur.date=beISO(d.s);
+      const dy=d?d.y:soIt.y-17;
+      const po=near(dy-27,soIt.x-70,soIt.x+60);if(po&&!cur.po&&!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(po.s.trim()))cur.po=po.s.trim();
+      const due=near(dy-61,soIt.x-70,soIt.x+60,/^\d{1,2}\/\d{1,2}\/\d{4}$/);if(due&&!cur.due)cur.due=beISO(due.s);
+    }
+    if(!cur)continue;
+    const hd=T.find(i=>/รหัสสินค้า/.test(i.s));const ft=T.find(i=>/^หมายเหต/.test(i.s.trim()));
+    const top=hd?hd.y-3:540,bot=ft?ft.y+3:150;
+    const rowsY=[];T.filter(i=>i.y<top&&i.y>bot).forEach(i=>{let r=rowsY.find(r=>Math.abs(r.y-i.y)<=2.5);if(!r){r={y:i.y,c:[]};rowsY.push(r)}r.c.push(i)});
+    rowsY.sort((a,b)=>b.y-a.y);
+    let it=cur.items[cur.items.length-1]||null;
+    for(const r of rowsY){
+      const col=(a,b)=>r.c.filter(i=>i.x>=a&&i.x<b);
+      const code=joinRun(col(0,108)),spec=joinRun(col(108,315)),qty=joinRun(col(315,372)),unit=joinRun(col(372,415)),price=joinRun(col(415,475)),amt=joinRun(col(515,999));
+      if(isNum(qty)&&(spec||code)){
+        it={no:cur.items.length+1,code:'',pcode:code,spec,qty:num(qty),unit,price:isNum(price)?num(price):'',amount:isNum(amt)?num(amt):'',_x:[]};cur.items.push(it);continue}
+      if(!it)continue;
+      const line=joinRun(r.c.filter(i=>i.x>=100&&i.x<515));if(!line)continue;
+      const bq=line.match(/BQMS\s*Code\s*:?\s*(\S+)/i);if(bq){it.code=bq[1];continue}
+      const qt=line.match(/QT[A-Z]?\d{4}-\d+/i);if(qt){if(!cur.qt)cur.qt=qt[0].toUpperCase();continue}
+      it._x.push(line);
+    }
+    const lab=T.find(i=>/นวนเงินทั/.test(i.s));
+    if(lab){const tot=T.filter(i=>Math.abs(i.y-lab.y)<=4&&i.x>=505&&isNum(i.s.trim())).sort((a,b)=>b.x-a.x)[0];if(tot)cur.amount=num(tot.s)}
+  }
+  if(!anyText)throw{code:'scanned'};
+  return orders.map(o=>({...o,items:o.items.map(i=>({no:i.no,code:i.code||i.pcode,spec:[i.spec,...i._x].filter(Boolean).join(' · '),qty:i.qty,unit:i.unit,price:i.price,amount:i.amount}))}));
+}
+
+async function extractOrders(blob){return pdfOrders(blob)}
+async function readLinesInto(id,blob){
+  const s0=soItems[id];if(!s0||!sampleApi)return;
+  const box=$('s_lines');if(box&&attachCtx&&attachCtx.id===id)box.innerHTML='<div class="hint"><span class="spin"></span> กำลังอ่านรายการจาก PDF…</div>';
+  try{
+    const orders=await extractOrders(blob);
+    const o=orders.find(x=>x.so===s0.so)||orders[0];
+    if(!o){toast('ไม่พบรายการในไฟล์นี้');if(box)box.innerHTML=linesBlockInner(soItems[id]);return}
+    const s={...soItems[id]};
+    if(o.items.length)s.lines=o.items;
+    if(!s.po&&o.po)s.po=o.po;if(!s.qt&&o.qt)s.qt=o.qt;if(!s.date&&o.date)s.date=o.date;if(!num(s.amount)&&o.amount!=='')s.amount=o.amount;
+    await writeSO(id,s);
+    if($('s_lines')&&attachCtx&&attachCtx.id===id)$('s_lines').innerHTML=linesBlockInner(s);
+    toast(`อ่านได้ ${o.items.length} รายการ ✓`);
+  }catch(err){
+    const c=err&&err.code;
+    toast(c==='scanned'?'PDF นี้เป็นภาพสแกน อ่านไม่ได้':c==='nolib'?'ตัวอ่าน PDF ยังโหลดไม่เสร็จ':'อ่านรายการไม่สำเร็จ ลองใหม่อีกครั้ง');
+    if($('s_lines'))$('s_lines').innerHTML=linesBlockInner(soItems[id]);
+  }
+}
+function linesBlockInner(s){
+  const has=s&&s.lines&&s.lines.length;
+  const canRead=sampleApi&&s&&s.files&&s.files.length;
+  const allDone=has&&s.lines.every(l=>l.checked)&&!s.checked;
+  return (has?`${progHTML(s)}<div class="ltable">${linesHTML(s.lines,0,true)}${sumHTML(s)}</div>${allDone?'<button type="button" class="donebtn" id="soAllDone">✓ ครบทุกรายการแล้ว — ทำ SO นี้ให้เสร็จ</button>':''}`:`<div class="hint">${canRead?'ยังไม่ได้อ่านรายการจาก PDF':'แนบไฟล์ PDF ใบสั่งขาย แล้วระบบจะดึงรายการมาแสดงให้'}</div>`)
+    +(canRead?`<button type="button" class="attach" id="readLinesBtn" style="margin-top:8px">🔄 ${has?'อ่านรายการจาก PDF ใหม่':'อ่านรายการจาก PDF'}</button>`:'');
+}
+/* ---------- in-app PDF viewer ---------- */
+let viewTok=0;
+async function openViewer(fid,name){
+  const tok=++viewTok;
+  $('vName').textContent=name||'PDF';$('vOpen').href=(fileRecOf(fid)||{}).url||spFolderUrl||'#';
+  $('vBody').innerHTML='<div class="msg"><span class="spin"></span> กำลังเปิดไฟล์…</div>';
+  $('viewer').classList.add('on');document.body.style.overflow='hidden';
+  try{
+    const lib=window.pdfjsLib;if(!lib)throw 0;
+    lib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const res=await spFetch(fid);
+    const pdf=await lib.getDocument({data:new Uint8Array(await res.arrayBuffer())}).promise;
+    if(tok!==viewTok)return;
+    $('vBody').innerHTML='';
+    const w=Math.min($('vBody').clientWidth-20,900)*(window.devicePixelRatio||1);
+    for(let p=1;p<=Math.min(pdf.numPages,30);p++){
+      const page=await pdf.getPage(p);const base=page.getViewport({scale:1});
+      const vp=page.getViewport({scale:w/base.width});
+      const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+      if(tok!==viewTok)return;$('vBody').appendChild(c);
+      await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+    }
+  }catch(e){if(tok===viewTok)$('vBody').innerHTML='<div class="msg">เปิดไฟล์ในแอปไม่ได้<br>กด “เปิดนอกแอป” ด้านบน</div>'}
+}
+function closeViewer(){viewTok++;$('viewer').classList.remove('on');document.body.style.overflow='';$('vBody').innerHTML=''}
+$('vClose').onclick=closeViewer;
+
+$('pdfRead').onchange=e=>{const fs=[...e.target.files];e.target.value='';readPdfFiles(fs)};
+async function readPdfFiles(all){
+  if(!sampleApi){toast('กรุณาเข้าสู่ระบบก่อน');return}
+  const files=all.filter(f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf');
+  if(!files.length){toast('เลือกไฟล์ PDF');return}
+  pdfCtl=new AbortController();
+  openSheet(`<h2>อ่านใบ SO จาก PDF</h2><div class="meta">${files.length} ไฟล์</div><div id="exStatus"><span class="spin"></span> กำลังอ่านไฟล์…</div><div id="exList"></div><div class="actions" id="exActs"><button class="btn" id="exStop">หยุด</button></div>`);
+  $('exStop').onclick=()=>closeSheet();
+  const results=[];
+  const ctl=pdfCtl;
+  for(const [fi,file] of files.entries()){
+    if(ctl.signal.aborted)return;
+    $('exStatus').innerHTML=`<span class="spin"></span> กำลังอ่าน ${esc(file.name)} (${fi+1}/${files.length})…`;
+    try{const arr=await pdfOrders(file);if(!arr.length)results.push({file,error:'ไม่พบเลขที่ใบสั่งขาย (SO) ในไฟล์นี้'});
+      arr.forEach(x=>results.push({file,data:{so:x.so,po:x.po,qt:x.qt,date:x.date,amount:x.amount,customer:'',items:normLines(x.items)}}))}
+    catch(err){const c=err&&err.code;results.push({file,error:c==='scanned'?'PDF นี้เป็นภาพสแกน อ่านข้อความไม่ได้':c==='nolib'?'ตัวอ่าน PDF ยังโหลดไม่เสร็จ ลองใหม่อีกครั้ง':'เปิดไฟล์ PDF นี้ไม่ได้'})}
+  }
+  if(ctl.signal.aborted)return;
+  pdfCtl=null;
+  showExtracted(results);
+}
+function showExtracted(results){
+  if(!$('exList'))return;
+  const ok=results.filter(r=>r.data);
+  $('exStatus').innerHTML=ok.length?`<div class="hint" style="margin-bottom:10px">พบ ${ok.length} ใบ SO — ตรวจสอบ/แก้ไขข้อมูลก่อนบันทึก</div>`:'';
+  $('exList').innerHTML=results.map((r,i)=>{
+    if(r.error)return `<div class="ex"><b>📄 ${esc(r.file.name)}</b><div class="hint" style="color:var(--danger);margin-top:4px">${esc(r.error)}</div></div>`;
+    const d=r.data,ex=soItems[sanitize(d.so)];
+    const inDel=Object.values(items).some(it=>String(it.po)===d.po);
+    return `<div class="ex" data-ex="${i}">
+      <div class="ex-h"><input type="checkbox" checked data-on="${i}"><b>${esc(d.so)}</b><span class="hint">${ex?'มีอยู่แล้ว · อัปเดต':'ใหม่'}</span></div>
+      <div class="grid">
+        <div class="f"><label>SO</label><input data-k="so" value="${esc(d.so)}"></div>
+        <div class="f"><label>Customer PO</label><input data-k="po" value="${esc(d.po)}"></div>
+        <div class="f"><label>QT</label><input data-k="qt" value="${esc(d.qt)}"></div>
+        <div class="f"><label>วันที่</label><input data-k="date" type="date" value="${esc(d.date)}"></div>
+        <div class="f full"><label>ยอดรวม (บาท)</label><input data-k="amount" type="number" inputmode="decimal" step="0.01" value="${esc(d.amount)}"></div>
+      </div>
+      ${d.items.length?`<div class="lines" style="margin-top:10px"><div class="hint" style="margin-bottom:2px">รายการตามใบสั่งขาย (${d.items.length})</div><div class="ltable" style="background:var(--bg)">${linesHTML(d.items)}</div></div>`:''}
+      <div class="ex-items">📄 ${esc(r.file.name)}</div>
+    </div>`}).join('');
+  $('exList').querySelectorAll('[data-on]').forEach(c=>c.onchange=()=>c.closest('.ex').classList.toggle('off',!c.checked));
+  $('exActs').innerHTML=ok.length?`<button class="btn" id="exCancel">ยกเลิก</button><button class="btn pri" id="exSave">บันทึก ${ok.length} SO</button>`:`<button class="btn" id="exCancel">ปิด</button>`;
+  $('exCancel').onclick=closeSheet;
+  if($('exSave'))$('exSave').onclick=()=>saveExtracted(results);
+}
+async function saveExtracted(results){
+  const picks=[];
+  $('exList').querySelectorAll('[data-ex]').forEach(el=>{
+    if(!el.querySelector('[data-on]').checked)return;
+    const r=results[+el.dataset.ex];const v=k=>el.querySelector(`[data-k="${k}"]`).value.trim();
+    picks.push({file:r.file,items:r.data.items,so:v('so').toUpperCase(),po:v('po'),qt:v('qt'),date:v('date'),amount:v('amount')===''?'':num(v('amount'))});
+  });
+  if(!picks.length){toast('ยังไม่ได้เลือก SO');return}
+  closeSheet();toast(`กำลังบันทึก ${picks.length} SO…`);
+  const uploaded=new Map();let delUpd=0;
+  for(const p of picks){
+    if(!p.so)continue;
+    const id=sanitize(p.so);const ex=soItems[id];
+    const d=ex?{...ex}:{so:p.so,status:'prod',checked:false,note:''};
+    d.so=p.so;if(p.items&&p.items.length)d.lines=p.items;if(p.po)d.po=p.po;if(p.qt)d.qt=p.qt;if(p.date)d.date=p.date;if(p.amount!=='')d.amount=p.amount;
+    const inDel=Object.values(items).some(it=>String(it.po)===String(d.po));
+    if(assetsApi){
+      try{
+        let a=uploaded.get(p.file);
+        if(!a){const r=await assetsApi.upload(p.file,{type:'application/pdf',so:p.so});a={id:r.id,name:r.name||p.file.name,url:r.url,size:r.sizeBytes||p.file.size,at:new Date().toISOString()};uploaded.set(p.file,a)}
+        const fs=[...(d.files||[])];if(!fs.some(f=>f.id===a.id))fs.push(a);d.files=fs;
+      }catch(err){}
+    }
+    await writeSO(id,d);
+    {const a=uploaded.get(p.file);if(a)syncOD(id,a,p.file);}
+    // update matching delivery lines
+    const lines=Object.values(items).filter(it=>String(it.po)===String(d.po)&&it.status!=='done');
+    const codes=new Set((p.items||[]).map(x=>String(x.code||'').trim()).filter(Boolean));
+    const target=codes.size&&lines.some(l=>codes.has(l.code))?lines.filter(l=>codes.has(l.code)):lines;
+    for(const it of target){
+      const x={...it};delete x.id;
+      const cur=String(x.so||'').split(/\s*,\s*/).filter(Boolean);if(!cur.includes(d.so))cur.push(d.so);x.so=cur.join(', ');
+      if(!x.status||x.status==='new')x.status='prod';
+      await writeItem(it.id,x);delUpd++;
+    }
+  }
+  toast(`บันทึก ${picks.length} SO แล้ว`+(delUpd?` · อัปเดตงานจัดส่ง ${delUpd} รายการ`:'')+' ✓');
+}
+$('readPdfBtn').onclick=startPdfRead;
+let dragDepth=0;
+const hasFiles=e=>[...(e.dataTransfer?.types||[])].includes('Files');
+document.addEventListener('dragenter',e=>{if(!hasFiles(e))return;e.preventDefault();dragDepth++;$('dropcover').classList.add('on')});
+document.addEventListener('dragover',e=>{if(!hasFiles(e))return;e.preventDefault();e.dataTransfer.dropEffect='copy'});
+document.addEventListener('dragleave',e=>{if(!hasFiles(e))return;dragDepth=Math.max(0,dragDepth-1);if(!dragDepth)$('dropcover').classList.remove('on')});
+document.addEventListener('drop',e=>{
+  if(!hasFiles(e))return;e.preventDefault();dragDepth=0;$('dropcover').classList.remove('on');
+  const fs=[...e.dataTransfer.files];
+  if(!fs.some(f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf')){toast('รับเฉพาะไฟล์ PDF');return}
+  if(attachCtx&&$('sheet').classList.contains('on')){ // dropping onto an open editor = attach
+    const dt=new DataTransfer();fs.forEach(f=>dt.items.add(f));$('pdfIn').files=dt.files;$('pdfIn').dispatchEvent(new Event('change'));return}
+  if(view!=='so')setView('so');
+  readPdfFiles(fs);
+});
+
+/* ---------- events ---------- */
+$('q').oninput=e=>{query=e.target.value;render()};
+$('list').onclick=e=>{
+  const pv=e.target.closest('[data-view]');if(pv){openViewer(pv.dataset.view,pv.dataset.vname);return}
+  const ck=e.target.closest('[data-check]');if(ck){toggleSO(ck.dataset.check);return}
+  const sm=e.target.closest('[data-so]');if(sm){openSOEditor(sm.dataset.so);return}
+  const h=e.target.closest('.po-h');if(h){const po=h.dataset.po;closedPO.has(po)?closedPO.delete(po):closedPO.add(po);h.parentElement.classList.toggle('closed');return}
+  const r=e.target.closest('.row');if(r)openEditor(r.dataset.id);
+};
+$('addBtn').onclick=()=>view==='so'?openSOPaste():openEditor(null);
+$('menuBtn').onclick=openMenu;
+init();
+</script>
+</body>
+</html>
