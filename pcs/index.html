@@ -1801,9 +1801,7 @@ const OD = {
   json(p) { if (p === undefined || p === null || p === '') return null; if (typeof p === 'object') return p; try { return JSON.parse(p); } catch (e) { return null; } },
   async read(path) {
     try {
-      const it = await MS.g(`/drives/${this.drive}/root:/${encPath(path)}?$select=id,@microsoft.graph.downloadUrl`);
-      const r = await fetch(it['@microsoft.graph.downloadUrl'], { cache: 'no-store' });
-      if (!r.ok) throw { code: 'graph_error', message: 'HTTP ' + r.status };
+      const r = await MS.g(`/drives/${this.drive}/root:/${encPath(path)}:/content`, { raw: true });
       return await r.text();
     } catch (e) { if (this.notFound(e)) return undefined; throw e; }
   },
