@@ -214,7 +214,7 @@ const DEMO=new URLSearchParams(location.search).has('demo');
 const CFG={clientId:"73241ae0-9aa1-49fe-b2c7-caa2449a0091",tenantId:"410b700e-bb2a-46d2-b4c0-449aec007d0e",siteUrl:"https://unboffice.sharepoint.com/sites/ITPortal"};
 const SCOPES=['User.Read','Sites.ReadWrite.All'];
 const MODS={};const HOME=[];
-let msal=null,account=null,siteId='',lists={},isIT=true,me='',mode='loading',view='salekpi',errMsg='';
+let msal=null,account=null,siteId='',lists={},isIT=true,me='',mode='loading',view=location.hash==='#meet'?'meet':'salekpi',errMsg='';
 const DATA={};
 const ico=()=>'';
 let RP_LOGO='';
@@ -253,15 +253,16 @@ const store={
 };
 async function ensureSale(){if(!DATA.salekpi)DATA.salekpi=(await store.load('salekpi'))||null;return DATA.salekpi}
 function setHeader(){
-  $('title').textContent='KPI Sale Center';$('sub').textContent='FM-QMS-01-03 · แผนก Sale Center';
-  $('back').style.display='none';$('tools').innerHTML=saleTools();
+  const mt=view==='meet';$('title').textContent=mt?'นัดหมายการประชุม':'KPI Sale Center';$('sub').textContent=mt?'FM-QMS-06-04 · แผนก Sale Center':'FM-QMS-01-03 · แผนก Sale Center';document.title=(mt?'นัดหมายการประชุม':'KPI Sale Center')+' · UNB';
+  $('back').style.display='none';$('tools').innerHTML=(mode==='ready'?`<div class="seg" style="margin:0 0 12px"><button data-vw="salekpi" class="${mt?'':'on'}">KPI</button><button data-vw="meet" class="${mt?'on':''}">นัดหมายการประชุม</button></div>`:'')+(mt?meetTools():saleTools());
+  document.querySelectorAll('[data-vw]').forEach(b=>b.onclick=()=>{if(view===b.dataset.vw)return;view=b.dataset.vw;history.replaceState(null,'',view==='meet'?'#meet':location.pathname+location.search);render();scrollTo(0,0)});
 }
 function render(){
   setHeader();const M=$('main');
   if(mode==='loading'){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   if(mode==='signin'){M.innerHTML='<div class="center"><h2>เข้าสู่ระบบด้วยบัญชีบริษัท</h2><div>ใช้อีเมลและรหัสผ่าน Microsoft 365</div><button class="cta" id="login">เข้าสู่ระบบ Microsoft 365</button></div>';$('login').onclick=()=>msal.loginRedirect({scopes:SCOPES});return}
   if(mode==='err'){M.innerHTML=`<div class="center"><h2>เชื่อมต่อไม่สำเร็จ</h2><div style="font-size:14px">${esc(errMsg)}</div><button class="cta" id="retry">ลองใหม่</button></div>`;$('retry').onclick=()=>location.reload();return}
-  renderSale();
+  view==='meet'?renderMeet():renderSale();
 }
 async function boot(){
   if(DEMO){lists={'Sale KPI':'demo'};me='ทดลอง (demo)';mode='ready';await ensureSale();render();return}
@@ -279,7 +280,7 @@ async function boot(){
 }
 
 /* ===== KPI แผนก Sale Center (FM-QMS-01-03 · list 'Sale KPI' · นับจำนวนครั้ง ผ่านเมื่อ ≤ เป้า) ===== */
-MODS.salekpi={kind:'salekpi',list:'Sale KPI',title:'KPI Sale Center',icon:['chart','#ff9f0a'],desc:'ตัวชี้วัด · FM-QMS-01-03 · Sale Center',titleOf:r=>r.type==='m'?'M-'+r.ym:r.type==='cfg'?'cfg':'CA-'+(r.date||''),fields:[],filters:[],sorts:[['x','']],search:[]};
+MODS.salekpi={kind:'salekpi',list:'Sale KPI',title:'KPI Sale Center',icon:['chart','#ff9f0a'],desc:'ตัวชี้วัด · FM-QMS-01-03 · Sale Center',titleOf:r=>r.type==='mt'?'MT-'+(r.date||''):r.type==='m'?'M-'+r.ym:r.type==='cfg'?'cfg':'CA-'+(r.date||''),fields:[],filters:[],sorts:[['x','']],search:[]};
 const SL_DEF=[
   {n:1,name:'ความผิดพลาดของการให้ราคาขาย',full:'1. ความผิดพลาดของการให้ราคาขายจากต้นทุนประเมิน ไม่เกิน 1 ครั้ง /เดือน',proc:'ความผิดพลาดของการให้ราคาขายจากต้นทุนประเมิน ไม่เกิน 1 ครั้ง /เดือน',target:1,sheet:'การประเมินผิด'},
   {n:2,name:'ความผิดพลาดของการตรวจสอบข้อมูล',full:'2. ความผิดพลาดของการตรวจสอบข้อมูล ไม่เกิน 3 ครั้ง/เดือน',proc:'ความผิดพลาดของการตรวจสอบข้อมูล ไม่เกิน 3 ครั้ง /เดือน',target:3,sheet:'ตรวจสอบข้อมูลผิด'}
@@ -454,6 +455,116 @@ function saleImport(){openSheet(`${shh('<button class="x" id="si_b">ปิด</b
         SL_Y=Y;toast('นำเข้าข้อมูลแล้ว');setHeader();render();closeSheet()}catch(err){$('si_go').disabled=false;$('si_go').textContent='นำเข้า';toast(err.status===403?'ไม่มีสิทธิ์บันทึก':'บันทึกไม่สำเร็จ: '+err.message)}}}
     catch(err){$('si_r').innerHTML=`<div class="empty">${esc(err.message)}</div>`}}}
 if(!HOME.includes('salekpi'))HOME.splice(3,0,'salekpi');
+/* ===== นัดหมายการประชุม (FM-QMS-06-04 · เก็บใน list 'Sale KPI' type 'mt') ===== */
+const MT_TPL='FM-QMS-06-04.xlsx',MT_MAX=11,MT_AG=4;
+const MT_DEF_PEOPLE=[['สุรวรรษ สุขตาไชย','Sale Center'],['จิรพัส ผลสุด','หัวหน้าวิศวกรรม'],['จักรพรรดิ์ โกตุม','หัวหน้าผลิต Conveyor'],['อรรถพล น้อยอาษา','หัวหน้าผลิต Roller'],['ธีรภัทร์ เหลื่อมล้ำ','After Sale / Planing'],['อนุวัฒน์ ยิ้มแสง','QA/QC'],['วิมลพรรณ อนันต์ภิรมย์รื่น','จัดซื้อ'],['มนัสศักดิ์ วรรณสิน','วิศวกรรม']];
+const mtAll=()=>(DATA.salekpi||[]).filter(r=>r.type==='mt').sort((a,b)=>(String(b.date)+String(b.time||'')).localeCompare(String(a.date)+String(a.time||'')));
+const mtDate=s=>{if(!isoOnly(s))return esc(s||'');const [y,m,d]=s.split('-').map(Number);return `${d} ${TH_M[m-1]} ${String(y+543).slice(-2)}`};
+const mtDow=s=>{if(!isoOnly(s))return '';return ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'][new Date(s+'T00:00:00').getDay()]};
+let MT_CACHE=null;
+async function mtTpl(){if(MT_CACHE)return MT_CACHE;await loadLib('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js','JSZip');
+  const d=await rpDriveId();const it=await g(`/drives/${d}/root:/_template/${MT_TPL}`);const res=await fetch(it['@microsoft.graph.downloadUrl']);if(!res.ok)throw new Error('โหลดแม่แบบ Excel ไม่สำเร็จ');
+  const buf=await res.arrayBuffer();let logo='';try{const z=await JSZip.loadAsync(buf);const f=Object.keys(z.files).find(n=>/^xl\/media\/.*\.(png|jpe?g)$/i.test(n));if(f)logo=`data:image/${/png$/i.test(f)?'png':'jpeg'};base64,`+await z.file(f).async('base64')}catch(e){}
+  MT_CACHE={buf,logo};return MT_CACHE}
+function meetTools(){return `<h1 style="font-size:30px;margin-top:0">นัดหมายการประชุม</h1><div class="sub" style="margin:0 0 4px">FM-QMS-06-04 · Schedule a Meeting</div>`}
+function renderMeet(){const M=$('main');
+  if(!lists[MODS.salekpi.list]){M.innerHTML='<div class="empty">ยังไม่มี list "Sale KPI" ใน SharePoint</div>';return}
+  if(!DATA.salekpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
+  const L=mtAll(),t=today(),up=L.filter(r=>String(r.date)>=t).reverse(),past=L.filter(r=>String(r.date)<t);
+  const card=r=>{const P=(r.people||[]).filter(p=>p.n);const ab=P.filter(p=>p.abs).length;const ag=(r.agenda||[]).filter(Boolean);
+    return `<div class="kpca" data-mt="${esc(r._id)}"><div class="d">${mtDow(r.date)?'วัน'+mtDow(r.date)+' ':''}${mtDate(r.date)}${r.time?' · '+esc(r.time):''}${r.place?' · '+esc(r.place):''}</div><p style="font-weight:600">${esc(ag[0]||'(ไม่มีวาระ)')}</p>${ag.length>1?`<p style="color:var(--sub);font-size:13.5px">${esc(ag.slice(1).join(' · '))}</p>`:''}<p style="color:var(--sub);font-size:13px">ผู้เข้าประชุม ${P.length-ab} คน${ab?` · ไม่เข้า ${ab}`:''}</p></div>`};
+  M.innerHTML=`<button class="mtcta" id="mt_new"><span style="font-size:24px">🗓️</span><span><b>นัดหมายการประชุมใหม่</b><small>กรอกวัน เวลา สถานที่ วาระ และผู้เข้าประชุม แล้วส่งออก Excel / PDF / รูปภาพ</small></span>${CHEV}</button>
+  ${up.length?`<div class="fgroup"><h3>นัดที่กำลังจะถึง (${up.length})</h3></div>${up.map(card).join('')}`:''}
+  <div class="fgroup"><h3>${up.length?'ผ่านมาแล้ว':'การประชุมทั้งหมด'} (${past.length})</h3></div>${past.length?past.map(card).join(''):'<div class="empty">ยังไม่มีบันทึกนัดหมาย</div>'}`;
+  $('mt_new').onclick=()=>meetEdit(null);
+  M.querySelectorAll('[data-mt]').forEach(c=>c.onclick=()=>meetView(mtAll().find(x=>x._id===c.dataset.mt)))}
+function mtBlank(){const last=mtAll()[0];return {type:'mt',date:today(),time:'',place:last?last.place||'':'',agenda:[],people:(last&&last.people&&last.people.length?last.people.map(p=>({n:p.n,pos:p.pos})):MT_DEF_PEOPLE.map(([n,pos])=>({n,pos}))),dept:last?last.dept||'Sale Center':'Sale Center',contact:last?last.contact||'':''}}
+function meetEdit(r,draft){const isNew=!r||!r._id;const m=draft||JSON.parse(JSON.stringify(r||mtBlank()));if(!m.people)m.people=[];if(!m.agenda)m.agenda=[];
+  const prow=(p,i)=>`<div class="kpjob" data-pi="${i}" style="padding:8px 12px"><div style="display:flex;gap:8px;align-items:center"><b style="width:20px;color:var(--sub);font-size:14px">${i+1}</b><input class="mtin" data-f="n" placeholder="ชื่อ - นามสกุล" value="${esc(p.n||'')}" style="flex:1.3"><input class="mtin" data-f="pos" placeholder="ตำแหน่งงาน" value="${esc(p.pos||'')}" style="flex:1"><button data-pdel="${i}" style="color:var(--bad);font-size:20px;width:26px">×</button></div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:6px;padding-left:28px"><label style="display:flex;gap:6px;align-items:center;font-size:14px;white-space:nowrap"><input type="checkbox" data-f="abs" ${p.abs?'checked':''} style="width:18px;height:18px">ไม่เข้า</label><input class="mtin" data-f="why" placeholder="เหตุผล (ถ้าไม่เข้า)" value="${esc(p.why||'')}" style="flex:1"></div></div>`;
+  openSheet(`${shh('<button class="x" id="me_x">ยกเลิก</button>',isNew?'นัดหมายใหม่':'แก้ไขนัดหมาย','<button class="x b" id="me_s">บันทึก</button>')}
+  <style>.mtin{border:0;background:var(--fill);border-radius:8px;padding:7px 9px;font-size:15px;min-width:0;outline:none}</style>
+  <div class="formg"><div class="f"><label>วันที่</label><input type="date" id="me_d" value="${esc(isoOnly(m.date))}"></div>
+  <div class="f"><label>เวลา</label><input id="me_t" placeholder="เช่น 15.15 - 15.35 น." value="${esc(m.time||'')}"></div>
+  <div class="f"><label>สถานที่</label><input id="me_p" placeholder="เช่น ห้องประชุมโรงงาน 1" value="${esc(m.place||'')}"></div>
+  <div class="f area"><label>วาระ (1 บรรทัดต่อ 1 หัวข้อ · ในฟอร์มพิมพ์ได้ ${MT_AG} บรรทัด)</label><textarea id="me_a" rows="4" placeholder="1.เปิดงาน SOL…">${esc(m.agenda.join('\n'))}</textarea></div></div>
+  <div class="fgroup"><h3>ผู้เข้าประชุม (สูงสุด ${MT_MAX} คน)</h3></div><div id="me_pp">${m.people.map(prow).join('')}</div>
+  <div class="btnlist" style="margin-top:10px"><button id="me_padd">+ เพิ่มผู้เข้าประชุม</button></div>
+  <div class="fgroup"><h3>Meeting Organizer</h3></div><div class="formg"><div class="f"><label>Department</label><input id="me_dp" value="${esc(m.dept||'')}"></div><div class="f"><label>Contact (เบอร์ภายใน)</label><input id="me_c" value="${esc(m.contact||'')}"></div></div>
+  ${isNew?'':'<div class="btnlist"><button class="d" id="me_del">ลบนัดหมายนี้</button></div>'}`);
+  const read=()=>{const P=[...document.querySelectorAll('#me_pp [data-pi]')].map(e=>{const q=f=>e.querySelector(`[data-f="${f}"]`);return {n:q('n').value.trim(),pos:q('pos').value.trim(),abs:q('abs').checked,why:q('why').value.trim()}});
+    return {...m,date:$('me_d').value,time:$('me_t').value.trim(),place:$('me_p').value.trim(),agenda:$('me_a').value.split('\n').map(s=>s.trim()).filter(Boolean),people:P,dept:$('me_dp').value.trim(),contact:$('me_c').value.trim()}};
+  $('me_x').onclick=()=>isNew?closeSheet():meetView(r);
+  $('me_padd').onclick=()=>{const x=read();if(x.people.length>=MT_MAX){toast(`ฟอร์มมีได้ ${MT_MAX} คน`);return}x.people.push({n:'',pos:''});meetEdit(r,x);setTimeout(()=>{const l=[...document.querySelectorAll('#me_pp [data-f="n"]')].pop();if(l){l.focus();l.scrollIntoView({block:'center'})}},50)};
+  document.querySelectorAll('[data-pdel]').forEach(b=>b.onclick=()=>{const x=read();x.people.splice(+b.dataset.pdel,1);meetEdit(r,x)});
+  $('me_s').onclick=async()=>{const x=read();x.people=x.people.filter(p=>p.n||p.pos);
+    if(!x.date){toast('เลือกวันที่ประชุม');return}if(!x.agenda.length){toast('กรอกวาระการประชุม');return}
+    if(x.people.length>MT_MAX){toast(`ฟอร์มมีได้ ${MT_MAX} คน`);return}
+    if(x.agenda.length>MT_AG)toast(`วาระเกิน ${MT_AG} บรรทัด · ในไฟล์ Excel จะรวมบรรทัดท้ายไว้ด้วยกัน`);
+    x.by=x.by||me;x.at=nowIso();const old=new Set(mtAll().map(o=>o._id));
+    if(await saleSave(x,'บันทึกนัดหมายแล้ว')){const saved=x._id?mtAll().find(o=>o._id===x._id):mtAll().find(o=>!old.has(o._id));meetView(saved||x)}};
+  if($('me_del'))$('me_del').onclick=async()=>{if(!confirm('ลบนัดหมายนี้?'))return;try{await store.del('salekpi',r._id);toast('ลบแล้ว');closeSheet();render()}catch(e){toast('ลบไม่สำเร็จ: '+e.message)}}}
+function meetView(r){if(!r){closeSheet();return}
+  openSheet(`${shh('<button class="x" id="mv_e">แก้ไข</button>','นัดหมายการประชุม','<button class="x b" id="mv_x">เสร็จ</button>')}
+  <div class="sub" style="margin:2px 4px 0">FM-QMS-06-04 · ${mtDow(r.date)?'วัน'+mtDow(r.date)+' ':''}${mtDate(r.date)}${r.time?' · '+esc(r.time):''}</div>
+  <div class="fgroup"><h3>ตัวอย่างแบบฟอร์ม (A4)</h3></div><div class="fmprev" id="mv_prev"></div>
+  <div class="fgroup"><h3>ดาวน์โหลด</h3></div><div class="rpex"><button data-mx="xlsx"><b style="background:#1d6f42">XLS</b>Excel</button><button data-mx="pdf"><b>PDF</b>PDF</button><button data-mx="png"><b style="background:#bf5af2">IMG</b>รูปภาพ</button><button data-mx="print"><b style="background:#636366;font-size:20px">⎙</b>พิมพ์</button></div>
+  <div class="vpnote">Excel = ไฟล์ FM-QMS-06-04 ของบริษัท เติมข้อมูลนัดนี้ · PDF / รูปภาพ = แบบฟอร์ม 1 หน้า A4</div>
+  <div class="btnlist"><button id="mv_dup">คัดลอกเป็นนัดหมายใหม่</button></div>`);
+  const prev=()=>{const P=$('mv_prev');if(!P)return;P.innerHTML=`<div class="fmwrap" style="width:794px">${meetFormHTML(r)}</div>`;requestAnimationFrame(()=>{const w=P.querySelector('.fmwrap');if(!w)return;const s=P.clientWidth/794;w.style.transform=`scale(${s})`;w.style.transformOrigin='0 0';P.style.height=Math.ceil(1123*s)+'px'})};
+  prev();if(!MT_CACHE&&!DEMO)mtTpl().then(()=>{if($('mv_prev'))prev()}).catch(()=>{});
+  $('mv_x').onclick=closeSheet;$('mv_e').onclick=()=>meetEdit(r);
+  $('mv_dup').onclick=()=>{const{_id,by,at,...x}=JSON.parse(JSON.stringify(r));x.date=today();x.time='';x.agenda=[];x.people=(x.people||[]).map(p=>({n:p.n,pos:p.pos}));meetEdit(null,x)};
+  document.querySelectorAll('[data-mx]').forEach(b=>b.onclick=async()=>{const k=b.dataset.mx,old=b.innerHTML;if(k!=='print'){b.disabled=true;b.innerHTML='<div class="spin"></div>'}try{await meetExport(r,k);if(k!=='print')toast('สร้างไฟล์แล้ว')}catch(e){toast('สร้างไฟล์ไม่สำเร็จ: '+e.message)}finally{b.disabled=false;b.innerHTML=old}})}
+const MT_CSS=`.mtf{width:794px;height:1123px;box-sizing:border-box;padding:56px 58px;background:#fff;color:#000;font-family:Tahoma,"Sarabun","Noto Sans Thai",sans-serif;font-size:13px;line-height:1.3}
+.mtf table{border-collapse:collapse;width:100%;table-layout:fixed}.mtf td,.mtf th{border:1px solid #000;padding:2px 5px;vertical-align:middle}
+.mtf .co{text-align:center;font-size:22px;font-weight:700;height:58px}.mtf .lg{text-align:center}.mtf .lg img{max-width:96%;max-height:66px}
+.mtf .tt{font-size:19px;text-align:center}.mtf .lb{font-size:10px;text-align:right;white-space:nowrap;padding:1px 4px}.mtf .vl{font-size:11px;text-align:center}
+.mtf .bx{border:1px solid #000;border-top:0;padding:14px 12px 16px}.mtf .ln{display:flex;align-items:flex-end;gap:6px;margin-top:6px}.mtf .ln .k{width:60px;text-align:right;flex:none}
+.mtf .ln .v{flex:1;border-bottom:1px solid #000;min-height:20px;padding:0 6px;text-align:center}.mtf .ln .v.l{text-align:left}.mtf .ag .v{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mtf .pt{margin-top:0}.mtf .pt th{background:#d9d9d9;font-size:14px;height:24px}.mtf .pt td{height:23px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mtf .pt .c{text-align:center}
+.mtf .org{margin:44px 0 0 auto;width:250px;font-size:12px;line-height:2}.mtf .org b{font-weight:400}.mtf .org span{display:inline-block;width:86px}`;
+function meetFormHTML(r){const ag=(r.agenda||[]).slice();while(ag.length<MT_AG)ag.push('');const P=(r.people||[]).slice(0,MT_MAX);while(P.length<MT_MAX)P.push(null);const logo=MT_CACHE&&MT_CACHE.logo;
+  return `<style>${MT_CSS}</style><div class="mtf"><table><colgroup><col style="width:20%"><col style="width:39%"><col style="width:26%"><col style="width:15%"></colgroup>
+  <tr><td class="co" colspan="4">บริษัทยูเนียนเบลท์ อินเตอร์เนชั่นแนล จำกัด</td></tr>
+  <tr><td rowspan="4" class="lg">${logo?`<img src="${logo}">`:'<b style="font-size:30px;color:#1a7f37">UNB</b>'}</td><td rowspan="2" class="tt">Schedule a Meeting</td><td class="lb">รหัสเอกสาร (Doc No) :</td><td class="vl">FM-QMS-06-04</td></tr>
+  <tr><td class="lb">แก้ไขครั้งที่ (Revision) :</td><td class="vl">1</td></tr>
+  <tr><td rowspan="2" class="tt">เรื่อง &nbsp;:&nbsp; นัดหมายการประชุม</td><td class="lb">วันที่บังคับใช้ (Effective date) :</td><td class="vl">3/11/2569</td></tr>
+  <tr><td class="lb">หน้าที่ (Page) :</td><td class="vl">1</td></tr></table>
+  <div class="bx"><div class="ln"><span class="k">วันที่ :</span><span class="v" style="flex:1.25">${mtDate(r.date)}</span><span class="k" style="width:70px">เวลา :</span><span class="v">${esc(r.time||'')}</span></div>
+  <div class="ln"><span class="k">สถานที่ :</span><span class="v" style="flex:none;width:340px">${esc(r.place||'')}</span></div>
+  ${ag.map((a,i)=>`<div class="ln ag"><span class="k">${i?'':'วาระ :'}</span><span class="v l">${esc(a)}</span></div>`).join('')}</div>
+  <table class="pt"><colgroup><col style="width:9%"><col style="width:30%"><col style="width:28%"><col style="width:10%"><col style="width:23%"></colgroup>
+  <tr><th>No.</th><th>รายชื่อ</th><th>ตำแหน่งงาน</th><th>ไม่เข้า</th><th>เหตุผล</th></tr>
+  ${P.map((p,i)=>p?`<tr><td class="c">${i+1}</td><td>${esc(p.n||'')}</td><td class="c">${esc(p.pos||'')}</td><td class="c">${p.abs?'✓':''}</td><td>${esc(p.why||'')}</td></tr>`:'<tr><td></td><td></td><td></td><td></td><td></td></tr>').join('')}</table>
+  <div class="org"><div>Meeting Organizer</div><div><span>Department :</span>${esc(r.dept||'')}</div><div><span>Contact :</span>${esc(r.contact||'')}</div></div></div>`}
+async function meetExport(r,k){const name=`FM-QMS-06-04_นัดประชุม_${r.date||today()}`;await mtTpl().catch(()=>{});
+  if(k==='xlsx'){rpSaveFile(await meetXlsx(r),name+'.xlsx');return}
+  if(k==='print'){const w=window.open('','_blank');if(!w){toast('เบราว์เซอร์บล็อกหน้าต่างใหม่');return}w.document.open();w.document.write(`<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><title>${esc(name)}</title><style>@page{size:A4 portrait;margin:0}body{margin:0}</style></head><body>${meetFormHTML(r)}<script>window.onload=()=>setTimeout(()=>window.print(),300)<\/script></body></html>`);w.document.close();return}
+  await loadLib('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js','html2canvas');
+  const box=document.createElement('div');box.style.cssText='position:fixed;left:-20000px;top:0;z-index:-1';box.innerHTML=meetFormHTML(r);document.body.appendChild(box);let c;try{c=await html2canvas(box.querySelector('.mtf'),{scale:2,backgroundColor:'#ffffff',logging:false})}finally{box.remove()}
+  if(k==='png'){rpSaveFile(await new Promise(ok=>c.toBlob(ok,'image/png')),name+'.png');return}
+  await loadLib('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js','jspdf');const pdf=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,210,297);rpSaveFile(pdf.output('blob'),name+'.pdf')}
+/* ---- Excel: เติมลงไฟล์ _template/FM-QMS-06-04.xlsx ---- */
+async function meetXlsx(r){const T=await mtTpl();const z=await JSZip.loadAsync(T.buf.slice(0));const NS='http://schemas.openxmlformats.org/spreadsheetml/2006/main',RN='http://schemas.openxmlformats.org/officeDocument/2006/relationships',PR='http://schemas.openxmlformats.org/package/2006/relationships';
+  const rd=async p=>new DOMParser().parseFromString((await z.file(p).async('string')).replace(/^﻿/,''),'application/xml');const wr=(p,doc)=>z.file(p,new XMLSerializer().serializeToString(doc));
+  const wb=await rd('xl/workbook.xml');const wrel=await rd('xl/_rels/workbook.xml.rels');const sh=wb.getElementsByTagNameNS(NS,'sheet')[0];const rid=sh.getAttributeNS(RN,'id');
+  const rel=[...wrel.getElementsByTagNameNS(PR,'Relationship')].find(x=>x.getAttribute('Id')===rid);let P=rel.getAttribute('Target').replace(/^\//,'');if(!P.startsWith('xl/'))P='xl/'+P;
+  const doc=await rd(P);const SD=doc.getElementsByTagNameNS(NS,'sheetData')[0];const rows={};[...SD.getElementsByTagNameNS(NS,'row')].forEach(x=>rows[+x.getAttribute('r')]=x);
+  const cn=s=>[...s.replace(/\d+/,'')].reduce((a,ch)=>a*26+ch.charCodeAt(0)-64,0);
+  const cell=ref=>{const rn=+ref.match(/\d+/)[0];let rw=rows[rn];if(!rw){rw=doc.createElementNS(NS,'row');rw.setAttribute('r',rn);const after=Object.keys(rows).map(Number).filter(x=>x>rn).sort((a,b)=>a-b)[0];SD.insertBefore(rw,after?rows[after]:null);rows[rn]=rw}
+    let c=[...rw.getElementsByTagNameNS(NS,'c')].find(x=>x.getAttribute('r')===ref);if(!c){c=doc.createElementNS(NS,'c');c.setAttribute('r',ref);const nx=[...rw.getElementsByTagNameNS(NS,'c')].find(x=>cn(x.getAttribute('r'))>cn(ref));rw.insertBefore(c,nx||null)}return c};
+  const set=(ref,v)=>{const c=cell(ref);while(c.firstChild)c.removeChild(c.firstChild);c.removeAttribute('t');if(v==null||v==='')return;
+    if(typeof v==='number'){const e=doc.createElementNS(NS,'v');e.textContent=String(v);c.appendChild(e)}
+    else{c.setAttribute('t','inlineStr');const is=doc.createElementNS(NS,'is'),t=doc.createElementNS(NS,'t');t.setAttributeNS('http://www.w3.org/XML/1998/namespace','xml:space','preserve');t.textContent=String(v);is.appendChild(t);c.appendChild(is)}};
+  const serial=s=>{if(!isoOnly(s))return s||'';const [y,m,d]=s.split('-').map(Number);return Math.round((Date.UTC(y,m-1,d)-Date.UTC(1899,11,30))/864e5)};
+  set('B9',serial(r.date));set('G9',r.time||'');set('B10',r.place||'');
+  const ag=(r.agenda||[]).slice(0,MT_AG);if((r.agenda||[]).length>MT_AG)ag[MT_AG-1]=r.agenda.slice(MT_AG-1).join(' / ');
+  for(let i=0;i<MT_AG;i++)set('B'+(11+i),ag[i]||'');
+  for(let i=0;i<MT_MAX;i++){const rn=17+i,p=(r.people||[])[i];set('A'+rn,p?i+1:'');set('B'+rn,p?p.n||'':'');const pc=rn===24?'E':'D';set(pc==='D'?'E'+rn:'D'+rn,'');set(pc+rn,p?p.pos||'':'');set('G'+rn,p&&p.abs?'✓':'');set('H'+rn,p?p.why||'':'')}
+  set('I33',r.dept||'');set('I34',/^\d+$/.test(r.contact||'')?+r.contact:(r.contact||''));
+  wr(P,doc);return z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+
 
 
 boot();
