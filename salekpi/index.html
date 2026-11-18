@@ -254,8 +254,8 @@ const store={
 async function ensureSale(){if(!DATA.salekpi)DATA.salekpi=(await store.load('salekpi'))||null;return DATA.salekpi}
 function setHeader(){
   const mt=view==='meet';$('title').textContent=mt?'นัดหมายการประชุม':'KPI Sale Center';$('sub').textContent=mt?'FM-QMS-06-04 · แผนก Sale Center':'FM-QMS-01-03 · แผนก Sale Center';document.title=(mt?'นัดหมายการประชุม':'KPI Sale Center')+' · UNB';
-  $('back').style.display='none';$('tools').innerHTML=(mode==='ready'?`<div class="seg" style="margin:0 0 12px"><button data-vw="salekpi" class="${mt?'':'on'}">KPI</button><button data-vw="meet" class="${mt?'on':''}">นัดหมายการประชุม</button></div>`:'')+(mt?meetTools():saleTools());
-  document.querySelectorAll('[data-vw]').forEach(b=>b.onclick=()=>{if(view===b.dataset.vw)return;view=b.dataset.vw;history.replaceState(null,'',view==='meet'?'#meet':location.pathname+location.search);render();scrollTo(0,0)});
+  $('back').style.display='none';$('tools').innerHTML=(mode==='ready'?`<div class="seg" style="margin:0 0 12px"><button data-vw="salekpi" class="${mt?'':'on'}">KPI</button><button data-vw="meet" class="${mt?'on':''}">นัดประชุม</button><button data-vw="so">Check list SO</button></div>`:'')+(mt?meetTools():saleTools());
+  document.querySelectorAll('[data-vw]').forEach(b=>b.onclick=()=>{if(b.dataset.vw==='so'){location.href='so.html';return}if(view===b.dataset.vw)return;view=b.dataset.vw;history.replaceState(null,'',view==='meet'?'#meet':location.pathname+location.search);render();scrollTo(0,0)});
 }
 function render(){
   setHeader();const M=$('main');
