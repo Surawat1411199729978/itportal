@@ -177,7 +177,7 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 <script>
 if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
 /* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
-const APP_VERSION='2026-11-18.28';
+const APP_VERSION='2026-11-18.29';
 async function checkUpdate(){
   try{
     if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
@@ -385,11 +385,11 @@ function setHeader(){
   $('back').classList.toggle('on',!home);
   $('title').style.display=home?'':'none';$('sub').style.display=home?'':'none';
   $('ntitle').textContent=home?'':MODS[mk].title;$('ntitle').classList.toggle('on',!home);
-  $('fab').classList.toggle('on',!home&&mode==='ready'&&canEdit(view));if(!home&&MODS[view].kind==='repair')$('fab').dataset.l='แจ้งซ่อม';else if(!home&&MODS[view].kind==='vpn')$('fab').dataset.l='ขอใช้ VPN';else if(!home&&MODS[view].kind==='meter')$('fab').dataset.l='อ่านมิเตอร์';else delete $('fab').dataset.l;
+  $('fab').classList.toggle('on',!home&&mode==='ready'&&canEdit(view));if(!home&&MODS[view].kind==='repair')$('fab').dataset.l='แจ้งซ่อม';else if(!home&&MODS[view].kind==='vpn')$('fab').dataset.l='ขอใช้ VPN';else if(!home&&MODS[view].kind==='meter')$('fab').dataset.l='อ่านมิเตอร์';else if(!home&&MODS[view].kind==='kpi')$('fab').dataset.l='บันทึกผล KPI';else delete $('fab').dataset.l;
   $('who').classList.toggle('on',home&&mode==='ready');
   if(home||mode!=='ready'){$('tools').innerHTML='';return}
   if(MODS[view]&&MODS[view].kind==='repair'){$('tools').innerHTML=repairTools();return}
-  if(MODS[view]&&MODS[view].kind==='vpn'){$('tools').innerHTML=vpnTools();return}if(MODS[view]&&MODS[view].kind==='meter'){$('tools').innerHTML=meterTools();return}
+  if(MODS[view]&&MODS[view].kind==='vpn'){$('tools').innerHTML=vpnTools();return}if(MODS[view]&&MODS[view].kind==='meter'){$('tools').innerHTML=meterTools();return}if(MODS[view]&&MODS[view].kind==='kpi'){$('tools').innerHTML=kpiTools();return}
   if(view==='access'){$('tools').innerHTML=`<h1 style="font-size:30px;margin-top:0">สิทธิ์การเข้าถึง</h1><div class="sub">เพิ่ม/ลบคนในแต่ละกลุ่มสิทธิ์ของ IT Portal</div>`;return}
   const s=st(view);const nf=Object.values(s.f).reduce((a,v)=>a+v.length,0);
   $('tools').innerHTML=`<h1 style="font-size:30px;margin-top:0">${esc(MODS[mk].title)}</h1>${MODS[view].segs?`<div class="seg">${MODS[view].segs.map(g=>{const n=(DATA[view]||[]).filter(r=>segMatch(MODS[view],r,g)).length;return `<button data-fseg="${esc(g)}" class="${s.seg===g?'on':''}">${esc(g)}${DATA[view]?` <span style="opacity:.55">${n}</span>`:''}</button>`}).join('')}</div>`:''}${(view==='copier'||view==='contracts')?`<div class="seg"><button data-seg="copier" class="${view==='copier'?'on':''}">รหัสผู้ใช้</button><button data-seg="contracts" class="${view==='contracts'?'on':''}">สัญญาเช่า</button><button data-seg="meters">ค่ามิเตอร์</button></div>`:''}
@@ -420,14 +420,14 @@ function render(){
   renderList();
 }
 function renderHome(){
-  const UNIT={repair:isIT?'งานค้าง':'งานของฉัน',vpn:'คำขอ',assets:'รายการ',contacts:'รายชื่อ',software:'ไลเซนส์',copier:'ผู้ใช้',wifi:'เครือข่าย',forms:'ไฟล์',docs:'ไฟล์'};
-  const cnt=k=>k==='repair'?(DATA.repair?(isIT?rpList().filter(r=>RP_OPEN.includes(r.status)).length:rpList().length):'–'):DATA[k]?DATA[k].length.toLocaleString():'–';
+  const UNIT={kpi:'ปิดงานซ่อมทันเวลา',repair:isIT?'งานค้าง':'งานของฉัน',vpn:'คำขอ',assets:'รายการ',contacts:'รายชื่อ',software:'ไลเซนส์',copier:'ผู้ใช้',wifi:'เครือข่าย',forms:'ไฟล์',docs:'ไฟล์'};
+  const cnt=k=>k==='kpi'?kpHome(2):k==='repair'?(DATA.repair?(isIT?rpList().filter(r=>RP_OPEN.includes(r.status)).length:rpList().length):'–'):DATA[k]?DATA[k].length.toLocaleString():'–';
   const sub={vpn:()=>DATA.vpn?(()=>{const L=vpList(),n=L.filter(r=>vpSt(r)==='new').length,a=L.filter(r=>vpSt(r)==='active').length,e=L.filter(r=>vpSt(r)==='exp').length;return [n?`<span style="color:var(--bad)">รอ IT ${n}</span>`:'',a?`เปิดอยู่ ${a}`:'',e?`<span style="color:var(--bad)">หมดอายุ ${e}</span>`:''].filter(Boolean).join(' · ')||'ขอสิทธิ์ VPN ออนไลน์'})():'',repair:()=>DATA.repair?(isIT?(()=>{const n=rpList().filter(r=>r.status==='new').length,l=rpList().filter(rpLate).length;return [n?`ใหม่ ${n}`:'',l?`<span style="color:var(--bad)">ค้างเกิน 7 วัน ${l}</span>`:''].filter(Boolean).join(' · ')||'ไม่มีงานค้าง'})():(()=>{const w=rpList().filter(r=>RP_WAIT.includes(r.status)).length;return w?`<span style="color:var(--bad)">รอคุณยืนยัน ${w}</span>`:'แจ้งซ่อม · ติดตามสถานะ'})()):'',assets:()=>DATA.assets?'มูลค่า '+money(DATA.assets.reduce((a,r)=>a+(+r.cost||0),0))+' ฿':'',
     copier:()=>DATA.contracts?(()=>{const n=DATA.contracts.filter(r=>{const d=daysTo(r.end);return d!=null&&d<=60}).length;return n?`<span style="color:var(--bad)">สัญญาต้องต่อ ${n}</span>`:'สัญญาปกติ'})():'',
     wifi:()=>DATA.wifi?`ใช้งาน ${DATA.wifi.filter(r=>r.status!=='old').length} เครือข่าย`:'',
     software:()=>DATA.software?`${new Set(DATA.software.map(r=>r.product)).size} ผลิตภัณฑ์`:'',
     forms:()=>DATA.forms?MODS.forms.segs.map(g=>`${g} ${DATA.forms.filter(r=>segMatch(MODS.forms,r,g)).length}`).join(' · '):'',
-    contacts:()=>DATA.contacts?`${new Set(DATA.contacts.map(r=>r.company)).size} บริษัท`:''};
+    kpi:()=>DATA.kpi?'PM / Update / Backup เดือนนี้ '+kpHome(1):'',contacts:()=>DATA.contacts?`${new Set(DATA.contacts.map(r=>r.company)).size} บริษัท`:''};
   const card=k=>{const m=MODS[k];const ok=!!lists[m.list];if(!ok&&!(isIT||canSee))return '';
     return `<button class="wd ${ok?'':'lock'}" data-open="${k}"><span class="wtop">${ico(m.icon[0],m.icon[1])}${CHEV}</span><span class="wt">${m.title}</span><span class="wn num">${ok?cnt(k):'—'}<small>${ok?UNIT[k]:'ไม่มีสิทธิ์'}</small></span><span class="ws">${ok&&sub[k]?sub[k]():(ok?m.desc:'')}</span></button>`};
   const sys=HOME.map(card).join('')+`<a class="wd" href="${esc(CFG.cctvUrl)}" style="text-decoration:none;color:inherit"><span class="wtop">${ico('cam','#d4634f')}${CHEV}</span><span class="wt">สำรวจกล้องวงจรปิด (CCTV)</span><span class="wn" style="font-size:20px">FM-ITM-01-13</span><span class="ws">บันทึกตรวจรายเดือน · Export รายงาน</span></a>`;
@@ -454,6 +454,7 @@ function renderList(){
   if(MODS[view].kind==='repair'){renderRepair();return}
   if(MODS[view].kind==='vpn'){renderVpn();return}
   if(MODS[view].kind==='meter'){renderMeter();return}
+  if(MODS[view].kind==='kpi'){renderKpi();return}
   const key=view,m=MODS[key],s=st(key);const M=$('main');
   if(!DATA[key]){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   const L=filtered(key);
@@ -612,7 +613,7 @@ document.addEventListener('click',async ev=>{
   if(t.closest('#fopen')){filterSheet(view);return}
 });
 $('back').onclick=()=>{history.length>1&&location.hash?history.back():go('home')};
-$('fab').onclick=()=>MODS[view].kind==='repair'?repairNew():MODS[view].kind==='vpn'?vpnNew():MODS[view].kind==='meter'?mtRead():MODS[view].kind==='docs'?uploadSheet(view):edit(view,null);
+$('fab').onclick=()=>MODS[view].kind==='repair'?repairNew():MODS[view].kind==='vpn'?vpnNew():MODS[view].kind==='meter'?mtRead():MODS[view].kind==='kpi'?kpMonth(today().slice(0,7)):MODS[view].kind==='docs'?uploadSheet(view):edit(view,null);
 $('who').onclick=()=>{openSheet(`${shh('','บัญชี',`<button class="x b" id="w_x">เสร็จ</button>`)}<div class="kv"><div><span class="k">ชื่อ</span><span class="v">${esc(me)}</span></div><div><span class="k">สิทธิ์</span><span class="v">${roleName()}</span></div></div><div class="btnlist"><button class="d" id="w_out">ออกจากระบบ</button></div>`);$('w_x').onclick=closeSheet;$('w_out').onclick=()=>{if(DEMO){location.href=location.pathname}else msal.logoutRedirect({account})}};
 async function go(key,replace){
   if(key==='access'?!isAdmin:(key!=='home'&&!lists[MODS[key].list])){toast('ไม่มีสิทธิ์เข้าถึง');return}
@@ -1396,6 +1397,205 @@ function mrImport(){const back=()=>mrOpen();
       <button class="cta" id="i_go" style="display:block;width:100%;margin-top:18px">นำเข้า ${found.length} เครื่อง</button>`;
       $('i_go').onclick=async()=>{$('i_go').disabled=true;$('i_go').textContent='กำลังบันทึก…';try{for(const x of found){const cur=DATA.contracts.find(y=>y._id===x.r._id);await store.save('contracts',{...cur,usage:{...(cur.usage||{}),...x.U}})}MR_END=yms[yms.length-1];toast('นำเข้าข้อมูลแล้ว');render();mrOpen()}catch(err){$('i_go').disabled=false;$('i_go').textContent='นำเข้า';toast(err.status===403?'ไม่มีสิทธิ์บันทึก':'บันทึกไม่สำเร็จ: '+err.message)}}}
     catch(err){$('i_r').innerHTML=`<div class="empty">${esc(err.message)}</div>`}}}
+
+/* ===== KPI แผนก IT (FM-QMS-01-03) ===== */
+G.chart='<rect x="4" y="12" width="3.6" height="8" rx="1" fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="1.6"/><rect x="10.2" y="7" width="3.6" height="13" rx="1" fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="1.6"/><rect x="16.4" y="3.5" width="3.6" height="16.5" rx="1" fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-width="1.6"/>';
+MODS.kpi={kind:'kpi',list:'IT KPI',title:'KPI แผนก IT',icon:['chart','#30d158'],desc:'ตัวชี้วัด · FM-QMS-01-03',titleOf:r=>r.type==='m'?'M-'+r.ym:r.type==='cfg'?'cfg':'CA-'+(r.date||''),fields:[],filters:[],sorts:[['x','']],search:[]};
+const KP_DEF={t1:.98,t2:.85,slaN:4,slaU:1,ws:8,we:17,days:[1,2,3,4,5,6],pm:['PM ตรวจเช็คคอมพิวเตอร์ / อุปกรณ์ตามแผน','Update Windows / Antivirus','Backup ข้อมูล Server / ไฟล์สำคัญ']};
+const KP_NAME=['','ดำเนินการ PM / Update / Backup ตามแผน','ระยะเวลาแก้ไข / ปิดงานแจ้งซ่อม'];
+const KP_FULL=['','1.ดำเนินการ PM/Update/ Backup ตามแผน ไม่น้อยกว่า หรือเท่ากับ 98%','2. ระยะเวลาในการดำเนินการแก้ไข/ ปิดงาน ในการแก้ปัญหาที่ทาง user แจ้งมา ได้ไม่น้อยกว่าหรือเท่ากับ 85% ( ทั่วไป 4 ชม , เร่งด่วน 1 ชม)'];
+const KP_PROC=['','ความพร้อมในการใช้งานภายในองค์กร','ดูแลด้านระบบให้มีเสถียรภาพ  และความปลอดภัย'];
+const KP_MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let KP_Y=+today().slice(0,4);
+const kpCfg=()=>({...KP_DEF,...((DATA.kpi||[]).find(r=>r.type==='cfg')||{})});
+const kpM=ym=>(DATA.kpi||[]).find(r=>r.type==='m'&&r.ym===ym);
+const kpPct=v=>v==null||isNaN(v)?'–':Math.round(v*1000)/10+'%';
+const kpYm=(y,i)=>y+'-'+String(i+1).padStart(2,'0');
+const kpLocalYm=iso=>{const d=new Date(iso);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')};
+/* ชั่วโมงทำการระหว่างสองเวลา */
+function kpHours(a,b,C){a=new Date(a);b=new Date(b);if(!(b>a))return 0;if(!C.wh&&C.wh!==undefined)return (b-a)/36e5;let t=0;const d=new Date(a);d.setHours(0,0,0,0);
+  for(let i=0;i<400&&d<b;i++){if(C.days.includes(d.getDay())){const s=new Date(d);s.setHours(C.ws,0,0,0);const e=new Date(d);e.setHours(C.we,0,0,0);const x=Math.max(s,a),y=Math.min(e,b);if(y>x)t+=(y-x)/36e5}d.setDate(d.getDate()+1)}return t}
+function kpJob(r,C){const log=r.log||[];const fin=log.find(l=>/^บันทึกผล: (ซ่อมเสร็จ|ซ่อมไม่ได้)/.test(l.a||''));const end=fin?fin.at:(r.status==='closed'?(r.confirmAt||null):null);
+  const auto=log.some(l=>/รออะไหล่|ส่งซ่อมภายนอก/.test(l.a||''));const ex=r.kpiX!=null?!!r.kpiX:auto;const sla=r.kpiU?C.slaU:C.slaN;
+  const h=kpHours(r.dt||r.date,end||nowIso(),C);const st=ex?'ex':end?(h<=sla?'ok':'late'):(h>sla?'late':'open');return {r,end,h,sla,ex,auto,st}}
+function kpJobs(ym,C){return (DATA.repair||[]).filter(r=>(r.dt||r.date)&&kpLocalYm(r.dt||r.date+'T12:00:00')===ym).map(r=>kpJob(r,C)).sort((a,b)=>String(a.r.dt).localeCompare(String(b.r.dt)))}
+function kpVal(k,ym,C){const m=kpM(ym);const ov=m&&m['k'+k];if(ov!==''&&ov!=null&&!isNaN(ov))return +ov;
+  if(k===1){if(!m||!m.pm||!m.pm.length)return null;return m.pm.filter(x=>x.d).length/m.pm.length}
+  const J=kpJobs(ym,C).filter(j=>j.st==='ok'||j.st==='late');return J.length?J.filter(j=>j.st==='ok').length/J.length:null}
+function kpYear(k,y,C){const v=KP_MON.map((_,i)=>{const ym=kpYm(y,i);return ym>today().slice(0,7)?null:kpVal(k,ym,C)});const a=v.filter(x=>x!=null);return {v,avg:a.length?a.reduce((s,x)=>s+x,0)/a.length:null}}
+const kpCA=(k,y)=>(DATA.kpi||[]).filter(r=>r.type==='ca'&&+r.kpi===k&&String(r.date||'').slice(0,4)===String(y)).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+document.head.insertAdjacentHTML('beforeend',`<style>.kpcard{background:var(--card);border-radius:24px;padding:16px;margin-top:14px;cursor:pointer}.kpcard .h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.kpcard .h b{font-size:16px;line-height:1.35}.kpcard .h small{display:block;color:var(--sub);font-size:12.5px;margin-top:2px;font-weight:600}.kpbig{font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1}.kpbig.ok{color:#16a34a}.kpbig.ng{color:#ef4444}.kpsub{font-size:12px;color:var(--sub);text-align:right;margin-top:3px}.kpchart{margin-top:10px}.kpchart svg{width:100%;height:auto;display:block}.kpm{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:10px}.kpm button{border:0;border-radius:12px;background:var(--bg);font:inherit;padding:7px 2px;color:var(--ink);cursor:pointer}.kpm button small{display:block;font-size:11px;color:var(--sub);font-weight:600}.kpm button b{font-size:13.5px}.kpm button.ok b{color:#16a34a}.kpm button.ng b{color:#ef4444}.kpm button.cur{box-shadow:inset 0 0 0 2px var(--ink)}
+.kpyr{display:flex;align-items:center;gap:10px;margin:2px 0 4px}.kpyr button{border:0;background:var(--card);border-radius:999px;width:36px;height:36px;font:inherit;font-size:18px;font-weight:800;color:var(--ink);cursor:pointer}.kpyr b{font-size:17px;min-width:90px;text-align:center}
+.kpchk{background:var(--card);border-radius:20px;overflow:hidden}.kpchk label{display:flex;gap:10px;align-items:center;padding:13px 14px;border-top:1px solid var(--line);font-size:15px;cursor:pointer}.kpchk label:first-child{border-top:0}.kpchk input{width:22px;height:22px;accent-color:#16a34a;flex:none}
+.kpjob{background:var(--card);border-radius:18px;padding:11px 13px;margin-top:8px}.kpjob .t{display:flex;justify-content:space-between;gap:8px;font-size:14px}.kpjob .t b{font-weight:700}.kpjob .m{font-size:12.5px;color:var(--sub);margin-top:2px}.kpjob .a{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}.kpjob .a button{border:0;border-radius:999px;font:inherit;font-size:12.5px;font-weight:700;padding:5px 11px;background:var(--bg);color:var(--ink);cursor:pointer}.kpjob .a button.on{background:var(--ink);color:var(--bg)}
+.kpst{font-size:12px;font-weight:800;border-radius:999px;padding:3px 9px;white-space:nowrap;align-self:flex-start}.kpst.ok{background:#e7f8ec;color:#15803d}.kpst.late{background:#fde8e8;color:#b91c1c}.kpst.open{background:#e8f1ff;color:#1d4ed8}.kpst.ex{background:var(--bg);color:var(--sub)}
+.kpsum{display:flex;gap:8px;margin-top:10px}.kpsum>div{flex:1;background:var(--card);border-radius:16px;padding:10px;text-align:center}.kpsum b{display:block;font-size:20px;font-weight:800}.kpsum span{font-size:12px;color:var(--sub)}
+.kpca{background:var(--card);border-radius:18px;padding:12px 14px;margin-top:8px;cursor:pointer}.kpca .d{font-size:12.5px;color:var(--sub);font-weight:600}.kpca p{margin:4px 0 0;font-size:14.5px;line-height:1.5}.kpca p.f{color:#15803d}</style>`);
+function kpSvg(v,t,w=640,h=200){const P=26,bw=(w-P-6)/12;const y=x=>h-22-(Math.min(x,1.05)/1.05)*(h-40);let s=`<svg viewBox="0 0 ${w} ${h}">`;
+  [0,.25,.5,.75,1].forEach(g=>{s+=`<line x1="${P}" x2="${w-4}" y1="${y(g)}" y2="${y(g)}" stroke="#8e8e93" stroke-opacity=".18"/><text x="${P-4}" y="${y(g)+3.5}" font-size="9" fill="#8e8e93" text-anchor="end">${g*100}</text>`});
+  v.forEach((x,i)=>{const cx=P+bw*i+bw/2;if(x!=null){const ok=x>=t;s+=`<rect x="${cx-bw*.3}" y="${y(x)}" width="${bw*.6}" height="${h-22-y(x)}" rx="3" fill="${ok?'#30d158':'#ff453a'}"/><text x="${cx}" y="${y(x)-4}" font-size="10" font-weight="700" text-anchor="middle" fill="currentColor">${Math.round(x*100)}%</text>`}
+    s+=`<text x="${cx}" y="${h-7}" font-size="10" text-anchor="middle" fill="#8e8e93">${KP_MON[i]}</text>`});
+  s+=`<line x1="${P}" x2="${w-4}" y1="${y(t)}" y2="${y(t)}" stroke="#ff9f0a" stroke-width="1.6" stroke-dasharray="5 4"/><text x="${w-6}" y="${y(t)-4}" font-size="10" font-weight="700" fill="#ff9f0a" text-anchor="end">เป้า ${Math.round(t*100)}%</text></svg>`;return s}
+function kpiTools(){return `<h1 style="font-size:30px;margin-top:0">KPI แผนก IT</h1><div class="kpyr"><button id="ky_p">‹</button><b>ปี ${KP_Y+543}</b><button id="ky_n">›</button></div>`}
+function renderKpi(){const M=$('main');if(!DATA.kpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
+  if(!DATA.repair&&lists['IT Repairs']){ensure('repair').then(()=>{if(view==='kpi')render()}).catch(()=>{})}
+  if($('ky_p')){$('ky_p').onclick=()=>{KP_Y--;setHeader();render()};$('ky_n').onclick=()=>{KP_Y++;setHeader();render()}}
+  const C=kpCfg(),it=isIT,cur=today().slice(0,7);
+  const card=k=>{const t=C['t'+k];const {v,avg}=kpYear(k,KP_Y,C);return `<div class="kpcard" data-kp="${k}"><div class="h"><div><b>KPI ${k} · ${KP_NAME[k]}</b><small>เป้าหมาย ≥ ${Math.round(t*100)}%${k===2?` · ทั่วไป ${C.slaN} ชม. / ด่วน ${C.slaU} ชม.`:''}</small></div><div><div class="kpbig ${avg==null?'':avg>=t?'ok':'ng'}">${kpPct(avg)}</div><div class="kpsub">เฉลี่ยทั้งปี</div></div></div>
+    <div class="kpchart">${kpSvg(v,t)}</div><div class="kpm">${v.map((x,i)=>`<button data-km="${k}:${i}" class="${x==null?'':x>=t?'ok':'ng'} ${kpYm(KP_Y,i)===cur?'cur':''}"><small>${KP_MON[i]}</small><b>${x==null?'–':Math.round(x*100)+'%'}</b></button>`).join('')}</div></div>`};
+  M.innerHTML=`${it?`<button class="mtcta" id="kp_now">${ico('chart','#30d158')}<span><b>บันทึกผล KPI เดือน${TH_FULL[+cur.slice(5)-1]}</b><small>เช็กลิสต์ PM / Update / Backup และตรวจเวลาปิดงานแจ้งซ่อม</small></span>${CHEV}</button>`:''}
+  ${card(1)}${card(2)}<div class="toolbar" style="margin-top:16px"><span class="cnt">FM-QMS-01-03</span><span class="tl"><button class="sortsel" id="kp_rep">รายงาน</button>${it?'<button class="sortsel" id="kp_cfg">ตั้งค่า</button>':''}</span></div>`;
+  if($('kp_now'))$('kp_now').onclick=()=>kpMonth(cur);$('kp_rep').onclick=()=>kpReport();if($('kp_cfg'))$('kp_cfg').onclick=()=>kpSettings();
+  M.querySelectorAll('[data-km]').forEach(b=>b.onclick=e=>{e.stopPropagation();const[k,i]=b.dataset.km.split(':');kpMonth(kpYm(KP_Y,+i),+k)});
+  M.querySelectorAll('[data-kp]').forEach(c=>c.onclick=()=>kpDetail(+c.dataset.kp))}
+async function kpSave(r,msg){try{await store.save('kpi',r);if(msg)toast(msg);render();return true}catch(e){toast(e.status===403?'ไม่มีสิทธิ์บันทึก (เฉพาะฝ่าย IT)':'บันทึกไม่สำเร็จ: '+e.message);return false}}
+function kpDetail(k){const C=kpCfg(),t=C['t'+k],it=isIT;const {v,avg}=kpYear(k,KP_Y,C);const CA=kpCA(k,KP_Y);
+  openSheet(`${shh('',`KPI ${k}`,'<button class="x b" id="d_x">เสร็จ</button>')}
+  <div class="sub" style="margin:2px 4px 0">${esc(KP_FULL[k])}</div>
+  <div class="kpsum"><div><b>${Math.round(t*100)}%</b><span>เป้าหมาย</span></div><div><b style="color:${avg==null?'inherit':avg>=t?'#16a34a':'#ef4444'}">${kpPct(avg)}</b><span>เฉลี่ยปี ${KP_Y+543}</span></div><div><b>${v.filter(x=>x!=null&&x>=t).length}/${v.filter(x=>x!=null).length}</b><span>เดือนที่ผ่าน</span></div></div>
+  <div class="kpcard" style="cursor:default">${kpSvg(v,t)}</div>
+  <div class="fgroup"><h3>การวิเคราะห์ผล และการแก้ไขป้องกัน / พัฒนาอย่างต่อเนื่อง</h3></div>
+  ${CA.map(c=>`<div class="kpca" data-ca="${esc(c._id)}"><div class="d">${thDate(c.date)}${c.due?' · กำหนดเสร็จ '+esc(c.due):''}${c.done?' · เสร็จจริง '+esc(c.done):''}</div><p>${esc(c.problem||'')}</p>${c.fix?`<p class="f">→ ${esc(c.fix)}</p>`:''}</div>`).join('')||'<div class="empty">ยังไม่มีบันทึก</div>'}
+  ${it?'<div class="btnlist"><button id="d_add">เพิ่มการวิเคราะห์ / แก้ไขป้องกัน</button></div>':''}`);
+  $('d_x').onclick=closeSheet;if($('d_add'))$('d_add').onclick=()=>kpCAEdit(k,null);
+  document.querySelectorAll('[data-ca]').forEach(e=>e.onclick=()=>{if(it)kpCAEdit(k,(DATA.kpi||[]).find(x=>x._id===e.dataset.ca))})}
+function kpCAEdit(k,c){const n=!c;c=c||{type:'ca',kpi:k,date:today()};
+  openSheet(`${shh('<button class="x" id="c_x">ยกเลิก</button>',n?'เพิ่มบันทึก':'แก้ไขบันทึก','<button class="x b" id="c_s">บันทึก</button>')}
+  <div class="sub" style="margin:2px 4px 0">KPI ${k} · ${esc(KP_NAME[k])}</div>
+  <div class="formg" style="margin-top:12px"><div class="f"><label>วันที่</label><input type="date" id="c_d" value="${esc(c.date||'')}"></div>
+  <div class="f area"><label>รายละเอียดของปัญหา *</label><textarea id="c_p">${esc(c.problem||'')}</textarea></div>
+  <div class="f area"><label>แนวทางการแก้ไข / พัฒนา</label><textarea id="c_f">${esc(c.fix||'')}</textarea></div>
+  <div class="f"><label>กำหนดวันแล้วเสร็จ</label><input type="date" id="c_u" value="${esc(/^\d{4}-/.test(c.due||'')?c.due:'')}" placeholder="${esc(c.due||'')}"></div>
+  <div class="f"><label>วันที่เสร็จจริง</label><input type="date" id="c_e" value="${esc(/^\d{4}-/.test(c.done||'')?c.done:'')}"></div>
+  <div class="f area"><label>หมายเหตุ</label><textarea id="c_n">${esc(c.note||'')}</textarea></div></div>
+  ${n?'':'<div class="btnlist"><button class="d" id="c_del">ลบบันทึกนี้</button></div>'}`);
+  $('c_x').onclick=()=>kpDetail(k);
+  $('c_s').onclick=async()=>{const p=$('c_p').value.trim();if(!p){toast('กรอกรายละเอียดของปัญหา');return}const x={...c,date:$('c_d').value||today(),problem:p,fix:$('c_f').value.trim(),due:$('c_u').value||(/^\d{4}-/.test(c.due||'')?'':c.due||''),done:$('c_e').value||(/^\d{4}-/.test(c.done||'')?'':c.done||''),note:$('c_n').value.trim(),by:c.by||me};if(await kpSave(x,'บันทึกแล้ว'))kpDetail(k)};
+  if($('c_del'))$('c_del').onclick=async()=>{if(!confirm('ลบบันทึกนี้?'))return;try{await store.del('kpi',c._id);toast('ลบแล้ว');render();kpDetail(k)}catch(e){toast('ลบไม่สำเร็จ: '+e.message)}}}
+async function kpMonth(ym,focus){if(!DATA.repair&&lists['IT Repairs']){openSheet('<div class="center"><div class="spin"></div></div>');try{await ensure('repair')}catch(e){}}
+  const C=kpCfg(),it=isIT,m=kpM(ym)||{type:'m',ym};const mn=TH_FULL[+ym.slice(5)-1]+' '+(+ym.slice(0,4)+543);
+  let pm=(m.pm&&m.pm.length?m.pm:C.pm.map(t=>({t,d:false}))).map(x=>({...x}));C.pm.forEach(t=>{if(!pm.some(x=>x.t===t))pm.push({t,d:false})});
+  const draw=()=>{const J=kpJobs(ym,C);const cnt=J.filter(j=>j.st==='ok'||j.st==='late');const ok=cnt.filter(j=>j.st==='ok').length;const k1=pm.length?pm.filter(x=>x.d).length/pm.length:null;const k2=cnt.length?ok/cnt.length:null;
+    openSheet(`${shh(`<button class="x" id="m_x">${it?'ยกเลิก':'ปิด'}</button>`,'KPI '+mn,it?'<button class="x b" id="m_s">บันทึก</button>':'')}
+    <div class="fgroup"><h3>KPI 1 · ${KP_NAME[1]} (เป้า ${Math.round(C.t1*100)}%)</h3></div>
+    <div class="kpchk">${pm.map((x,i)=>`<label><input type="checkbox" data-pm="${i}" ${x.d?'checked':''} ${it?'':'disabled'}><span>${esc(x.t)}</span></label>`).join('')}</div>
+    <div class="kpsum"><div><b id="m_k1">${kpPct(k1)}</b><span>ผลตามเช็กลิสต์</span></div><div><b>${(m.k1!==''&&m.k1!=null)?kpPct(+m.k1):'–'}</b><span>ผลที่กำหนดเอง</span></div></div>
+    <div class="fgroup"><h3>KPI 2 · ${KP_NAME[2]} (เป้า ${Math.round(C.t2*100)}%)</h3></div>
+    <div class="kpsum"><div><b>${J.length}</b><span>งานแจ้งซ่อม</span></div><div><b style="color:#16a34a">${ok}</b><span>ทันเวลา</span></div><div><b style="color:#ef4444">${cnt.length-ok}</b><span>เกินเวลา</span></div><div><b>${kpPct(k2)}</b><span>ผล KPI</span></div></div>
+    <div class="vpnote">นับชั่วโมงทำการ ${C.ws}:00–${C.we}:00 (${C.days.map(d=>['อา','จ','อ','พ','พฤ','ศ','ส'][d]).join(' ')}) จากเวลาแจ้ง ถึงเวลาที่ IT บันทึกผล “ซ่อมเสร็จ / ซ่อมไม่ได้” · งานที่รออะไหล่ / ส่งซ่อมภายนอกไม่นับ (กดเปลี่ยนได้)</div>
+    ${J.map((j,i)=>`<div class="kpjob"><div class="t"><div><b>${esc(j.r.no||'')}</b> · ${esc(j.r.symptom||'')}</div><span class="kpst ${j.st}">${{ok:'ทันเวลา',late:'เกินเวลา',open:'ยังไม่เสร็จ',ex:'ไม่นับ'}[j.st]}</span></div>
+      <div class="m">${esc(j.r.by||'')} · แจ้ง ${new Date(j.r.dt||j.r.date).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} · ใช้ ${j.h.toFixed(1)} ชม. / ${j.sla} ชม.${j.auto?' · รออะไหล่/ส่งนอก':''}</div>
+      ${it?`<div class="a"><button data-ju="${i}" class="${j.r.kpiU?'on':''}">ด่วน (${C.slaU} ชม.)</button><button data-jx="${i}" class="${j.ex?'on':''}">ไม่นับ KPI</button></div>`:''}</div>`).join('')||'<div class="empty">ไม่มีงานแจ้งซ่อมในเดือนนี้</div>'}
+    ${it?`<div class="fgroup"><h3>กำหนดผลเอง (ใช้แทนค่าที่คำนวณ เช่น เดือนก่อนเริ่มใช้ระบบ)</h3></div><div class="formg"><div class="f"><label>KPI 1 (%)</label><input id="m_o1" inputmode="decimal" value="${m.k1!==''&&m.k1!=null?Math.round(m.k1*1000)/10:''}" placeholder="อัตโนมัติ"></div><div class="f"><label>KPI 2 (%)</label><input id="m_o2" inputmode="decimal" value="${m.k2!==''&&m.k2!=null?Math.round(m.k2*1000)/10:''}" placeholder="อัตโนมัติ"></div><div class="f area"><label>หมายเหตุ</label><textarea id="m_n">${esc(m.note||'')}</textarea></div></div>`:''}`);
+    $('m_x').onclick=closeSheet;
+    document.querySelectorAll('[data-pm]').forEach(c=>c.onchange=()=>{pm[+c.dataset.pm].d=c.checked;const v=pm.filter(x=>x.d).length/pm.length;$('m_k1').textContent=kpPct(v)});
+    const tog=async(j,k,v)=>{try{await store.save('repair',{...j.r,[k]:v});draw()}catch(e){toast(e.status===403?'ไม่มีสิทธิ์แก้ไข':'บันทึกไม่สำเร็จ: '+e.message)}};
+    document.querySelectorAll('[data-ju]').forEach(b=>b.onclick=()=>{const j=J[+b.dataset.ju];tog(j,'kpiU',!j.r.kpiU)});
+    document.querySelectorAll('[data-jx]').forEach(b=>b.onclick=()=>{const j=J[+b.dataset.jx];tog(j,'kpiX',!j.ex)});
+    if($('m_s'))$('m_s').onclick=async()=>{const o=id=>{const v=$(id).value.trim();return v===''?'':Math.max(0,Math.min(100,+v.replace(/[^\d.]/g,'')))/100};const x={...m,pm,k1:o('m_o1'),k2:o('m_o2'),note:$('m_n').value.trim(),by:me,at:nowIso()};if(await kpSave(x,'บันทึก KPI '+mn+' แล้ว'))closeSheet()};
+    if(focus){const el=document.querySelectorAll('.fgroup')[focus===2?1:0];if(el)el.scrollIntoView({block:'start'})}};
+  draw()}
+function kpSettings(){const C=kpCfg();const c0=(DATA.kpi||[]).find(r=>r.type==='cfg')||{type:'cfg'};
+  openSheet(`${shh('<button class="x" id="s_x">ยกเลิก</button>','ตั้งค่า KPI','<button class="x b" id="s_s">บันทึก</button>')}
+  <div class="formg" style="margin-top:12px"><div class="f"><label>เป้า KPI 1 (%)</label><input id="s_t1" inputmode="decimal" value="${C.t1*100}"></div><div class="f"><label>เป้า KPI 2 (%)</label><input id="s_t2" inputmode="decimal" value="${C.t2*100}"></div>
+  <div class="f"><label>งานทั่วไป (ชม.)</label><input id="s_n" inputmode="decimal" value="${C.slaN}"></div><div class="f"><label>งานด่วน (ชม.)</label><input id="s_u" inputmode="decimal" value="${C.slaU}"></div>
+  <div class="f"><label>เวลาทำการ เริ่ม (ชม.)</label><input id="s_ws" inputmode="numeric" value="${C.ws}"></div><div class="f"><label>เวลาทำการ สิ้นสุด (ชม.)</label><input id="s_we" inputmode="numeric" value="${C.we}"></div></div>
+  <div class="fgroup"><h3>วันทำการ</h3></div><div class="kpm">${['อา','จ','อ','พ','พฤ','ศ','ส'].map((d,i)=>`<button data-dw="${i}" class="${C.days.includes(i)?'cur':''}"><b>${d}</b></button>`).join('')}</div>
+  <div class="fgroup"><h3>เช็กลิสต์ KPI 1 (บรรทัดละ 1 งาน)</h3></div><div class="formg"><div class="f area"><textarea id="s_pm" style="min-height:110px">${esc(C.pm.join('\n'))}</textarea></div></div>
+  <div class="btnlist"><button id="s_imp">นำเข้าผลเดิมจากไฟล์ Excel FM-QMS-01-03</button></div>`);
+  let days=[...C.days];document.querySelectorAll('[data-dw]').forEach(b=>b.onclick=()=>{const d=+b.dataset.dw;days=days.includes(d)?days.filter(x=>x!==d):[...days,d].sort();b.classList.toggle('cur')});
+  $('s_x').onclick=closeSheet;$('s_imp').onclick=()=>kpImport();
+  $('s_s').onclick=async()=>{const n=(id,d)=>{const v=parseFloat($(id).value);return isNaN(v)?d:v};const x={...c0,type:'cfg',t1:n('s_t1',98)/100,t2:n('s_t2',85)/100,slaN:n('s_n',4),slaU:n('s_u',1),ws:n('s_ws',8),we:n('s_we',17),days,pm:$('s_pm').value.split('\n').map(s=>s.trim()).filter(Boolean)};if(await kpSave(x,'บันทึกการตั้งค่าแล้ว'))closeSheet()}}
+/* ---- นำเข้าจาก Excel เดิม ---- */
+function kpImport(){openSheet(`${shh('<button class="x" id="i_b">กลับ</button>','นำเข้าผลเดิม','')}
+  <div class="sub" style="margin:4px 4px 0">เลือกไฟล์ FM-QMS-01-03 KPI แผนก IT ระบบจะอ่านผล Actual รายเดือนของ KPI 1 และ 2 กับตารางการวิเคราะห์ผล / แก้ไขป้องกัน</div>
+  <div class="formg" style="margin-top:12px"><div class="f"><label>ปีของข้อมูล</label><select id="i_y">${[0,1,2].map(d=>`<option value="${KP_Y-d}">${KP_Y-d+543}</option>`).join('')}</select></div></div>
+  <label class="mtdrop"><input type="file" id="i_f" accept=".xlsx" hidden><b>เลือกไฟล์ Excel</b><span>.xlsx</span></label><div id="i_r"></div>`);
+  $('i_b').onclick=()=>kpSettings();
+  $('i_f').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('i_r').innerHTML='<div class="center"><div class="spin"></div></div>';
+    try{await loadLib('https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js','ExcelJS');const wb=new ExcelJS.Workbook();await wb.xlsx.load(await f.arrayBuffer());const Y=+$('i_y').value;
+      const pick=k=>wb.worksheets.find(w=>String(w.name).trim().startsWith(k+'.'));const T=v=>v==null?'':v instanceof Date?v:typeof v==='object'?(v.richText?v.richText.map(x=>x.text).join(''):v.result??v.text??''):v;
+      const res={1:{v:{},ca:[]},2:{v:{},ca:[]}};const DS=v=>{if(v instanceof Date){let yy=v.getUTCFullYear();if(yy>2400)yy-=543;return yy+'-'+String(v.getUTCMonth()+1).padStart(2,'0')+'-'+String(v.getUTCDate()).padStart(2,'0')}return String(v||'').trim()};
+      for(const k of [1,2]){const ws=pick(k);if(!ws)continue;for(let c=4;c<=15;c++){const v=T(ws.getRow(25).getCell(c).value);if(typeof v==='number')res[k].v[kpYm(Y,c-4)]=v>1.5?v/100:v}
+        for(let r=29;r<=53;r+=5){const p=String(T(ws.getRow(r).getCell(4).value)||'').trim();if(!p)continue;let d=T(ws.getRow(r).getCell(2).value);let ds='';if(d instanceof Date){let yy=d.getUTCFullYear();if(yy>2400)yy-=543;ds=yy+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0')}else if(typeof d==='number'){const dd=new Date(Math.round((d-25569)*864e5));let yy=dd.getUTCFullYear();if(yy>2400)yy-=543;ds=yy+'-'+String(dd.getUTCMonth()+1).padStart(2,'0')+'-'+String(dd.getUTCDate()).padStart(2,'0')}
+          res[k].ca.push({type:'ca',kpi:k,date:ds||Y+'-01-01',problem:p,fix:String(T(ws.getRow(r).getCell(7).value)||'').trim(),due:DS(T(ws.getRow(r).getCell(12).value)),done:DS(T(ws.getRow(r).getCell(14).value)),note:String(T(ws.getRow(r).getCell(16).value)||'').trim(),by:me})}}
+      const n1=Object.keys(res[1].v).length,n2=Object.keys(res[2].v).length,nc=res[1].ca.length+res[2].ca.length;if(!n1&&!n2&&!nc)throw new Error('ไม่พบข้อมูล KPI ในไฟล์');
+      const sh=k=>Object.entries(res[k].v).map(([ym,v])=>KP_MON[+ym.slice(5)-1]+' '+Math.round(v*100)+'%').join(', ')||'-';
+      $('i_r').innerHTML=`<div class="kv"><div><span class="k">KPI 1</span><span class="v">${esc(sh(1))}</span></div><div><span class="k">KPI 2</span><span class="v">${esc(sh(2))}</span></div><div><span class="k">บันทึกแก้ไขป้องกัน</span><span class="v">${nc} รายการ</span></div></div>
+      <div class="vpnote">ผลรายเดือนจะถูกบันทึกเป็น “ผลที่กำหนดเอง” ของเดือนนั้น (ปี ${Y+543})</div><button class="cta" id="i_go" style="display:block;width:100%;margin-top:18px">นำเข้า</button>`;
+      $('i_go').onclick=async()=>{$('i_go').disabled=true;$('i_go').textContent='กำลังบันทึก…';try{const yms=[...new Set([...Object.keys(res[1].v),...Object.keys(res[2].v)])];
+        for(const ym of yms){const m=kpM(ym)||{type:'m',ym};const x={...m};if(res[1].v[ym]!=null)x.k1=res[1].v[ym];if(res[2].v[ym]!=null)x.k2=res[2].v[ym];await store.save('kpi',x)}
+        for(const c of [...res[1].ca,...res[2].ca]){if((DATA.kpi||[]).some(o=>o.type==='ca'&&+o.kpi===c.kpi&&o.problem===c.problem))continue;await store.save('kpi',c)}
+        KP_Y=Y;toast('นำเข้าข้อมูลแล้ว');setHeader();render();closeSheet()}catch(err){$('i_go').disabled=false;$('i_go').textContent='นำเข้า';toast(err.status===403?'ไม่มีสิทธิ์บันทึก':'บันทึกไม่สำเร็จ: '+err.message)}}}
+    catch(err){$('i_r').innerHTML=`<div class="empty">${esc(err.message)}</div>`}}}
+/* ---- รายงาน KPI MONITORING (A4 แนวตั้ง) ---- */
+const KP_CSS=`.kpf{width:794px;height:1123px;box-sizing:border-box;padding:34px 36px;background:#fff;color:#000;font-family:Tahoma,"Sarabun","Noto Sans Thai",sans-serif;font-size:11px;line-height:1.3;position:relative}.kpf table{border-collapse:collapse;width:100%;table-layout:fixed}.kpf td,.kpf th{border:1px solid #000;padding:3px 4px;vertical-align:middle}.kpf .co{font-size:19px;font-weight:700;text-align:center;height:34px}.kpf .wf{font-size:15px;font-weight:700;text-align:center}.kpf .tt{font-size:17px;font-weight:800;text-align:center;letter-spacing:.02em}.kpf .lb{font-size:10px;border-right:0;white-space:nowrap}.kpf .vl{font-size:10px;text-align:center;border-left:0}.kpf .lg{text-align:center}.kpf .lg img{max-height:60px;max-width:120px}.kpf .ds{margin-top:8px}.kpf .ds td{font-size:11px;height:20px}.kpf .ds .b{font-weight:700;background:#f2f2f2}.kpf .cht{margin-top:8px;border:1px solid #000;padding:6px 10px 2px}.kpf .cht h4{margin:0 0 2px;text-align:center;font-size:12px}.kpf .cht svg{width:100%;height:auto;display:block;color:#000}.kpf .mt{margin-top:8px}.kpf .mt td,.kpf .mt th{text-align:center;font-size:10.5px}.kpf .mt th{background:#f2f2f2}.kpf .ca{margin-top:10px}.kpf .ca th{background:#f2f2f2;font-size:10.5px}.kpf .ca td{height:56px;font-size:10px;vertical-align:top;line-height:1.4;word-break:break-word}.kpf .ca td.c{text-align:center;vertical-align:middle}.kpf .ca .hh{text-align:center;font-weight:700;font-size:11.5px;background:#fff;height:auto;vertical-align:middle;padding:5px}.kpf .bt{display:flex;gap:14px;margin-top:12px}.kpf .bt .nt{flex:1;font-size:10.5px;line-height:2}.kpf .bt table{flex:1.4}.kpf .bt td{text-align:center;font-size:10.5px}.kpf .bt .sg{height:44px}.kpf .ft{position:absolute;left:36px;bottom:12px;font-size:8.5px;color:#444}`;
+function kpFormHTML(k,y){const C=kpCfg(),t=C['t'+k];const {v,avg}=kpYear(k,y,C);const CA=kpCA(k,y).slice(0,5);while(CA.length<5)CA.push(null);
+  const svg=kpSvg(v,t,700,215).replace(/#30d158|#ff453a/g,'#4472c4');
+  return `<style>${KP_CSS}</style><div class="kpf"><table><colgroup><col style="width:20%"><col style="width:46%"><col style="width:20%"><col style="width:14%"></colgroup>
+  <tr><td rowspan="5" class="lg">${RP_LOGO?`<img src="${RP_LOGO}">`:'<b style="font-size:28px;color:#1a7f37">UNB</b>'}</td><td class="co" colspan="3">บริษัท ยูเนียนเบลท์ อินเตอร์เนชั่นแนล จำกัด</td></tr>
+  <tr><td rowspan="2" class="wf">เอกสาร ( Work from )</td><td class="lb">รหัสเอกสาร (Doc No) :</td><td class="vl">FM-QMS-01-03</td></tr>
+  <tr><td class="lb">แก้ไขครั้งที่ (Revision):</td><td class="vl">00</td></tr>
+  <tr><td rowspan="2" class="tt">KPI MONITORING</td><td class="lb">วันที่บังคับใช้ (Effective date):</td><td class="vl">01/11/2568</td></tr>
+  <tr><td class="lb">หน้าที่ (Page)</td><td class="vl">1/1</td></tr></table>
+  <table class="ds"><colgroup><col style="width:16%"><col style="width:58%"><col style="width:10%"><col style="width:16%"></colgroup><tr><td class="b">Department :</td><td style="text-align:center">Information Department</td><td class="b">Date:</td><td style="text-align:center">${thDate(today())}</td></tr><tr><td class="b">Process :</td><td colspan="3" style="text-align:center">${esc(KP_PROC[k])}</td></tr><tr><td class="b">KPI :</td><td colspan="3" style="text-align:center">${esc(KP_FULL[k])}</td></tr></table>
+  <div class="cht"><h4>ผลการดำเนินงาน (Result) · ปี ${y+543}</h4>${svg}</div>
+  <table class="mt"><colgroup><col style="width:12%">${KP_MON.map(()=>'<col>').join('')}<col style="width:9%"></colgroup><tr><th>Monthly</th>${KP_MON.map(m=>`<th>${m}</th>`).join('')}<th>Average</th></tr>
+  <tr><td><b>Target</b></td>${KP_MON.map(()=>`<td>${Math.round(t*100)}%</td>`).join('')}<td>${Math.round(t*100)}%</td></tr>
+  <tr><td><b>Actual</b></td>${v.map(x=>`<td style="${x!=null&&x<t?'color:#c00;font-weight:700':''}">${x==null?'':Math.round(x*100)+'%'}</td>`).join('')}<td><b>${avg==null?'':Math.round(avg*100)+'%'}</b></td></tr></table>
+  <table class="ca"><colgroup><col style="width:6%"><col style="width:12%"><col style="width:24%"><col style="width:26%"><col style="width:11%"><col style="width:11%"><col style="width:10%"></colgroup>
+  <tr><td class="hh" colspan="7">การวิเคราะห์ผล และการแก้ไขป้องกัน / พัฒนาอย่างต่อเนื่อง</td></tr>
+  <tr><th>ลำดับ</th><th>วันที่</th><th>รายละเอียดของปัญหา</th><th>แนวทางการแก้ไข / พัฒนา</th><th>กำหนดวัน<br>แล้วเสร็จ</th><th>วันที่<br>เสร็จจริง</th><th>หมายเหตุ</th></tr>
+  ${CA.map((c,i)=>c?`<tr><td class="c">${i+1}</td><td class="c">${thDate(c.date)}</td><td>${esc(c.problem||'')}</td><td>${esc(c.fix||'')}</td><td class="c">${esc(/^\d{4}-/.test(c.due||'')?thDate(c.due):c.due||'')}</td><td class="c">${esc(/^\d{4}-/.test(c.done||'')?thDate(c.done):c.done||'')}</td><td>${esc(c.note||'')}</td></tr>`:'<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>').join('')}</table>
+  <div class="bt"><div class="nt"><b>หมายเหตุ :</b><br>.................................................................<br>.................................................................<br>.................................................................</div>
+  <table><tr><td><b>ผู้จัดทำ</b></td><td><b>ผู้ทบทวน</b></td><td><b>ผู้อนุมัติ</b></td></tr><tr><td class="sg"></td><td class="sg"></td><td class="sg"></td></tr><tr><td>วันที่........................</td><td>วันที่........................</td><td>วันที่........................</td></tr></table></div>
+  <div class="ft">FM-QMS-01-03 · พิมพ์จาก IT Portal ${thDate(today())}</div></div>`}
+let KP_RK=1;
+function kpReport(){openSheet(`${shh('','รายงาน KPI','<button class="x b" id="r_x">เสร็จ</button>')}
+  <div class="sub" style="margin:2px 4px 0">FM-QMS-01-03 · KPI MONITORING ปี ${KP_Y+543} (A4 แนวตั้ง)</div>
+  <div class="seg" style="margin-top:12px"><button data-rk="1" class="${KP_RK===1?'on':''}">KPI 1 · PM/Backup</button><button data-rk="2" class="${KP_RK===2?'on':''}">KPI 2 · ปิดงานซ่อม</button></div>
+  <div class="fgroup"><h3>ตัวอย่างรายงาน</h3></div><div class="fmprev" id="r_prev"></div>
+  <div class="fgroup"><h3>ดาวน์โหลด</h3></div><div class="rpex"><button data-kx="xlsx"><b style="background:#1d6f42">XLS</b>Excel</button><button data-kx="pdf"><b>PDF</b>PDF</button><button data-kx="png"><b style="background:#bf5af2">IMG</b>รูปภาพ</button><button data-kx="print"><b style="background:#636366;font-size:20px">⎙</b>พิมพ์</button></div>
+  <div class="vpnote">Excel = ไฟล์ FM-QMS-01-03 ตัวจริง เติมผลทั้ง 2 KPI · PDF = 2 หน้า (KPI 1 และ 2) · รูปภาพ = KPI ที่เลือก</div>`);
+  const prev=()=>{const P=$('r_prev');if(!P)return;P.innerHTML=`<div class="fmwrap" style="width:794px">${kpFormHTML(KP_RK,KP_Y)}</div>`;requestAnimationFrame(()=>{const w=P.querySelector('.fmwrap');if(!w)return;const s=P.clientWidth/794;w.style.transform=`scale(${s})`;w.style.transformOrigin='0 0';P.style.height=Math.ceil(1123*s)+'px'})};
+  prev();if(!RP_LOGO&&!DEMO)rpTpl().then(()=>{if($('r_prev')&&RP_LOGO)prev()}).catch(()=>{});
+  $('r_x').onclick=closeSheet;document.querySelectorAll('[data-rk]').forEach(b=>b.onclick=()=>{KP_RK=+b.dataset.rk;document.querySelectorAll('[data-rk]').forEach(x=>x.classList.toggle('on',x===b));prev()});
+  document.querySelectorAll('[data-kx]').forEach(b=>b.onclick=async()=>{const k=b.dataset.kx,old=b.innerHTML;if(k!=='print'){b.disabled=true;b.innerHTML='<div class="spin"></div>'}try{await kpExport(k);if(k!=='print')toast('สร้างไฟล์แล้ว')}catch(e){toast('สร้างไฟล์ไม่สำเร็จ: '+e.message)}finally{b.disabled=false;b.innerHTML=old}})}
+async function kpExport(k){const y=KP_Y,name=`FM-QMS-01-03_KPI_IT_${y+543}`;await rpTpl().catch(()=>{});
+  if(k==='xlsx'){rpSaveFile(await kpXlsx(y),name+'.xlsx');return}
+  if(k==='print'){const w=window.open('','_blank');if(!w){toast('เบราว์เซอร์บล็อกหน้าต่างใหม่');return}w.document.open();w.document.write(`<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><title>${esc(name)}</title><style>@page{size:A4 portrait;margin:6mm}body{margin:0}.pg{page-break-after:always}</style></head><body><div class="pg">${kpFormHTML(1,y)}</div><div>${kpFormHTML(2,y)}</div><style>.kpf{width:auto;height:auto;padding:0}.kpf .ft{position:static;margin-top:6px}</style><script>window.onload=()=>setTimeout(()=>window.print(),400)<\/script></body></html>`);w.document.close();return}
+  await loadLib('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js','html2canvas');
+  const shot=async kk=>{const box=document.createElement('div');box.style.cssText='position:fixed;left:-20000px;top:0;z-index:-1';box.innerHTML=kpFormHTML(kk,y);document.body.appendChild(box);try{return await html2canvas(box.querySelector('.kpf'),{scale:2,backgroundColor:'#ffffff',logging:false})}finally{box.remove()}};
+  if(k==='png'){const c=await shot(KP_RK);rpSaveFile(await new Promise(ok=>c.toBlob(ok,'image/png')),`${name}_KPI${KP_RK}.png`);return}
+  await loadLib('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js','jspdf');const pdf=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  for(const kk of [1,2]){const c=await shot(kk);if(kk>1)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,210,297)}rpSaveFile(pdf.output('blob'),name+'.pdf')}
+/* ---- Excel: เติมลงไฟล์จริง _template/FM-QMS-01-03.xlsx ---- */
+async function kpXlsx(y){await loadLib('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js','JSZip');const d=await rpDriveId();const it=await g(`/drives/${d}/root:/_template/FM-QMS-01-03.xlsx`);const res=await fetch(it['@microsoft.graph.downloadUrl']);if(!res.ok)throw new Error('โหลดแม่แบบ Excel ไม่สำเร็จ');
+  const z=await JSZip.loadAsync(await res.arrayBuffer());const NS='http://schemas.openxmlformats.org/spreadsheetml/2006/main',RN='http://schemas.openxmlformats.org/officeDocument/2006/relationships',PR='http://schemas.openxmlformats.org/package/2006/relationships',CN='http://schemas.openxmlformats.org/drawingml/2006/chart';
+  const rd=async p=>new DOMParser().parseFromString((await z.file(p).async('string')).replace(/^﻿/,''),'application/xml');const wr=(p,doc)=>z.file(p,new XMLSerializer().serializeToString(doc));
+  const res2=(base,t)=>{const parts=(base.replace(/[^/]*$/,'')+t).split('/');const o=[];parts.forEach(x=>{if(x==='..')o.pop();else if(x&&x!=='.')o.push(x)});return o.join('/')};
+  const wb=await rd('xl/workbook.xml');const wrel=await rd('xl/_rels/workbook.xml.rels');const C=kpCfg();const dt=thDate(today());
+  const CL=n=>{let s='';while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26)}return s};
+  for(const k of [1,2]){const sh=[...wb.getElementsByTagNameNS(NS,'sheet')].find(s=>String(s.getAttribute('name')).trim().startsWith(k+'.'));if(!sh)continue;const rid=sh.getAttributeNS(RN,'id');const rel=[...wrel.getElementsByTagNameNS(PR,'Relationship')].find(r=>r.getAttribute('Id')===rid);const P=res2('xl/workbook.xml',rel.getAttribute('Target'));
+    const doc=await rd(P);const SD=doc.getElementsByTagNameNS(NS,'sheetData')[0];const rows={};[...SD.getElementsByTagNameNS(NS,'row')].forEach(r=>rows[+r.getAttribute('r')]=r);
+    const cell=(ref)=>{const rn=+ref.match(/\d+/)[0];let r=rows[rn];if(!r){r=doc.createElementNS(NS,'row');r.setAttribute('r',rn);const after=Object.keys(rows).map(Number).filter(x=>x>rn).sort((a,b)=>a-b)[0];SD.insertBefore(r,after?rows[after]:null);rows[rn]=r}
+      let c=[...r.getElementsByTagNameNS(NS,'c')].find(x=>x.getAttribute('r')===ref);if(!c){c=doc.createElementNS(NS,'c');c.setAttribute('r',ref);const cn=s=>[...s.replace(/\d+/,'')].reduce((a,ch)=>a*26+ch.charCodeAt(0)-64,0);const nx=[...r.getElementsByTagNameNS(NS,'c')].find(x=>cn(x.getAttribute('r'))>cn(ref));r.insertBefore(c,nx||null)}return c};
+    const set=(ref,v)=>{const c=cell(ref);while(c.firstChild)c.removeChild(c.firstChild);c.removeAttribute('t');if(v==null||v==='')return;if(typeof v==='number'){const e=doc.createElementNS(NS,'v');e.textContent=String(v);c.appendChild(e)}else{c.setAttribute('t','inlineStr');const is=doc.createElementNS(NS,'is'),t=doc.createElementNS(NS,'t');t.setAttributeNS('http://www.w3.org/XML/1998/namespace','xml:space','preserve');t.textContent=String(v);is.appendChild(t);c.appendChild(is)}};
+    const {v,avg}=kpYear(k,y,C);const t=C['t'+k];set('R2',dt);
+    for(let i=0;i<12;i++){set(CL(4+i)+'24',t);set(CL(4+i)+'25',v[i]==null?'':Math.round(v[i]*10000)/10000)}set('P24',t);set('P25',avg==null?'':Math.round(avg*10000)/10000);
+    const CA=kpCA(k,y).slice(0,5);for(let i=0;i<5;i++){const r0=29+i*5,c=CA[i];const dd=s=>/^\d{4}-/.test(s||'')?thDate(s):(s||'');set('A'+r0,c?i+1:'');set('B'+r0,c?thDate(c.date):'');set('D'+r0,c?c.problem||'':'');set('G'+r0,c?c.fix||'':'');set('L'+r0,c?dd(c.due):'');set('N'+r0,c?dd(c.done):'');set('P'+r0,c?c.note||'':'')}
+    wr(P,doc);
+    /* อัปเดตค่าที่แคชไว้ในกราฟ */
+    const srel=z.file(P.replace(/([^/]+)$/,'_rels/$1.rels'));if(!srel)continue;const sr=await rd(P.replace(/([^/]+)$/,'_rels/$1.rels'));
+    for(const dr of [...sr.getElementsByTagNameNS(PR,'Relationship')].filter(r=>/drawing$/.test(r.getAttribute('Type')))){const DP=res2(P,dr.getAttribute('Target'));const drr=DP.replace(/([^/]+)$/,'_rels/$1.rels');if(!z.file(drr))continue;const dx=await rd(drr);
+      for(const cr of [...dx.getElementsByTagNameNS(PR,'Relationship')].filter(r=>/chart$/.test(r.getAttribute('Type')))){const CP=res2(DP,cr.getAttribute('Target'));const cd=await rd(CP);
+        for(const ref of [...cd.getElementsByTagNameNS(CN,'numRef')]){const f=ref.getElementsByTagNameNS(CN,'f')[0];if(!f||!/\$25:/.test(f.textContent))continue;const nc=ref.getElementsByTagNameNS(CN,'numCache')[0];if(!nc)continue;[...nc.getElementsByTagNameNS(CN,'pt')].forEach(p=>nc.removeChild(p));
+          v.forEach((x,i)=>{if(x==null)return;const p=cd.createElementNS(CN,'c:pt');p.setAttribute('idx',i);const vv=cd.createElementNS(CN,'c:v');vv.textContent=String(Math.round(x*10000)/10000);p.appendChild(vv);nc.appendChild(p)})}
+        wr(CP,cd)}}}
+  const cp=wb.getElementsByTagNameNS(NS,'calcPr')[0];if(cp)cp.setAttribute('fullCalcOnLoad','1');wr('xl/workbook.xml',wb);
+  return await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+if(!HOME.includes('kpi'))HOME.splice(2,0,'kpi');
+function kpHome(k){if(!DATA.kpi)return '–';const C=kpCfg();const ym=today().slice(0,7);if(k===2&&!DATA.repair)return '–';const v=kpVal(k,ym,C);return v==null?'–':Math.round(v*100)+'%'}
 
 /* ===== Start ===== */
 (async()=>{
