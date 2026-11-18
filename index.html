@@ -177,7 +177,7 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 <script>
 if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
 /* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
-const APP_VERSION='2026-11-18.29';
+const APP_VERSION='2026-11-18.30';
 async function checkUpdate(){
   try{
     if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
@@ -374,7 +374,7 @@ const store={
 };
 function demoSeed(k){const S={contacts:[{no:1,company:'ตัวอย่าง ISP',contact:'คุณเอ',topic:'อินเทอร์เน็ต',phone:'02-123-4567 ต่อ 12 / 081-234-5678',email:'support@example.com'}],wifi:[{no:1,ssid:'DEMO_WIFI',password:'demo-pass-123',place:'สำนักงาน',type:'WiFi',status:'cur'}],software:[{no:1,product:'ตัวอย่างซอฟต์แวร์',serial:'XXXX-YYYY',computer:'PC-01',qty:1,type:'Stand Alone',service:'Perpetual',status:'Active',date:'2025-01-01'}],copier:[{code:'1001',name:'demo',user:'ผู้ใช้ทดสอบ',room:'ห้องทดสอบ',status:'use'}],contracts:[{serial:'SN123',place:'รง.1',end:'2026-12-31'}],assets:[{g:'hw',code:'0001',name:'โน้ตบุ๊กทดสอบ',type:'คอมพิวเตอร์ / โน้ตบุ๊ก / แท็บเล็ต',date:'2024-05-01',cost:25000,qty:1,unit:'Pc',dept:'IT',loc:'ร้านทดสอบ'},{g:'sw',code:'0002',name:'Windows 11',type:'ซอฟต์แวร์',date:'2023-02-01',cost:5900,qty:1,unit:'Pc',dept:'Sales',loc:''}]};return (S[k]||[]).map((r,i)=>({...r,_id:'s'+i}))}
 async function ensure(key){if(DATA[key])return DATA[key];DATA[key]=(await store.load(key))||null;return DATA[key]}
-const canEdit=key=>(MODS[key].kind==='repair'||MODS[key].kind==='vpn')?!!lists[MODS[key].list]:MODS[key].kind==='docs'?(DEMO?isIT:!!canUp[key]):(isIT&&!!lists[MODS[key].list]);
+const canEdit=key=>(MODS[key].kind==='repair'||MODS[key].kind==='vpn')?!!lists[MODS[key].list]:MODS[key].kind==='docs'?(DEMO?isIT:!!canUp[key]):canW(key);
 const roleName=()=>isIT?'ทีม IT · แก้ไขได้ทุกระบบ':canSee?'พนักงาน · ดูได้ทุกระบบ (แก้ไขไม่ได้)':Object.values(canUp).some(Boolean)?'ผู้อัปโหลดเอกสาร':'พนักงาน · ดูเบอร์ติดต่อ IT และเอกสาร';
 
 /* ===== สถานะหน้า ===== */
@@ -390,7 +390,7 @@ function setHeader(){
   if(home||mode!=='ready'){$('tools').innerHTML='';return}
   if(MODS[view]&&MODS[view].kind==='repair'){$('tools').innerHTML=repairTools();return}
   if(MODS[view]&&MODS[view].kind==='vpn'){$('tools').innerHTML=vpnTools();return}if(MODS[view]&&MODS[view].kind==='meter'){$('tools').innerHTML=meterTools();return}if(MODS[view]&&MODS[view].kind==='kpi'){$('tools').innerHTML=kpiTools();return}
-  if(view==='access'){$('tools').innerHTML=`<h1 style="font-size:30px;margin-top:0">สิทธิ์การเข้าถึง</h1><div class="sub">เพิ่ม/ลบคนในแต่ละกลุ่มสิทธิ์ของ IT Portal</div>`;return}
+  if(view==='access'){$('tools').innerHTML=pmTools();return}
   const s=st(view);const nf=Object.values(s.f).reduce((a,v)=>a+v.length,0);
   $('tools').innerHTML=`<h1 style="font-size:30px;margin-top:0">${esc(MODS[mk].title)}</h1>${MODS[view].segs?`<div class="seg">${MODS[view].segs.map(g=>{const n=(DATA[view]||[]).filter(r=>segMatch(MODS[view],r,g)).length;return `<button data-fseg="${esc(g)}" class="${s.seg===g?'on':''}">${esc(g)}${DATA[view]?` <span style="opacity:.55">${n}</span>`:''}</button>`}).join('')}</div>`:''}${(view==='copier'||view==='contracts')?`<div class="seg"><button data-seg="copier" class="${view==='copier'?'on':''}">รหัสผู้ใช้</button><button data-seg="contracts" class="${view==='contracts'?'on':''}">สัญญาเช่า</button><button data-seg="meters">ค่ามิเตอร์</button></div>`:''}
   <div class="sbar"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="ค้นหา" value="${esc(s.q)}" autocomplete="off"></label><button class="fbtn" id="fopen"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M7 9h10M9 12.5h6M11 16h2"/></svg>${nf?`<b>${nf}</b>`:''}</button></div>
@@ -450,7 +450,7 @@ function renderHome(){
   <div class="gf" style="margin-top:14px">สิทธิ์ของคุณ: ${roleName()}</div>`;
 }
 function renderList(){
-  if(view==='access'){renderAccess();return}
+  if(view==='access'){renderPerm();return}
   if(MODS[view].kind==='repair'){renderRepair();return}
   if(MODS[view].kind==='vpn'){renderVpn();return}
   if(MODS[view].kind==='meter'){renderMeter();return}
@@ -1148,7 +1148,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>.mtnum{display:flex;align-i
 .mtzoom{margin-top:10px;background:#fff;border-radius:16px;overflow:auto;max-height:72vh;-webkit-overflow-scrolling:touch}.mtzoom img{display:block;width:100%;height:auto}.mtzb{display:flex;gap:8px;justify-content:center;margin-top:10px}.mtzb button{border:0;background:var(--card);font:inherit;font-size:20px;font-weight:800;width:54px;height:40px;border-radius:999px;color:var(--ink);cursor:pointer}</style>`);
 function meterTools(){return `<h1 style="font-size:30px;margin-top:0">${esc(MODS.copier.title)}</h1><div class="seg"><button data-seg="copier">รหัสผู้ใช้</button><button data-seg="contracts">สัญญาเช่า</button><button data-seg="meters" class="on">ค่ามิเตอร์</button></div>`}
 function renderMeter(){const M=$('main');if(!DATA.contracts){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
-  const L=mtL(),it=isIT,rd=L.map(mtLast);const lastD=rd.map(x=>x[0]&&x[0].date).filter(Boolean).sort().pop();
+  const L=mtL(),it=canEdit('meters'),rd=L.map(mtLast);const lastD=rd.map(x=>x[0]&&x[0].date).filter(Boolean).sort().pop();
   const use=rd.reduce((a,[c,p])=>a+(c&&p?Math.max(0,(+c.total||0)-(+p.total||0)):0),0);
   const card=(r,[c,p])=>{const d=c&&p?(+c.total||0)-(+p.total||0):null;return `<div class="it rpit" role="button" data-mt="${esc(r._id)}">${ico('printer','#5f7690')}<div class="bdw"><div class="bd"><div class="t"><b>${esc(r.place||'-')}</b>${r.model?' · '+esc(r.model):''}</div><div class="m">Serial <span class="mono">${esc(r.serial||'')}</span></div>${c?`<div class="mtnum"><b>${mtN(c.total)}</b><span>รวม · ${thDate(c.date)}</span></div><div class="m">${mtHasC(c)?`สี ${mtN(c.color)} · ขาวดำ ${mtN(c.bw)} · `:''}Copy ${mtN(c.copy)} · Print ${mtN(c.print)}${d!=null?` · <b style="color:#16a34a">+${mtN(d)}</b>`:''}</div>`:'<div class="m">ยังไม่มีค่ามิเตอร์</div>'}</div><span class="r" style="padding-top:3px">${CHEV}</span></div></div>`};
   M.innerHTML=`<div class="sum"><div><b class="num">${L.length}</b>เครื่อง</div><div><b class="num">${lastD?thDate(lastD):'–'}</b>อ่านมิเตอร์ล่าสุด</div></div>
@@ -1157,7 +1157,7 @@ function renderMeter(){const M=$('main');if(!DATA.contracts){M.innerHTML='<div c
   <div class="list">${L.map((r,i)=>card(r,rd[i])).join('')||'<div class="empty">ยังไม่มีเครื่องในสัญญาเช่า</div>'}</div>`;
   if($('mt_read'))$('mt_read').onclick=()=>mtRead();$('mt_xls').onclick=()=>mtXlsx().catch(e=>toast('สร้างไฟล์ไม่สำเร็จ: '+e.message));if($('mt_rep'))$('mt_rep').onclick=()=>mrOpen();
   M.querySelectorAll('[data-mt]').forEach(e=>e.onclick=()=>mtDetail(e.dataset.mt))}
-function mtDetail(id){const r=(DATA.contracts||[]).find(x=>x._id===id);if(!r)return;const it=isIT;const A=mtM(r);const m=A.slice().reverse();const hc=m.some(mtHasC);
+function mtDetail(id){const r=(DATA.contracts||[]).find(x=>x._id===id);if(!r)return;const it=canEdit('meters');const A=mtM(r);const m=A.slice().reverse();const hc=m.some(mtHasC);
   const row=(x,i)=>{const p=m[i+1];const d=p?(+x.total||0)-(+p.total||0):null;const k=A.indexOf(x);return `<tr><td>${thDate(x.date)}</td><td><b>${mtN(x.total)}</b></td><td class="up">${d!=null?'+'+mtN(d):''}</td><td>${mtN(x.copy)}</td><td>${mtN(x.print)}</td><td>${mtN(x.fax)}</td>${hc?`<td>${mtN(x.color)}</td><td>${mtN(x.bw)}</td>`:''}<td>${x.file?`<button data-mf="${k}">ดูไฟล์</button>`:''}${it?`<button class="d" data-md="${k}">ลบ</button>`:''}</td></tr>`};
   const c=m[0];const kv=(k,v)=>v?`<div><span class="k">${k}</span><span class="v">${v}</span></div>`:'';
   openSheet(`${shh('',esc(r.place||'เครื่อง'),'<button class="x b" id="m_x">เสร็จ</button>')}
@@ -1327,7 +1327,7 @@ function mrOpen(){if(!MR_END)MR_END=mrLastYm();const opts=[];const end=today().s
   <div class="vpnote">ยอดแต่ละเดือน = ค่ามิเตอร์รวมที่อ่านในเดือนนั้น ลบ ค่าที่อ่านครั้งล่าสุดของเดือนก่อน · คิดเงิน ขาวดำ/สี ตามราคาที่ตั้งในสัญญาเช่า + VAT 7%</div>
   <div class="fgroup"><h3>ตัวอย่างรายงาน</h3></div><div class="fmprev" id="q_prev"></div>
   <div class="fgroup"><h3>ดาวน์โหลด</h3></div><div class="rpex"><button data-qx="xlsx"><b style="background:#1d6f42">XLS</b>Excel</button><button data-qx="pdf"><b>PDF</b>PDF</button><button data-qx="png"><b style="background:#bf5af2">IMG</b>รูปภาพ</button><button data-qx="print"><b style="background:#636366;font-size:20px">⎙</b>พิมพ์</button></div>
-  ${isIT?`<div class="btnlist"><button id="q_imp">นำเข้าข้อมูลเดิมจากไฟล์ Excel FM-ITM-01-12</button></div><div class="vpnote">ตั้งราคาต่อแผ่น / ขั้นต่ำ / กลุ่ม ของแต่ละเครื่องได้ที่แท็บ “สัญญาเช่า” › แก้ไข</div>`:''}`);
+  ${canEdit('meters')?`<div class="btnlist"><button id="q_imp">นำเข้าข้อมูลเดิมจากไฟล์ Excel FM-ITM-01-12</button></div><div class="vpnote">ตั้งราคาต่อแผ่น / ขั้นต่ำ / กลุ่ม ของแต่ละเครื่องได้ที่แท็บ “สัญญาเช่า” › แก้ไข</div>`:''}`);
   const months=()=>mrMonths(MR_END,MR_N);
   const prev=()=>{const P=$('q_prev');if(!P)return;P.innerHTML=`<div class="fmwrap" style="width:1123px">${mrFormHTML(months())}</div>`;requestAnimationFrame(()=>{const w=P.querySelector('.fmwrap');if(!w)return;const k=P.clientWidth/1123;w.style.transform=`scale(${k})`;w.style.transformOrigin='0 0';P.style.height=Math.ceil(794*k)+'px'})};
   prev();if(!RP_LOGO&&!DEMO)rpTpl().then(()=>{if($('q_prev')&&RP_LOGO)prev()}).catch(()=>{});
@@ -1440,7 +1440,7 @@ function kpiTools(){return `<h1 style="font-size:30px;margin-top:0">KPI แผ�
 function renderKpi(){const M=$('main');if(!DATA.kpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   if(!DATA.repair&&lists['IT Repairs']){ensure('repair').then(()=>{if(view==='kpi')render()}).catch(()=>{})}
   if($('ky_p')){$('ky_p').onclick=()=>{KP_Y--;setHeader();render()};$('ky_n').onclick=()=>{KP_Y++;setHeader();render()}}
-  const C=kpCfg(),it=isIT,cur=today().slice(0,7);
+  const C=kpCfg(),it=canEdit('kpi'),cur=today().slice(0,7);
   const card=k=>{const t=C['t'+k];const {v,avg}=kpYear(k,KP_Y,C);return `<div class="kpcard" data-kp="${k}"><div class="h"><div><b>KPI ${k} · ${KP_NAME[k]}</b><small>เป้าหมาย ≥ ${Math.round(t*100)}%${k===2?` · ทั่วไป ${C.slaN} ชม. / ด่วน ${C.slaU} ชม.`:''}</small></div><div><div class="kpbig ${avg==null?'':avg>=t?'ok':'ng'}">${kpPct(avg)}</div><div class="kpsub">เฉลี่ยทั้งปี</div></div></div>
     <div class="kpchart">${kpSvg(v,t)}</div><div class="kpm">${v.map((x,i)=>`<button data-km="${k}:${i}" class="${x==null?'':x>=t?'ok':'ng'} ${kpYm(KP_Y,i)===cur?'cur':''}"><small>${KP_MON[i]}</small><b>${x==null?'–':Math.round(x*100)+'%'}</b></button>`).join('')}</div></div>`};
   M.innerHTML=`${it?`<button class="mtcta" id="kp_now">${ico('chart','#30d158')}<span><b>บันทึกผล KPI เดือน${TH_FULL[+cur.slice(5)-1]}</b><small>เช็กลิสต์ PM / Update / Backup และตรวจเวลาปิดงานแจ้งซ่อม</small></span>${CHEV}</button>`:''}
@@ -1449,7 +1449,7 @@ function renderKpi(){const M=$('main');if(!DATA.kpi){M.innerHTML='<div class="ce
   M.querySelectorAll('[data-km]').forEach(b=>b.onclick=e=>{e.stopPropagation();const[k,i]=b.dataset.km.split(':');kpMonth(kpYm(KP_Y,+i),+k)});
   M.querySelectorAll('[data-kp]').forEach(c=>c.onclick=()=>kpDetail(+c.dataset.kp))}
 async function kpSave(r,msg){try{await store.save('kpi',r);if(msg)toast(msg);render();return true}catch(e){toast(e.status===403?'ไม่มีสิทธิ์บันทึก (เฉพาะฝ่าย IT)':'บันทึกไม่สำเร็จ: '+e.message);return false}}
-function kpDetail(k){const C=kpCfg(),t=C['t'+k],it=isIT;const {v,avg}=kpYear(k,KP_Y,C);const CA=kpCA(k,KP_Y);
+function kpDetail(k){const C=kpCfg(),t=C['t'+k],it=canEdit('kpi');const {v,avg}=kpYear(k,KP_Y,C);const CA=kpCA(k,KP_Y);
   openSheet(`${shh('',`KPI ${k}`,'<button class="x b" id="d_x">เสร็จ</button>')}
   <div class="sub" style="margin:2px 4px 0">${esc(KP_FULL[k])}</div>
   <div class="kpsum"><div><b>${Math.round(t*100)}%</b><span>เป้าหมาย</span></div><div><b style="color:${avg==null?'inherit':avg>=t?'#16a34a':'#ef4444'}">${kpPct(avg)}</b><span>เฉลี่ยปี ${KP_Y+543}</span></div><div><b>${v.filter(x=>x!=null&&x>=t).length}/${v.filter(x=>x!=null).length}</b><span>เดือนที่ผ่าน</span></div></div>
@@ -1473,7 +1473,7 @@ function kpCAEdit(k,c){const n=!c;c=c||{type:'ca',kpi:k,date:today()};
   $('c_s').onclick=async()=>{const p=$('c_p').value.trim();if(!p){toast('กรอกรายละเอียดของปัญหา');return}const x={...c,date:$('c_d').value||today(),problem:p,fix:$('c_f').value.trim(),due:$('c_u').value||(/^\d{4}-/.test(c.due||'')?'':c.due||''),done:$('c_e').value||(/^\d{4}-/.test(c.done||'')?'':c.done||''),note:$('c_n').value.trim(),by:c.by||me};if(await kpSave(x,'บันทึกแล้ว'))kpDetail(k)};
   if($('c_del'))$('c_del').onclick=async()=>{if(!confirm('ลบบันทึกนี้?'))return;try{await store.del('kpi',c._id);toast('ลบแล้ว');render();kpDetail(k)}catch(e){toast('ลบไม่สำเร็จ: '+e.message)}}}
 async function kpMonth(ym,focus){if(!DATA.repair&&lists['IT Repairs']){openSheet('<div class="center"><div class="spin"></div></div>');try{await ensure('repair')}catch(e){}}
-  const C=kpCfg(),it=isIT,m=kpM(ym)||{type:'m',ym};const mn=TH_FULL[+ym.slice(5)-1]+' '+(+ym.slice(0,4)+543);
+  const C=kpCfg(),it=canEdit('kpi'),m=kpM(ym)||{type:'m',ym};const mn=TH_FULL[+ym.slice(5)-1]+' '+(+ym.slice(0,4)+543);
   let pm=(m.pm&&m.pm.length?m.pm:C.pm.map(t=>({t,d:false}))).map(x=>({...x}));C.pm.forEach(t=>{if(!pm.some(x=>x.t===t))pm.push({t,d:false})});
   const draw=()=>{const J=kpJobs(ym,C);const cnt=J.filter(j=>j.st==='ok'||j.st==='late');const ok=cnt.filter(j=>j.st==='ok').length;const k1=pm.length?pm.filter(x=>x.d).length/pm.length:null;const k2=cnt.length?ok/cnt.length:null;
     openSheet(`${shh(`<button class="x" id="m_x">${it?'ยกเลิก':'ปิด'}</button>`,'KPI '+mn,it?'<button class="x b" id="m_s">บันทึก</button>':'')}
@@ -1597,6 +1597,75 @@ async function kpXlsx(y){await loadLib('https://cdn.jsdelivr.net/npm/jszip@3.10.
 if(!HOME.includes('kpi'))HOME.splice(2,0,'kpi');
 function kpHome(k){if(!DATA.kpi)return '–';const C=kpCfg();const ym=today().slice(0,7);if(k===2&&!DATA.repair)return '–';const v=kpVal(k,ym,C);return v==null?'–':Math.round(v*100)+'%'}
 
+/* ===== สิทธิ์ดู / แก้ไข รายเมนู (ตั้งสิทธิ์จริงที่ลิสต์ SharePoint) ===== */
+const SP_ORIGIN=new URL(CFG.siteUrl).origin,SP_SCOPES=[SP_ORIGIN+'/AllSites.FullControl'];
+const PERM={},PM_MENU=[['repair','แจ้งซ่อม IT'],['vpn','ขอใช้งาน VPN'],['kpi','KPI แผนก IT'],['assets','สินทรัพย์ IT'],['contacts','เบอร์ติดต่อ IT'],['software','ไลเซนส์ซอฟต์แวร์'],['copier','เครื่องถ่ายเอกสาร · รหัสผู้ใช้'],['contracts','เครื่องถ่ายเอกสาร · สัญญาเช่า / มิเตอร์'],['wifi','รหัส WiFi'],['forms','Form Format'],['docs','Support Documents']];
+let PM_OK=null;
+async function spTok(interactive){try{return (await msal.acquireTokenSilent({scopes:SP_SCOPES,account})).accessToken}catch(e){if(interactive){await msal.acquireTokenRedirect({scopes:SP_SCOPES,account,prompt:'consent'});throw new Error('กำลังไปหน้าขอความยินยอม')}throw e}}
+async function sp(path,opt={},interactive){if(DEMO)return spDemo(path,opt);const t=await spTok(interactive);const r=await fetch(CFG.siteUrl+'/_api'+path,{method:opt.method||'GET',headers:{Authorization:'Bearer '+t,Accept:'application/json;odata=nometadata',...(opt.body?{'Content-Type':'application/json;odata=nometadata'}:{})},body:opt.body?JSON.stringify(opt.body):undefined});
+  if(!r.ok){let m='';try{const j=await r.json();m=(j['odata.error']&&j['odata.error'].message&&j['odata.error'].message.value)||j.error_description||''}catch(_){}const e=new Error(m||('SharePoint '+r.status));e.status=r.status;throw e}const tx=await r.text();return tx?JSON.parse(tx):null}
+const pmHas=(bp,bit)=>{if(!bp)return false;const lo=+bp.Low,hi=+bp.High;return bit<32?((lo>>>bit)&1)===1:((hi>>>(bit-32))&1)===1};
+/* โหลดสิทธิ์จริงของผู้ใช้ทุกลิสต์ (เงียบ ๆ ไม่ขึ้นหน้าขอยินยอม) */
+async function spPermInit(){try{const names=[...new Set(PM_MENU.map(([k])=>MODS[k]&&MODS[k].list).filter(n=>n&&lists[n]))];
+  const w=await sp('/web/EffectiveBasePermissions');PM_OK=true;isAdmin=pmHas(w,25)||isIT;
+  await Promise.all(names.map(async n=>{try{const p=await sp(`/web/lists(guid'${lists[n]}')/EffectiveBasePermissions`);PERM[n]={edit:pmHas(p,2)&&pmHas(p,1),read:pmHas(p,0)}}catch(e){}}));render()}catch(e){PM_OK=false}}
+/* แก้ไขได้ไหม (ตามสิทธิ์จริงใน SharePoint ถ้ารู้, ไม่งั้นใช้กฎเดิม) */
+function canW(key){const m=MODS[key];if(!m||!lists[m.list])return false;const p=PERM[m.list];if(p)return p.edit;return isIT}
+/* ---------- หน้า สิทธิ์การเข้าถึง ---------- */
+const PM_RD={};let PM_CACHE={};
+async function pmRoleIds(i){if(PM_RD.r&&PM_RD.c)return PM_RD;const r=await sp('/web/roledefinitions/getbytype(2)',{},i),c=await sp('/web/roledefinitions/getbytype(3)',{},i);PM_RD.r=r.Id;PM_RD.c=c.Id;return PM_RD}
+const pmRole=bs=>{const t=(bs||[]).map(b=>b.RoleTypeKind);return t.includes(5)?'full':t.some(x=>x===3||x===6||x===4)?'edit':t.includes(2)?'view':t.includes(1)?'limited':'other'};
+const PM_RL={full:'ควบคุมทั้งหมด',edit:'แก้ไขได้',view:'ดูได้',limited:'จำกัด',other:'อื่น ๆ'};
+async function pmLoad(n,force){if(PM_CACHE[n]&&!force)return PM_CACHE[n];const id=lists[n];
+  const L=await sp(`/web/lists(guid'${id}')?$select=HasUniqueRoleAssignments,Title`,{},true);const A=await sp(`/web/lists(guid'${id}')/roleassignments?$expand=Member,RoleDefinitionBindings`,{},true);
+  const rows=(A.value||[]).map(a=>({pid:a.PrincipalId,title:a.Member.Title,login:a.Member.LoginName||'',email:a.Member.Email||a.Member.UserPrincipalName||'',type:a.Member.PrincipalType,role:pmRole(a.RoleDefinitionBindings),rds:(a.RoleDefinitionBindings||[]).map(b=>b.Id)})).filter(x=>x.role!=='limited').sort((a,b)=>({full:0,edit:1,view:2,other:3}[a.role]-{full:0,edit:1,view:2,other:3}[b.role])||String(a.title).localeCompare(String(b.title),'th'));
+  return PM_CACHE[n]={unique:L.HasUniqueRoleAssignments,rows}}
+function pmTools(){return `<h1 style="font-size:30px;margin-top:0">สิทธิ์การเข้าถึง</h1><div class="sub">กำหนดว่าใคร “ดู” หรือ “แก้ไข” เมนูไหนได้ · ตั้งสิทธิ์จริงที่ SharePoint</div>`}
+async function renderPerm(){const M=$('main');const ms=PM_MENU.filter(([k])=>MODS[k]&&lists[MODS[k].list]);
+  if(PM_OK===false||PM_OK===null){M.innerHTML=`<div class="mtcta" style="cursor:default;display:block"><b>เปิดใช้งานการกำหนดสิทธิ์</b><p style="margin:6px 0 0;color:var(--sub);font-size:14px;line-height:1.55">ต้องให้ IT Portal ได้รับความยินยอมใช้ SharePoint (AllSites.FullControl) หนึ่งครั้ง โดยผู้ดูแลระบบ (Global Admin) · ในหน้าถัดไปให้ติ๊ก <b>“Consent on behalf of your organization”</b> แล้วกด Accept เพื่อให้พนักงานคนอื่นใช้ได้โดยไม่ต้องขออนุญาตซ้ำ</p><button class="cta" id="pm_go" style="display:block;width:100%;margin-top:14px">ขอความยินยอม</button></div>`;
+    $('pm_go').onclick=async()=>{try{await spTok(true);PM_OK=true;spPermInit();renderPerm()}catch(e){toast(e.message)}};return}
+  M.innerHTML=`<div class="list">${ms.map(([k,t])=>{const n=MODS[k].list;const c=PM_CACHE[n];return `<div class="it rpit" role="button" data-pm="${k}">${ico(MODS[k].icon[0],MODS[k].icon[1])}<div class="bdw"><div class="bd"><div class="t"><b>${esc(t)}</b></div><div class="m">${c?(c.unique?`กำหนดเฉพาะเมนูนี้ · ${c.rows.filter(r=>r.role==='edit').length} แก้ไข · ${c.rows.filter(r=>r.role==='view').length} ดู`:'ใช้สิทธิ์ของไซต์ (ทุกคนในไซต์)'):'แตะเพื่อดูรายชื่อ'}</div></div><span class="r" style="padding-top:3px">${CHEV}</span></div></div>`}).join('')}</div>
+  <div class="vpnote" style="margin-top:14px">“ดู” = Read · “แก้ไข” = Contribute (เพิ่ม/แก้/ลบรายการ) · เจ้าของไซต์ (Owners) ควบคุมทั้งหมดเสมอ · ผู้ใช้ต้องออกจากระบบแล้วเข้าใหม่ (หรือรอ 5–15 นาที) สิทธิ์ใหม่จึงมีผล</div>`;
+  M.querySelectorAll('[data-pm]').forEach(e=>e.onclick=()=>pmMenu(e.dataset.pm));
+  for(const [k] of ms){const n=MODS[k].list;if(!PM_CACHE[n])pmLoad(n).then(()=>{if(view==='access'&&!$('sheet').classList.contains('on'))renderPerm()}).catch(()=>{})}}
+async function pmMenu(k){const n=MODS[k].list,t=(PM_MENU.find(x=>x[0]===k)||[])[1]||n;openSheet(`${shh('',esc(t),'<button class="x b" id="p_x">เสร็จ</button>')}<div class="center"><div class="spin"></div></div>`);$('p_x').onclick=closeSheet;
+  let c;try{c=await pmLoad(n,true)}catch(e){openSheet(`${shh('',esc(t),'<button class="x b" id="p_x">ปิด</button>')}<div class="empty">โหลดสิทธิ์ไม่สำเร็จ: ${esc(e.message)}${e.status===403?'<br>ต้องเป็นเจ้าของไซต์ ITPortal':''}</div>`);$('p_x').onclick=closeSheet;return}
+  const typ=x=>x.type===1?'บัญชี':x.type===8?'กลุ่ม SharePoint':x.type===4?'กลุ่มความปลอดภัย':'กลุ่ม';const meL=(account&&account.username||'').toLowerCase();
+  const row=(x,i)=>{const lock=x.role==='full'||x.role==='other'||(x.email&&x.email.toLowerCase()===meL);return `<div class="kpjob"><div class="t"><div><b>${esc(x.title||'-')}</b><div class="m" style="margin-top:1px">${esc(x.email||typ(x))}${x.email?' · '+typ(x):''}</div></div><span class="kpst ${x.role==='edit'?'ok':x.role==='view'?'open':'ex'}">${PM_RL[x.role]}</span></div>
+    ${lock?'':`<div class="a"><button data-pv="${i}" class="${x.role==='view'?'on':''}">ดู</button><button data-pe="${i}" class="${x.role==='edit'?'on':''}">แก้ไข</button><button data-pr="${i}" style="color:#ef4444">เอาออก</button></div>`}</div>`};
+  openSheet(`${shh('',esc(t),'<button class="x b" id="p_x">เสร็จ</button>')}
+  <div class="sub" style="margin:2px 4px 0">ลิสต์ SharePoint: ${esc(n)} · ${c.unique?'กำหนดสิทธิ์เฉพาะเมนูนี้':'ตอนนี้ใช้สิทธิ์ของไซต์ (ทุกคนที่เข้าไซต์ได้)'}</div>
+  <div class="btnlist" style="margin-top:12px"><button id="p_add" style="font-weight:700">+ เพิ่มบัญชี Microsoft</button></div>
+  <div class="fgroup"><h3>ผู้มีสิทธิ์ (${c.rows.length})</h3></div>${c.rows.map(row).join('')}
+  ${c.unique?'<div class="btnlist"><button class="d" id="p_reset">คืนค่าเป็นสิทธิ์ของไซต์</button></div>':''}
+  <div class="vpnote">${k==='repair'||k==='vpn'?'⚠ เมนูนี้ให้พนักงานทุกคนส่งคำขอได้ (กลุ่ม Everyone / Visitors = แก้ไข) ถ้าเอาออก พนักงานจะส่งคำขอไม่ได้ · ':''}เพิ่มคนครั้งแรก ระบบจะแยกสิทธิ์เมนูนี้ออกจากไซต์โดยคัดลอกสิทธิ์เดิมมาก่อน แล้วค่อยปรับ · ถ้าต้องการให้เฉพาะคนที่กำหนดเท่านั้น ให้ “เอาออก” กลุ่มพนักงานทั้งหมด (เช่น Everyone except external users / Visitors)</div>`);
+  $('p_x').onclick=()=>{closeSheet();renderPerm()};$('p_add').onclick=()=>pmAdd(k);
+  const run=async(fn,msg)=>{try{await fn();PM_CACHE[n]=null;toast(msg);pmMenu(k)}catch(e){toast(e.status===403?'ไม่มีสิทธิ์จัดการ (ต้องเป็นเจ้าของไซต์)':'ไม่สำเร็จ: '+e.message)}};
+  const set=async(x,role)=>{const R=await pmRoleIds(true);await pmBreak(n);for(const rd of x.rds)await sp(`/web/lists(guid'${lists[n]}')/roleassignments/removeroleassignment(principalid=${x.pid},roledefid=${rd})`,{method:'POST'});await sp(`/web/lists(guid'${lists[n]}')/roleassignments/addroleassignment(principalid=${x.pid},roledefid=${role==='edit'?R.c:R.r})`,{method:'POST'})};
+  document.querySelectorAll('[data-pv]').forEach(b=>b.onclick=()=>{const x=c.rows[+b.dataset.pv];if(x.role!=='view')run(()=>set(x,'view'),`${x.title} → ดูได้`)});
+  document.querySelectorAll('[data-pe]').forEach(b=>b.onclick=()=>{const x=c.rows[+b.dataset.pe];if(x.role!=='edit')run(()=>set(x,'edit'),`${x.title} → แก้ไขได้`)});
+  document.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>{const x=c.rows[+b.dataset.pr];if(!confirm(`เอา “${x.title}” ออกจากเมนู ${t}?`))return;run(async()=>{await pmBreak(n);for(const rd of x.rds)await sp(`/web/lists(guid'${lists[n]}')/roleassignments/removeroleassignment(principalid=${x.pid},roledefid=${rd})`,{method:'POST'})},'เอาออกแล้ว')});
+  if($('p_reset'))$('p_reset').onclick=()=>{if(!confirm('คืนค่าเมนูนี้ให้ใช้สิทธิ์ของไซต์? รายชื่อที่กำหนดเฉพาะเมนูนี้จะหายไป'))return;run(()=>sp(`/web/lists(guid'${lists[n]}')/resetroleinheritance`,{method:'POST'}),'คืนค่าแล้ว')}}
+async function pmBreak(n){const c=PM_CACHE[n];if(c&&c.unique)return;const L=await sp(`/web/lists(guid'${lists[n]}')?$select=HasUniqueRoleAssignments`);if(!L.HasUniqueRoleAssignments)await sp(`/web/lists(guid'${lists[n]}')/breakroleinheritance(copyRoleAssignments=true,clearSubscopes=false)`,{method:'POST'});if(c)c.unique=true}
+function pmAdd(k){const n=MODS[k].list;let role='view';
+  openSheet(`${shh('<button class="x" id="a_x">กลับ</button>','เพิ่มบัญชี Microsoft','')}
+  <div class="seg" style="margin-top:6px"><button data-ar="view" class="on">ดูได้</button><button data-ar="edit">แก้ไขได้</button></div>
+  <div class="sbar"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="a_q" type="search" placeholder="พิมพ์ชื่อ หรืออีเมล Microsoft ที่ใช้ login" autocomplete="off"></label></div>
+  <div class="gf" id="a_h">พิมพ์อย่างน้อย 2 ตัวอักษร</div><div class="group" id="a_res" style="margin-top:8px"></div>`);
+  $('a_x').onclick=()=>pmMenu(k);document.querySelectorAll('[data-ar]').forEach(b=>b.onclick=()=>{role=b.dataset.ar;document.querySelectorAll('[data-ar]').forEach(x=>x.classList.toggle('on',x===b))});
+  let tm;$('a_q').oninput=()=>{clearTimeout(tm);tm=setTimeout(async()=>{const q=$('a_q').value.trim().replace(/"/g,'');if(q.length<2){$('a_res').innerHTML='';$('a_h').textContent='พิมพ์อย่างน้อย 2 ตัวอักษร';return}$('a_h').textContent='กำลังค้นหา…';
+    try{let L;if(DEMO)L=[{id:'d'+q,displayName:'ทดสอบ '+q,mail:q+'@unb.co.th',userPrincipalName:q+'@unb.co.th'}];else{const x=await ga(`/users?$search=${encodeURIComponent(`"displayName:${q}" OR "mail:${q}" OR "userPrincipalName:${q}"`)}&$select=id,displayName,mail,userPrincipalName,jobTitle,department&$top=20`,{headers:{ConsistencyLevel:'eventual'}});L=x.value}
+      $('a_h').textContent=L.length?`แตะชื่อเพื่อให้สิทธิ์ “${role==='edit'?'แก้ไขได้':'ดูได้'}”`:'ไม่พบบัญชี';
+      $('a_res').innerHTML=L.map(u=>`<button class="row" data-pick="${esc(u.id)}">${ico('person','#7d8a99')}<span class="rb"><span class="rt" style="display:flex;flex-direction:column"><span>${esc(u.displayName)}</span><small style="color:var(--sub);font-size:13px">${esc(u.userPrincipalName||u.mail||'')}${u.department?' · '+esc(u.department):''}</small></span></span></button>`).join('');
+      $('a_res').querySelectorAll('[data-pick]').forEach(b=>b.onclick=async()=>{const u=L.find(x=>x.id===b.dataset.pick);b.disabled=true;
+        try{const R=await pmRoleIds(true);const e=await sp('/web/ensureuser',{method:'POST',body:{logonName:'i:0#.f|membership|'+(u.userPrincipalName||u.mail)}});await pmBreak(n);
+          const c=await pmLoad(n,true);const ex=c.rows.find(r=>r.pid===e.Id);if(ex)for(const rd of ex.rds)await sp(`/web/lists(guid'${lists[n]}')/roleassignments/removeroleassignment(principalid=${e.Id},roledefid=${rd})`,{method:'POST'});
+          await sp(`/web/lists(guid'${lists[n]}')/roleassignments/addroleassignment(principalid=${e.Id},roledefid=${role==='edit'?R.c:R.r})`,{method:'POST'});PM_CACHE[n]=null;toast(`ให้ ${u.displayName} ${role==='edit'?'แก้ไขได้':'ดูได้'} แล้ว`);pmMenu(k)}
+        catch(err){b.disabled=false;toast(err.status===403?'ไม่มีสิทธิ์จัดการ (ต้องเป็นเจ้าของไซต์)':'ไม่สำเร็จ: '+err.message)}})}
+    catch(e){$('a_h').textContent='ค้นหาไม่สำเร็จ: '+e.message}},350)};setTimeout(()=>$('a_q').focus(),300)}
+/* โหมดทดลอง */
+function spDemo(path,opt){if(/EffectiveBasePermissions/.test(path))return {High:'2147483647',Low:'4294967295'};if(/getbytype\((\d)\)/.test(path))return {Id:+path.match(/getbytype\((\d)\)/)[1]*1000};if(/roleassignments\?/.test(path))return {value:[{PrincipalId:3,Member:{Title:'ITPortal Owners',LoginName:'Owners',PrincipalType:8},RoleDefinitionBindings:[{Id:5000,RoleTypeKind:5}]},{PrincipalId:4,Member:{Title:'Everyone except external users',LoginName:'c:0-.f|rolemanager|spo-grid-all-users',PrincipalType:4},RoleDefinitionBindings:[{Id:2000,RoleTypeKind:2}]}]};if(/ensureuser/.test(path))return {Id:99};if(/HasUniqueRoleAssignments/.test(path))return {HasUniqueRoleAssignments:false};return null}
+
 /* ===== Start ===== */
 (async()=>{
   try{
@@ -1610,7 +1679,7 @@ function kpHome(k){if(!DATA.kpi)return '–';const C=kpCfg();const ym=today().sl
       me=account.name||account.username;
     }
     await store.connect();
-    isAdmin=false;
+    isAdmin=isIT;spPermInit();
     if(DEMO)me=isIT?'ทีม IT (ทดลอง)':'พนักงาน (ทดลอง)';
     $('who').innerHTML=`<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9.5" r="3.4" fill="currentColor"/><path d="M5.5 18.5a7.5 7.5 0 0 1 13 0" fill="currentColor"/></svg>${esc(me.split(' ')[0])}`;
     mode='ready';const k=location.hash.slice(1);
