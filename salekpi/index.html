@@ -316,11 +316,22 @@ function renderSale(){const M=$('main');
   M.querySelectorAll('[data-kp]').forEach(c=>c.onclick=()=>saleDetail(+c.dataset.kp))}
 async function saleSave(r,msg){try{await store.save('salekpi',r);if(msg)toast(msg);render();return true}catch(e){toast(e.status===403?'ไม่มีสิทธิ์บันทึก (เฉพาะฝ่าย IT)':'บันทึกไม่สำเร็จ: '+e.message);return false}}
 /* ---- บันทึกผลรายเดือน (จำนวนครั้ง) ---- */
+let SL_DRAFT=null;
 function saleMonth(ym){const m=slM(ym)||{type:'m',ym};const mn=TH_FULL[+ym.slice(5)-1]+' '+(+ym.slice(0,4)+543);
+  const dr=SL_DRAFT&&SL_DRAFT.ym===ym?SL_DRAFT:null;SL_DRAFT=null;const cv=n=>dr?dr['c'+n]:(m['c'+n]==null?'':m['c'+n]);
+  const caM=k=>(DATA.salekpi||[]).filter(r=>r.type==='ca'&&+r.kpi===k&&String(r.date||'').slice(0,7)===ym).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const dd=s=>isoOnly(s)?thDate(s):esc(s||'');
+  const caList=k=>{const L=caM(k);return `<div class="fgroup"><h3>การวิเคราะห์ผล และการแก้ไขป้องกัน / พัฒนาอย่างต่อเนื่อง</h3></div>
+    ${L.map((c,i)=>`<div class="kpca" data-mca="${esc(c._id)}" data-k="${k}"><div class="d">${i+1}. ${thDate(c.date)}${c.due?' · กำหนดเสร็จ '+dd(c.due):''}${c.done?' · เสร็จจริง '+dd(c.done):''}</div><p>${esc(c.problem||'')}</p>${c.fix?`<p class="f">→ ${esc(c.fix)}</p>`:''}${c.note?`<p style="color:var(--sub);font-size:13px">หมายเหตุ: ${esc(c.note)}</p>`:''}</div>`).join('')||'<div class="vpnote">ยังไม่มีบันทึกในเดือนนี้</div>'}
+    ${isIT?`<div class="btnlist" style="margin-top:10px"><button data-madd="${k}">+ เพิ่มปัญหา / แนวทางแก้ไข KPI ${k}</button></div>`:''}`};
   openSheet(`${shh('<button class="x" id="sm_x">'+(isIT?'ยกเลิก':'ปิด')+'</button>','KPI '+mn,isIT?'<button class="x b" id="sm_s">บันทึก</button>':'')}
-  ${SL_DEF.map(d=>`<div class="fgroup"><h3>KPI ${d.n} · ${esc(d.name)} (เป้า ≤ ${d.target})</h3></div><div class="formg"><div class="f"><label>จำนวนครั้งที่ผิดพลาด</label><input id="sm_c${d.n}" inputmode="numeric" value="${m['c'+d.n]==null?'':m['c'+d.n]}" ${isIT?'':'disabled'}></div></div>`).join('')}
-  <div class="formg"><div class="f area"><label>หมายเหตุ</label><textarea id="sm_n" ${isIT?'':'disabled'}>${esc(m.note||'')}</textarea></div></div>`);
+  ${SL_DEF.map(d=>`<div class="fgroup"><h3>KPI ${d.n} · ${esc(d.name)} (เป้า ≤ ${d.target})</h3></div><div class="formg"><div class="f"><label>จำนวนครั้งที่ผิดพลาด</label><input id="sm_c${d.n}" inputmode="numeric" value="${esc(cv(d.n))}" ${isIT?'':'disabled'}></div></div>${caList(d.n)}`).join('')}
+  <div class="fgroup"><h3>หมายเหตุของเดือน</h3></div><div class="formg"><div class="f area"><label>หมายเหตุ</label><textarea id="sm_n" ${isIT?'':'disabled'}>${esc(dr?dr.note:(m.note||''))}</textarea></div></div>`);
   $('sm_x').onclick=closeSheet;
+  const keep=()=>{if(isIT)SL_DRAFT={ym,c1:$('sm_c1').value,c2:$('sm_c2').value,note:$('sm_n').value}};
+  const back=()=>saleMonth(ym);const defDate=ym===today().slice(0,7)?today():ym+'-01';
+  document.querySelectorAll('[data-madd]').forEach(b=>b.onclick=()=>{keep();saleCAEdit(+b.dataset.madd,null,back,defDate)});
+  document.querySelectorAll('[data-mca]').forEach(e=>e.onclick=()=>{if(!isIT)return;keep();saleCAEdit(+e.dataset.k,(DATA.salekpi||[]).find(x=>x._id===e.dataset.mca),back)});
   if($('sm_s'))$('sm_s').onclick=async()=>{const val=id=>{const s=$(id).value.trim();if(s==='')return '';const n=parseInt(s,10);return isNaN(n)||n<0?null:n};const c1=val('sm_c1'),c2=val('sm_c2');
     if(c1===null||c2===null){toast('กรอกจำนวนครั้งเป็นตัวเลข 0 ขึ้นไป');return}
     if(await saleSave({...m,c1,c2,note:$('sm_n').value.trim(),by:me,at:nowIso()},'บันทึก KPI '+mn+' แล้ว'))closeSheet()}}
@@ -335,21 +346,25 @@ function saleDetail(k){const d=SL_DEF[k-1];const {v,avg,sum}=slYear(k,SL_Y);cons
   ${isIT?'<div class="btnlist"><button id="sd_add">เพิ่มการวิเคราะห์ / แก้ไขป้องกัน</button></div>':''}`);
   $('sd_x').onclick=closeSheet;if($('sd_add'))$('sd_add').onclick=()=>saleCAEdit(k,null);
   document.querySelectorAll('[data-sca]').forEach(e=>e.onclick=()=>{if(isIT)saleCAEdit(k,(DATA.salekpi||[]).find(x=>x._id===e.dataset.sca))})}
-function saleCAEdit(k,c){const n=!c;c=c||{type:'ca',kpi:k,date:today()};
+function saleCAEdit(k,c,back,defDate){const n=!c;c=c||{type:'ca',kpi:k,date:defDate||today()};back=back||(()=>saleDetail(k));const na=String(c.done||'').trim().toUpperCase()==='N/A';
   openSheet(`${shh('<button class="x" id="sc_x">ยกเลิก</button>',n?'เพิ่มบันทึก':'แก้ไขบันทึก','<button class="x b" id="sc_s">บันทึก</button>')}
   <div class="sub" style="margin:2px 4px 0">KPI ${k} · ${esc(SL_DEF[k-1].name)}</div>
-  <div class="formg" style="margin-top:12px"><div class="f"><label>วันที่</label><input type="date" id="sc_d" value="${esc(isoOnly(c.date))}"></div>
+  <div class="fgroup"><h3>การวิเคราะห์ผล และการแก้ไขป้องกัน / พัฒนาอย่างต่อเนื่อง</h3></div>
+  <div class="formg"><div class="f"><label>วันที่</label><input type="date" id="sc_d" value="${esc(isoOnly(c.date))}"></div>
   <div class="f area"><label>รายละเอียดของปัญหา *</label><textarea id="sc_p">${esc(c.problem||'')}</textarea></div>
   <div class="f area"><label>แนวทางการแก้ไข / พัฒนา</label><textarea id="sc_f">${esc(c.fix||'')}</textarea></div>
   <div class="f"><label>กำหนดวันแล้วเสร็จ</label><input type="date" id="sc_u" value="${esc(isoOnly(c.due))}"></div>
-  <div class="f"><label>วันที่เสร็จจริง</label><input type="date" id="sc_e" value="${esc(isoOnly(c.done))}"></div>
+  <div class="f"><label>วันที่เสร็จจริง</label><input type="date" id="sc_e" value="${esc(isoOnly(c.done))}" ${na?'disabled':''}></div>
+  <div class="f"><label>ไม่เสร็จ / ไม่มี</label><label style="width:auto;display:flex;align-items:center;gap:8px;color:var(--ink)"><input type="checkbox" id="sc_na" style="width:20px;flex:none" ${na?'checked':''}>ใส่ N/A</label></div>
   <div class="f area"><label>หมายเหตุ</label><textarea id="sc_n">${esc(c.note||'')}</textarea></div></div>
   ${n?'':'<div class="btnlist"><button class="d" id="sc_del">ลบบันทึกนี้</button></div>'}`);
-  $('sc_x').onclick=()=>saleDetail(k);
+  $('sc_na').onchange=()=>{$('sc_e').disabled=$('sc_na').checked;if($('sc_na').checked)$('sc_e').value=''};
+  $('sc_x').onclick=back;
   $('sc_s').onclick=async()=>{const p=$('sc_p').value.trim();if(!p){toast('กรอกรายละเอียดของปัญหา');return}
-    const x={...c,date:$('sc_d').value||today(),problem:p,fix:$('sc_f').value.trim(),due:$('sc_u').value||(isoOnly(c.due)?'':c.due||''),done:$('sc_e').value||(isoOnly(c.done)?'':c.done||''),note:$('sc_n').value.trim(),by:c.by||me};
-    if(await saleSave(x,'บันทึกแล้ว'))saleDetail(k)};
-  if($('sc_del'))$('sc_del').onclick=async()=>{if(!confirm('ลบบันทึกนี้?'))return;try{await store.del('salekpi',c._id);toast('ลบแล้ว');render();saleDetail(k)}catch(e){toast('ลบไม่สำเร็จ: '+e.message)}}}
+    const done=$('sc_na').checked?'N/A':($('sc_e').value||'');
+    const x={...c,date:$('sc_d').value||today(),problem:p,fix:$('sc_f').value.trim(),due:$('sc_u').value||(isoOnly(c.due)?'':c.due||''),done,note:$('sc_n').value.trim(),by:c.by||me};
+    if(await saleSave(x,'บันทึกแล้ว'))back()};
+  if($('sc_del'))$('sc_del').onclick=async()=>{if(!confirm('ลบบันทึกนี้?'))return;try{await store.del('salekpi',c._id);toast('ลบแล้ว');render();back()}catch(e){toast('ลบไม่สำเร็จ: '+e.message)}}}
 /* ---- รายงาน (A4 แนวตั้ง) ---- */
 function saleFormHTML(k,y){const d=SL_DEF[k-1],t=d.target;const {v,avg}=slYear(k,y);const CA=slCA(k,y).slice(0,5);while(CA.length<5)CA.push(null);
   const svg=slSvg(v,t,700,215).replace(/#30d158|#ff453a/g,'#4472c4');
