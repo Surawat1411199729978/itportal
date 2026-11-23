@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#f5f6f8">
 <title>KPI Sale Center · UNB</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.3/lib/msal-browser.min.js"></script>
 <style>
 :root{--bg:#f2f2f7;--card:#fff;--ink:#000;--sub:#6e6e73;--faint:#8e8e93;--line:rgba(60,60,67,.18);--fill:rgba(118,118,128,.12);--acc:#007aff;--acc-soft:rgba(0,122,255,.12);
@@ -183,6 +183,127 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 .rqd{margin-top:20px}.rqd>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:46px;padding:0 16px;background:var(--card);border-radius:12px;font-size:16px;font-weight:600}.rqd>summary::-webkit-details-marker{display:none}.rqd>summary small{flex:1;font-size:13px;font-weight:400;color:var(--sub)}.rqd>summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--sub);border-bottom:2px solid var(--sub);transform:rotate(45deg);margin:-4px 4px 0}.rqd[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
 .f .rqv{flex:1;min-width:0;padding:11px 0;font-size:16px;overflow-wrap:anywhere}.rqreq{color:var(--bad)}
 </style>
+<style id="calm">
+/* ===== Calm theme: tokens ===== */
+:root,:root[data-x]{color-scheme:light;
+ --bg:#f5f4f1;--card:#fff;--sheet:#f5f4f1;--k2:#f5f4f1;--fill:#eceae5;
+ --ink:#2b2f31;--sub:#5d6366;--faint:#80868a;--line:#e3e0da;--line2:#d4d0c8;
+ --acc:#2e6b67;--acc-ink:#24564f;--acc-soft:#e4efed;
+ --ok:#2f7a51;--ok-soft:#e5f1e9;--warn:#8f5d0a;--warn-soft:#f8eedb;--bad:#a8432f;--bad-soft:#f6e5e0;
+ --r1:6px;--r2:10px;--r3:14px;--sh:0 1px 2px rgba(43,40,32,.05);
+ --f:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#f5f4f1;--card:#fff;--sheet:#f5f4f1;--k2:#f5f4f1;--fill:#eceae5;--ink:#2b2f31;--sub:#5d6366;--faint:#80868a;--line:#e3e0da;--acc:#2e6b67;--acc-soft:#e4efed;--ok:#2f7a51;--ok-soft:#e5f1e9;--warn:#8f5d0a;--warn-soft:#f8eedb;--bad:#a8432f;--bad-soft:#f6e5e0}}
+html,body{background:var(--bg)!important;color:var(--ink);font-family:var(--f)!important;font-size:16px;line-height:1.55;letter-spacing:0!important;font-feature-settings:"tnum" 1}
+h1,h2,h3,.wt,.wn{font-family:var(--f)!important;letter-spacing:0!important}
+button,input,select,textarea{font-family:var(--f)}
+:focus-visible{outline:2px solid var(--acc)!important;outline-offset:2px;border-radius:var(--r1)}
+/* ===== shell ===== */
+header{background:var(--bg)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+header.sc{border-bottom:1px solid var(--line)!important}
+.hin,main{max-width:880px}
+main{padding-left:20px;padding-right:20px}.hin{padding:0 20px}
+.who{color:var(--sub)!important;font-size:14px;font-weight:500!important}
+/* section tabs */
+#tools>.seg{display:flex;gap:4px;background:none!important;border-radius:0!important;padding:0!important;margin:6px 0 22px!important;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+#tools>.seg::-webkit-scrollbar{display:none}
+#tools>.seg button{flex:0 0 auto!important;background:none!important;border-radius:0!important;padding:12px 10px 11px!important;margin-bottom:-1px;font-size:15px!important;font-weight:500!important;color:var(--sub)!important;border-bottom:2px solid transparent!important;box-shadow:none!important;transition:color .15s,border-color .15s}
+#tools>.seg button:hover{color:var(--ink)!important}
+#tools>.seg button.on{color:var(--ink)!important;font-weight:600!important;border-bottom-color:var(--acc)!important}
+@media(max-width:480px){#tools>.seg{gap:0;margin-bottom:18px!important}#tools>.seg button{flex:1 0 auto!important;padding:12px 6px 11px!important;font-size:14px!important}}
+/* page heading */
+#tools h1{font-size:30px!important;font-weight:600!important;line-height:1.25!important;margin:0 0 6px!important;color:var(--ink)}
+@media(min-width:720px){#tools h1{font-size:34px!important}}
+#tools .sub{font-size:15px!important;color:var(--sub);margin:0 0 4px!important;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;line-height:1.5}
+.doc{display:inline-block;font-size:12.5px;font-weight:500;color:var(--acc-ink);border:1px solid #c5dbd8;background:var(--acc-soft);border-radius:var(--r1);padding:1px 7px;letter-spacing:.02em;line-height:1.6}
+.kpyr{margin:10px 0 2px!important;gap:6px!important}
+.kpyr button{width:34px!important;height:34px!important;border-radius:var(--r2)!important;background:var(--card)!important;border:1px solid var(--line)!important;font-size:17px!important;font-weight:500!important;color:var(--ink)!important}
+.kpyr b{font-weight:600;font-size:16px!important;min-width:84px!important}
+/* ===== primary action (was a big card) ===== */
+.mtcta{display:inline-flex!important;width:auto!important;align-items:center;gap:8px!important;background:var(--acc)!important;color:#fff!important;border-radius:var(--r2)!important;padding:11px 18px 11px 15px!important;margin:0 0 22px!important;box-shadow:var(--sh);transition:background .15s}
+.mtcta:hover{background:var(--acc-ink)!important}
+.mtcta>span[style*="font-size:24px"],.mtcta>.ic,.mtcta small,.mtcta .chev{display:none!important}
+.mtcta::before{content:"";width:16px;height:16px;flex:none;background:currentColor;-webkit-mask:linear-gradient(#000 0 0) center/16px 2px no-repeat,linear-gradient(#000 0 0) center/2px 16px no-repeat;mask:linear-gradient(#000 0 0) center/16px 2px no-repeat,linear-gradient(#000 0 0) center/2px 16px no-repeat}
+#sl_now.mtcta::before{display:none}
+.mtcta b{font-size:15.5px!important;font-weight:600!important}
+@media(max-width:480px){.mtcta{display:flex!important;width:100%!important;justify-content:center}}
+/* ===== surfaces ===== */
+.kpca,.kpcard,.formg,.btnlist,.list,.group,.kv,.opts,.kpjob,.rqd>summary,.kpsum>div,.kpchk{background:var(--card)!important;border:1px solid var(--line)!important;border-radius:var(--r3)!important;box-shadow:var(--sh)!important}
+.kpca{padding:14px 18px!important;margin-top:10px!important;transition:border-color .15s}
+.kpca:hover{border-color:var(--line2)!important}
+.kpca .d{font-size:13px!important;color:var(--sub)!important;font-weight:500!important}
+.kpca p{font-size:15px!important;line-height:1.55!important;margin-top:4px!important}
+.kpca p[style*="font-weight:700"]{font-weight:600!important;font-size:16.5px!important;color:var(--ink)}
+.fgroup h3{font-size:14px!important;font-weight:600!important;color:var(--sub)!important;text-transform:none!important;margin:26px 4px 8px!important;letter-spacing:0}
+.empty{color:var(--sub)!important;font-size:15px;padding:48px 16px!important;border:1px dashed var(--line2);border-radius:var(--r3);margin-top:8px}
+.center{color:var(--sub)}
+.spin{border-color:var(--line)!important;border-top-color:var(--acc)!important}
+.vpnote{font-size:13px!important;color:var(--sub)!important;margin:8px 4px 0!important}
+/* forms */
+.f{min-height:50px}
+.f+.f::before{border-top:1px solid var(--line)!important}
+.f label{color:var(--sub)!important;font-size:14.5px!important}
+.f input,.f select,.f textarea{font-size:16px!important;color:var(--ink)}
+.f input::placeholder,.f textarea::placeholder{color:#a3a8ab}
+.f:focus-within{box-shadow:inset 3px 0 0 var(--acc)}
+.f:focus-within label{color:var(--acc-ink)!important}
+.kpjob input,.kpjob select{border:1px solid transparent!important}
+.kpjob input:focus,.kpjob select:focus{border-color:var(--acc)!important;outline:none}
+.chip{border-radius:var(--r2)!important;padding:8px 13px!important;font-size:14.5px!important;font-weight:500!important;background:var(--card)!important;color:var(--ink)!important;border:1px solid var(--line2)!important}
+.chip.on{background:var(--acc-soft)!important;color:var(--acc-ink)!important;border-color:var(--acc)!important;font-weight:600!important}
+/* buttons: primary / secondary / tertiary */
+.cta{background:var(--acc)!important;color:#fff!important;border-radius:var(--r2)!important;padding:12px 22px!important;font-size:16px!important;font-weight:600!important}
+.shh{position:sticky;top:-6px;z-index:3;background:var(--sheet);margin:0 -16px 8px;padding:4px 16px;border-bottom:1px solid var(--line)}
+.shh .x{color:var(--ink)!important;font-weight:500!important;font-size:16px!important;padding:8px 4px}
+.shh .x.b{color:#fff!important;background:var(--acc);border-radius:var(--r2);padding:7px 16px!important;font-weight:600!important}
+.shh .x.b:disabled{opacity:.55}
+.shh .tt{font-size:16px!important;font-weight:600!important}
+.btnlist button{color:var(--acc-ink)!important;font-weight:500!important;font-size:16px!important;padding:13px 16px!important;transition:background .15s}
+.btnlist button:hover{background:var(--acc-soft)}
+.btnlist button+button::before{border-top:1px solid var(--line)!important}
+.btnlist .d{color:var(--bad)!important}
+.btnlist .d:hover{background:var(--bad-soft)}
+.sortsel{border:1px solid var(--line2)!important;background:var(--card)!important;color:var(--ink)!important;border-radius:var(--r2)!important;padding:8px 14px!important;font-size:14.5px!important;font-weight:500!important}
+.toolbar{flex-wrap:wrap;gap:10px 12px;align-items:center}.toolbar .tl{display:flex;gap:8px;margin-left:auto}.toolbar .sortsel{white-space:nowrap}
+.toolbar .cnt{font-size:13px!important;font-weight:500!important;color:var(--sub)!important}
+.rpex{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))!important;gap:8px!important}
+.rpex button{flex-direction:row!important;justify-content:flex-start!important;min-height:50px!important;padding:8px 14px!important;gap:10px!important;background:var(--card)!important;border:1px solid var(--line2)!important;border-radius:var(--r2)!important;font-size:15px!important;font-weight:500!important}
+.rpex button:hover{border-color:var(--acc)}
+.rpex b{width:32px!important;height:32px!important;border-radius:var(--r1)!important;background:var(--acc-soft)!important;color:var(--acc-ink)!important;font-size:10.5px!important;font-weight:600!important}
+/* badges: soft colour + words */
+.badge{border-radius:var(--r1)!important;padding:2px 8px!important;font-size:13px!important;font-weight:600!important;line-height:1.5}
+.b-ok{background:var(--ok-soft)!important;color:var(--ok)!important}
+.b-warn{background:var(--warn-soft)!important;color:var(--warn)!important}
+.b-bad{background:var(--bad-soft)!important;color:var(--bad)!important}
+.b-mute{background:var(--fill)!important;color:var(--sub)!important}
+.rqreq{color:var(--bad)!important}
+/* sheet + toast */
+html .sheet{background:var(--sheet)!important;border-radius:16px 16px 0 0!important;box-shadow:0 -8px 30px rgba(43,40,32,.12)}
+.grab{background:var(--line2)!important}
+.scrim.on{background:rgba(35,38,40,.32)}
+.toast{background:var(--ink)!important;color:#fff!important;border-radius:var(--r2)!important;font-weight:500!important;box-shadow:0 6px 20px rgba(43,40,32,.18)!important}
+.fmprev{border-radius:var(--r2)!important;border:1px solid var(--line)!important}
+.rqd>summary{font-weight:600!important;font-size:15.5px!important}
+.rqd>summary small{color:var(--sub)!important}
+/* ===== KPI ===== */
+.kpcard{padding:20px 20px 16px!important;margin-top:14px!important}
+.kpcard .h b{font-size:16.5px!important;font-weight:600!important;line-height:1.45}
+.kpcard .h small{font-size:13.5px!important;font-weight:400!important;color:var(--sub)!important}
+.kpbig{font-size:38px!important;font-weight:600!important;letter-spacing:-.01em!important;text-align:right;font-variant-numeric:tabular-nums}
+.kpbig.ok{color:var(--ok)!important}.kpbig.ng{color:var(--bad)!important}
+.kpsub{font-size:12.5px!important;color:var(--sub)!important}
+.kpsub .st{display:block;font-weight:600;font-size:13px}
+.kpsub .st.ok{color:var(--ok)}.kpsub .st.ng{color:var(--bad)}
+.kpm{gap:6px!important;margin-top:14px!important}
+.kpm button{background:var(--bg)!important;border-radius:var(--r1)!important;padding:7px 2px 6px!important;border:1px solid transparent!important}
+.kpm button small{font-weight:500!important;color:var(--sub)!important}
+.kpm button b{font-size:14.5px!important;font-weight:600!important;font-variant-numeric:tabular-nums}
+.kpm button.ok b{color:var(--ok)!important}.kpm button.ng b{color:var(--bad)!important}
+.kpm button.cur{box-shadow:none!important;border-color:var(--acc)!important;background:var(--card)!important}
+.kpm button:hover{border-color:var(--line2)!important}
+@media(max-width:480px){.kpcard .h{flex-direction:column}.kpcard .h>div:last-child{display:flex;align-items:baseline;gap:10px}.kpbig{text-align:left}.kpsub{text-align:left!important}}
+.kpst{border-radius:var(--r1)!important;font-weight:600!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
 </head>
 <body>
 <header id="hdr"><div class="hin">
@@ -297,20 +418,21 @@ const isoOnly=s=>/^\d{4}-/.test(s||'')?s:'';
 const slT=v=>v==null?'':v instanceof Date?v:typeof v==='object'?(v.richText?v.richText.map(x=>x.text).join(''):(v.result!=null?v.result:(v.text!=null?v.text:''))):v;
 const slDS=v=>{if(v instanceof Date){let yy=v.getUTCFullYear();if(yy>2400)yy-=543;return yy+'-'+String(v.getUTCMonth()+1).padStart(2,'0')+'-'+String(v.getUTCDate()).padStart(2,'0')}return String(v==null?'':v).trim()};
 function saleHome(k){if(!DATA.salekpi)return '–';const m=slM(today().slice(0,7));const v=m?m['c'+k]:null;return v==null||v===''?'–':String(v)}
+const slDim=()=>innerWidth<560?[380,190]:[640,200];
 function slSvg(v,t,w=640,h=200){const P=26,bw=(w-P-6)/12;const mx=Math.max(t,...v.filter(x=>x!=null),1)+1;const y=x=>h-22-(Math.min(x,mx)/mx)*(h-40);let s=`<svg viewBox="0 0 ${w} ${h}">`;
-  for(let g=0;g<=mx;g++){s+=`<line x1="${P}" x2="${w-4}" y1="${y(g)}" y2="${y(g)}" stroke="#8e8e93" stroke-opacity=".18"/><text x="${P-4}" y="${y(g)+3.5}" font-size="9" fill="#8e8e93" text-anchor="end">${g}</text>`}
-  v.forEach((x,i)=>{const cx=P+bw*i+bw/2;if(x!=null){const ok=x<=t;s+=`<rect x="${cx-bw*.3}" y="${y(x)}" width="${bw*.6}" height="${h-22-y(x)}" rx="3" fill="${ok?'#30d158':'#ff453a'}"/><text x="${cx}" y="${y(x)-4}" font-size="10" font-weight="700" text-anchor="middle" fill="currentColor">${x}</text>`}
-    s+=`<text x="${cx}" y="${h-7}" font-size="10" text-anchor="middle" fill="#8e8e93">${KP_MON[i]}</text>`});
-  s+=`<line x1="${P}" x2="${w-4}" y1="${y(t)}" y2="${y(t)}" stroke="#ff9f0a" stroke-width="1.6" stroke-dasharray="5 4"/><text x="${w-6}" y="${y(t)-4}" font-size="10" font-weight="700" fill="#ff9f0a" text-anchor="end">เป้า ≤ ${t}</text></svg>`;return s}
-function saleTools(){return `<h1 style="font-size:30px;margin-top:0">KPI Sale Center</h1><div class="kpyr"><button id="sy_p">‹</button><b>ปี ${SL_Y+543}</b><button id="sy_n">›</button></div>`}
+  const stp=Math.max(1,Math.ceil(mx/4));for(let g=0;g<=mx;g+=stp){s+=`<line x1="${P}" x2="${w-4}" y1="${y(g)}" y2="${y(g)}" style="stroke:var(--line)"/><text x="${P-6}" y="${y(g)+3.5}" font-size="10" style="fill:var(--faint)" text-anchor="end">${g}</text>`}
+  v.forEach((x,i)=>{const cx=P+bw*i+bw/2;if(x!=null){const ok=x<=t;s+=`<rect x="${cx-bw*.3}" y="${y(x)}" width="${bw*.6}" height="${h-22-y(x)}" rx="3" style="fill:${ok?'var(--acc)':'var(--bad)'}" fill-opacity="${ok?1:.85}"/><text x="${cx}" y="${y(x)-5}" font-size="11" font-weight="600" text-anchor="middle" style="fill:var(--ink)">${x}</text>`}
+    s+=`<text x="${cx}" y="${h-7}" font-size="10" text-anchor="middle" style="fill:var(--sub)">${KP_MON[i]}</text>`});
+  s+=`<line x1="${P}" x2="${w-4}" y1="${y(t)}" y2="${y(t)}" style="stroke:var(--ink)" stroke-opacity=".55" stroke-width="1.2" stroke-dasharray="4 4"/><text x="${w-6}" y="${y(t)-5}" font-size="10.5" font-weight="600" style="fill:var(--sub)" text-anchor="end">เป้า ≤ ${t}</text></svg>`;return s}
+function saleTools(){return `<h1 style="font-size:30px;margin-top:0">KPI Sale Center</h1><div class="sub"><span class="doc">FM-QMS-01-03</span>จำนวนครั้งที่ผิดพลาดต่อเดือน ยิ่งน้อยยิ่งดี</div><div class="kpyr"><button id="sy_p">‹</button><b>ปี ${SL_Y+543}</b><button id="sy_n">›</button></div>`}
 function renderSale(){const M=$('main');
   if(!lists[MODS.salekpi.list]){M.innerHTML='<div class="empty">ยังไม่มี list "Sale KPI" ใน SharePoint</div>';return}
   if(!DATA.salekpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   if($('sy_p')){$('sy_p').onclick=()=>{SL_Y--;setHeader();render()};$('sy_n').onclick=()=>{SL_Y++;setHeader();render()}}
   const cur=today().slice(0,7);
   const card=k=>{const d=SL_DEF[k-1];const {v,avg,sum}=slYear(k,SL_Y);
-    return `<div class="kpcard" data-kp="${k}"><div class="h"><div><b>KPI ${k} · ${d.name}</b><small>เป้าหมาย ≤ ${d.target} ครั้ง/เดือน</small></div><div><div class="kpbig ${avg==null?'':avg<=d.target?'ok':'ng'}">${avg==null?'–':avg.toFixed(1)}</div><div class="kpsub">เฉลี่ยครั้ง/เดือน · รวม ${sum}</div></div></div>
-    <div class="kpchart">${slSvg(v,d.target)}</div><div class="kpm">${v.map((x,i)=>`<button data-sm="${k}:${i}" class="${x==null?'':x<=d.target?'ok':'ng'} ${kpYm(SL_Y,i)===cur?'cur':''}"><small>${KP_MON[i]}</small><b>${x==null?'–':x}</b></button>`).join('')}</div></div>`};
+    return `<div class="kpcard" data-kp="${k}"><div class="h"><div><b>KPI ${k} · ${d.name}</b><small>เป้าหมาย ≤ ${d.target} ครั้ง/เดือน</small></div><div><div class="kpbig ${avg==null?'':avg<=d.target?'ok':'ng'}">${avg==null?'–':avg.toFixed(1)}</div><div class="kpsub">${avg==null?'':`<span class="st ${avg<=d.target?'ok':'ng'}">${avg<=d.target?'ผ่านเป้า':'เกินเป้า'}</span>`}เฉลี่ยครั้ง/เดือน · รวม ${sum}</div></div></div>
+    <div class="kpchart">${slSvg(v,d.target,...slDim())}</div><div class="kpm">${v.map((x,i)=>`<button data-sm="${k}:${i}" class="${x==null?'':x<=d.target?'ok':'ng'} ${kpYm(SL_Y,i)===cur?'cur':''}"><small>${KP_MON[i]}</small><b>${x==null?'–':x}</b></button>`).join('')}</div></div>`};
   M.innerHTML=`${isIT?`<button class="mtcta" id="sl_now">${ico('chart','#ff9f0a')}<span><b>บันทึกผล KPI เดือน${TH_FULL[+cur.slice(5)-1]}</b><small>กรอกจำนวนครั้งที่ผิดพลาดของทั้ง 2 KPI</small></span>${CHEV}</button>`:''}
   ${card(1)}${card(2)}<div class="toolbar" style="margin-top:16px"><span class="cnt">FM-QMS-01-03 · Sale Center</span><span class="tl"><button class="sortsel" id="sl_rep">รายงาน</button>${isIT?'<button class="sortsel" id="sl_imp">นำเข้า Excel</button>':''}</span></div>`;
   if($('sl_now'))$('sl_now').onclick=()=>saleMonth(cur);
@@ -343,7 +465,7 @@ function saleDetail(k){const d=SL_DEF[k-1];const {v,avg,sum}=slYear(k,SL_Y);cons
   openSheet(`${shh('',`KPI ${k}`,'<button class="x b" id="sd_x">เสร็จ</button>')}
   <div class="sub" style="margin:2px 4px 0">${esc(d.full)}</div>
   <div class="kpsum"><div><b>≤ ${d.target}</b><span>เป้าหมาย ครั้ง/เดือน</span></div><div><b style="color:${avg==null?'inherit':avg<=d.target?'#16a34a':'#ef4444'}">${avg==null?'–':avg.toFixed(1)}</b><span>เฉลี่ยปี ${SL_Y+543}</span></div><div><b>${v.filter(x=>x!=null&&x<=d.target).length}/${v.filter(x=>x!=null).length}</b><span>เดือนที่ผ่าน (รวม ${sum} ครั้ง)</span></div></div>
-  <div class="kpcard" style="cursor:default">${slSvg(v,d.target)}</div>
+  <div class="kpcard" style="cursor:default">${slSvg(v,d.target,...slDim())}</div>
   <div class="fgroup"><h3>การวิเคราะห์ผล และการแก้ไขป้องกัน / พัฒนาอย่างต่อเนื่อง</h3></div>
   ${CA.map(c=>`<div class="kpca" data-sca="${esc(c._id)}"><div class="d">${thDate(c.date)}${c.due?' · กำหนดเสร็จ '+esc(c.due):''}${c.done?' · เสร็จจริง '+esc(c.done):''}</div><p>${esc(c.problem||'')}</p>${c.fix?`<p class="f">→ ${esc(c.fix)}</p>`:''}</div>`).join('')||'<div class="empty">ยังไม่มีบันทึก</div>'}
   ${isIT?'<div class="btnlist"><button id="sd_add">เพิ่มการวิเคราะห์ / แก้ไขป้องกัน</button></div>':''}`);
@@ -468,7 +590,7 @@ async function mtTpl(){if(MT_CACHE)return MT_CACHE;await loadLib('https://cdn.js
   const d=await rpDriveId();const it=await g(`/drives/${d}/root:/_template/${MT_TPL}`);const res=await fetch(it['@microsoft.graph.downloadUrl']);if(!res.ok)throw new Error('โหลดแม่แบบ Excel ไม่สำเร็จ');
   const buf=await res.arrayBuffer();let logo='';try{const z=await JSZip.loadAsync(buf);const f=Object.keys(z.files).find(n=>/^xl\/media\/.*\.(png|jpe?g)$/i.test(n));if(f)logo=`data:image/${/png$/i.test(f)?'png':'jpeg'};base64,`+await z.file(f).async('base64')}catch(e){}
   MT_CACHE={buf,logo};return MT_CACHE}
-function meetTools(){return `<h1 style="font-size:30px;margin-top:0">นัดหมายการประชุม</h1><div class="sub" style="margin:0 0 4px">FM-QMS-06-04 · Schedule a Meeting</div>`}
+function meetTools(){return `<h1 style="font-size:30px;margin-top:0">นัดหมายการประชุม</h1><div class="sub"><span class="doc">FM-QMS-06-04</span>นัดประชุม แล้วส่งออก Excel, PDF หรือรูปภาพ</div>`}
 function renderMeet(){const M=$('main');
   if(!lists[MODS.salekpi.list]){M.innerHTML='<div class="empty">ยังไม่มี list "Sale KPI" ใน SharePoint</div>';return}
   if(!DATA.salekpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
@@ -568,7 +690,7 @@ async function meetXlsx(r){const T=await mtTpl();const z=await JSZip.loadAsync(T
   wr(P,doc);return z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
 /* ===== JD ใบกำหนดหน้าที่งาน (FM-HRM-01-02 · เก็บใน list 'Sale KPI' type 'jd' · ไฟล์ Word ใน Documents/Sale Center/JD) ===== */
 const jdAll=()=>(DATA.salekpi||[]).filter(r=>r.type==='jd').sort((a,b)=>String(a.title).localeCompare(String(b.title),'th'));
-function jdTools(){return `<h1 style="font-size:30px;margin-top:0">ใบกำหนดหน้าที่งาน (JD)</h1><div class="sub" style="margin:0 0 4px">FM-HRM-01-02 · Job Description</div>`}
+function jdTools(){return `<h1 style="font-size:30px;margin-top:0">ใบกำหนดหน้าที่งาน (JD)</h1><div class="sub"><span class="doc">FM-HRM-01-02</span>หน้าที่และคุณสมบัติของแต่ละตำแหน่งในฝ่ายขาย</div>`}
 function renderJD(){const M=$('main');
   if(!lists[MODS.salekpi.list]){M.innerHTML='<div class="empty">ยังไม่มี list "Sale KPI" ใน SharePoint</div>';return}
   if(!DATA.salekpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
@@ -697,7 +819,7 @@ const safeName=s=>String(s||'').replace(/[\\/:*?"<>|]/g,'_').trim();
 const rqList=()=>(DATA.salekpi||[]).filter(x=>x.type==='req');
 const rqLogo=()=>(MT_CACHE&&MT_CACHE.logo)||'';
 const rqLoadLogo=()=>mtTpl().catch(()=>null);
-function rqTools(){return `<h1 style="font-size:30px;margin-top:0">ใบคำขอพัฒนาระบบ</h1><div class="sub" style="margin:0 0 4px">FM-ITM-01-16 · ขอพัฒนาเว็บไซต์ / แอปพลิเคชัน</div>`}
+function rqTools(){return `<h1 style="font-size:30px;margin-top:0">ใบคำขอพัฒนาระบบ</h1><div class="sub"><span class="doc">FM-ITM-01-16</span>ขอให้ฝ่าย IT พัฒนาเว็บไซต์หรือแอปพลิเคชัน</div>`}
 function rqButtons(r){return `<div class="btnlist" style="margin-top:12px"><button data-wx="pdf">บันทึกเป็น PDF</button><button data-wx="print">พิมพ์</button></div>`}
 const RQ_HDR={code:'FM-ITM-01-16',rev:'00',eff:'2026-10-01',title:'ใบคำขอพัฒนาระบบ (เว็บไซต์ / แอปพลิเคชัน)'};
 const RQ_OPT={urg:['ปกติ','ด่วน','ด่วนมาก'],nature:['ทำใหม่','ปรับปรุงของเดิม'],pri:['ต้องมี','มีก็ดี'],mock:['มีแบบร่างแล้ว','ให้ฝ่าย IT ออกแบบ'],sec:['ทั่วไป','ใช้ภายใน','ลับ','มีข้อมูลส่วนบุคคล'],dl:['เลื่อนได้','เลื่อนไม่ได้'],res:['อนุมัติ','ขอข้อมูลเพิ่ม','ใช้ระบบเดิมแทน','ไม่อนุมัติ']};
@@ -827,7 +949,7 @@ function rqEdit(r,draft){const isNew=!r||!r._id;const m=draft||JSON.parse(JSON.s
   const D=(key,title,hint,body)=>`<details class="rqd" data-dk="${key}"${open[key]?' open':''}><summary>${title}<small>${hint}</small></summary>${body}</details>`;
   const I=(id,v,ph,type)=>`<input id="${id}" ${type?`type="${type}"`:''} value="${esc(v||'')}" placeholder="${esc(ph||'')}">`;
   const A=(lab,id,v,ph)=>`<div class="f area"><label>${lab}</label><textarea id="${id}" rows="2" placeholder="${esc(ph||'')}">${esc(v||'')}</textarea></div>`;
-  const chips=(grp,list,obj)=>`<div style="display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px">${list.map(([k,l])=>`<button type="button" class="chip" data-${grp}="${k}" style="${obj[k]?'':'background:var(--k2,#fff)!important;color:var(--ink)!important'};border-radius:999px;padding:8px 14px;font-size:14px">${obj[k]?'✓ ':''}${l}</button>`).join('')}</div>`;
+  const chips=(grp,list,obj)=>`<div style="display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px">${list.map(([k,l])=>`<button type="button" class="chip${obj[k]?' on':''}" aria-pressed="${!!obj[k]}" data-${grp}="${k}">${obj[k]?'✓ ':''}${l}</button>`).join('')}</div>`;
   const val=id=>($(id)||{}).value;
   const sync=()=>{if(!$('rq_s'))return;['no','date','urg','name','pos','dept','contact','job','nature','users','problem','benefit','excl','mock','sec','integ','attach','need','dl','cc','impact'].forEach(k=>{if($('rq_'+k))m[k]=val('rq_'+k)});
     m.feats=[...document.querySelectorAll('[data-ft]')].map(el=>({f:el.querySelector('[data-f="f"]').value,d:el.querySelector('[data-f="d"]').value,p:el.querySelector('[data-f="p"]').value}));
