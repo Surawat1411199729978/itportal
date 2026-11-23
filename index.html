@@ -177,7 +177,7 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 <script>
 if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
 /* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
-const APP_VERSION='2026-11-18.31';
+const APP_VERSION='2026-11-24.32';
 async function checkUpdate(){
   try{
     if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
@@ -1852,6 +1852,148 @@ async function r4Xlsx(r){await loadLib('https://cdn.jsdelivr.net/npm/jszip@3.10.
   const bv=wb.getElementsByTagNameNS(NS,'workbookView')[0];if(bv){bv.setAttribute('activeTab','0');bv.setAttribute('firstSheet','0')}wr('xl/workbook.xml',wb);
   if(z.file('xl/calcChain.xml')){z.remove('xl/calcChain.xml');const ct=await z.file('[Content_Types].xml').async('string');z.file('[Content_Types].xml',ct.replace(/<Override[^>]*calcChain[^>]*\/>/,''));const rl=await z.file('xl/_rels/workbook.xml.rels').async('string');z.file('xl/_rels/workbook.xml.rels',rl.replace(/<Relationship[^>]*calcChain[^>]*\/>/,''))}
   return await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+
+/* ===== UX v32: อ่านง่ายขึ้น · งานหลักเร็วขึ้น ===== */
+document.head.insertAdjacentHTML('beforeend',`<style>
+.hero{padding:4px 4px 0!important}.hero small{margin-top:0!important}
+.qa{display:flex;gap:10px;margin-top:14px}.qa .cta{margin:0!important;flex:1;padding:14px 16px!important;display:flex;align-items:center;justify-content:center;gap:6px}.qa .cta.g{background:var(--card)!important;color:var(--ink)!important}
+.wd{min-height:0!important;padding:18px 18px 16px!important}.wd::after{content:none!important}.wtop{margin-bottom:10px!important}
+.wd .ic{width:44px;height:44px;border-radius:12px}.wd .ic svg{width:26px;height:26px}.wn{font-size:36px!important;margin-top:6px}
+.wgrid a.wd .wn{font-size:15px!important;font-weight:600!important;color:var(--sub);letter-spacing:0}
+.rpit .acts .badge{font-size:12.5px!important;padding:3px 10px!important}.badge.u{background:#ef4444!important;color:#fff!important}
+.rpdev{display:flex;flex-wrap:wrap;gap:8px}.rpdev .rptype{flex-direction:row;padding:8px 14px 8px 8px;border-radius:999px;gap:8px;font-size:14px}.rpdev .rptype .ic{width:28px;height:28px;border-radius:8px}.rpdev .rptype .ic svg{width:17px;height:17px}
+.rpdev.err .rptype{border-color:#ef4444}.fgroup.err h3,.f.err label{color:#ef4444}.rphint{font-size:13px;color:#ef4444;margin:6px 16px 0}
+details.rpreq>summary{list-style:none;cursor:pointer}details.rpreq>summary::-webkit-details-marker{display:none}details.rpreq .rpwho{margin-top:0}details.rpreq .rpwho>div:not(.ic){flex:1;min-width:0}details.rpreq .rpwho span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}details.rpreq .ed{font-size:14px;font-weight:700;flex:none}details.rpreq[open] .ed{display:none}
+.rpacts{display:flex;gap:10px;margin-top:16px}.rpacts .cta{flex:1;margin:0!important;padding:14px 12px!important}.rpacts .cta.g{background:var(--card)!important;color:var(--ink)!important}
+</style>`);
+
+/* ---- หน้าแรก: ตัดหัวเรื่องซ้ำ ใส่ปุ่มงานหลัก ---- */
+const _v32Home=renderHome;
+renderHome=function(){_v32Home();const H=document.querySelector('#main .hero');if(!H)return;
+  const s=H.querySelector('small'),rp=!!lists[MODS.repair.list],vp=!!(MODS.vpn&&lists[MODS.vpn.list]);
+  H.innerHTML=(s?s.outerHTML:'')+(rp||vp?`<div class="qa">${rp?'<button class="cta" id="qa_rp">+ แจ้งซ่อมอุปกรณ์</button>':''}${vp?`<button class="cta${rp?' g':''}" id="qa_vp">ขอใช้ VPN</button>`:''}</div>`:'');
+  if($('qa_rp'))$('qa_rp').onclick=()=>{go('repair');repairNew()};
+  if($('qa_vp'))$('qa_vp').onclick=()=>{go('vpn');vpnNew()};
+};
+
+/* ---- รายการแจ้งซ่อม ---- */
+const RPS_U={new:'รอ IT รับเรื่อง',doing:'IT กำลังซ่อม',parts:'รออะไหล่',outside:'ส่งซ่อมภายนอก',done:'ซ่อมเสร็จ · รอคุณยืนยัน',fail:'ซ่อมไม่ได้ · รอคุณรับทราบ',closed:'เสร็จสิ้น'};
+const rpBadgeR=r=>{const [l,c]=RPS[r.status]||RPS.new;return `<span class="badge" style="background:${c}!important;color:#fff!important">${rpIT()?l:(RPS_U[r.status]||l)}</span>`};
+const rpUrgB=r=>r.urg&&r.urg!=='ปกติ'&&RP_OPEN.includes(r.status)?`<span class="badge u">${esc(r.urg)}</span>`:'';
+const rpUrgN=r=>r.urg==='ด่วนมาก'?2:r.urg==='ด่วน'?1:0;
+repairTools=function(){
+  const L=rpList();const cnt=f=>L.filter(f).length;
+  const it=rpIT();if(!RPF)RPF=it?'open':'all';
+  const F=it?[['open','งานค้าง',r=>RP_OPEN.includes(r.status)],['new','ใหม่',r=>r.status==='new'],['late','ค้างเกิน 7 วัน',rpLate],['wait','รอยืนยัน',r=>RP_WAIT.includes(r.status)],['closed','ปิดงาน',r=>r.status==='closed'],['all','ทั้งหมด',r=>1]]
+   :[['all','ทั้งหมด',r=>1],['open','กำลังซ่อม',r=>RP_OPEN.includes(r.status)],['wait','รอคุณยืนยัน',r=>RP_WAIT.includes(r.status)],['closed','เสร็จสิ้น',r=>r.status==='closed']];
+  return `<h1 style="font-size:30px;margin-top:0">แจ้งซ่อม IT</h1><div class="sub">${it?'งานซ่อมทั้งหมด · งานด่วนแสดงก่อน':'งานแจ้งซ่อมของฉัน'}</div>
+  <div class="sbar"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="m20 20-3.6-3.6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><input id="rp_q" type="search" placeholder="ค้นหาเลขที่, อาการ, ผู้แจ้ง" value="${esc(RPQ)}"></label>${it?`<button class="fbtn" id="rp_rep">รายงาน</button>`:''}</div>
+  <div class="chips rpchips">${F.map(([k,l,f])=>`<button class="chip ${RPF===k?'on':''}" data-rpf="${k}">${l} <span>${DATA.repair?cnt(f):''}</span></button>`).join('')}</div>`;
+};
+renderRepair=function(){
+  const M=$('main');if(!DATA.repair){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
+  const all=rpList(),it=rpIT();let L=all.filter(rpFilter);
+  if(it)L=L.slice().sort((a,b)=>(+RP_OPEN.includes(b.status)*rpUrgN(b))-(+RP_OPEN.includes(a.status)*rpUrgN(a)));
+  const card=r=>{const t=rpType(r.type);const late=rpLate(r);const hl=!it&&RP_WAIT.includes(r.status);const age=rpAge(r);
+    const meta=[it?esc((r.by||'')+(r.dept?' / '+r.dept:'')):'',thDate(r.date),RP_OPEN.includes(r.status)?(age?`<span style="${late?'color:#ef4444;font-weight:700':''}">ค้าง ${age} วัน</span>`:''):(r.days!=null&&r.days!==''?`ใช้เวลา ${r.days} วัน`:'')].filter(Boolean).join(' · ');
+    return `<div class="it rpit${hl?' hl':''}" role="button" data-rid="${esc(r._id)}">${ico(t[2],t[3])}<div class="bdw"><div class="bd"><div class="t"><b>${esc(r.no||'กำลังออกเลข…')}</b> · ${esc(r.type==='other'&&r.typeOther?r.typeOther:t[1])}</div><div class="m rpsym">${esc(r.symptom||'')}</div><div class="m">${meta}</div>
+    <div class="acts">${rpUrgB(r)}${rpBadgeR(r)}${it&&r.status==='new'?`<button class="pill rpgo" data-rpacc="${esc(r._id)}">รับเรื่อง</button>`:''}${hl?`<button class="pill rpgo" data-rpok="${esc(r._id)}">ยืนยันรับเครื่อง</button>`:''}</div></div><span class="r" style="padding-top:3px">${CHEV}</span></div></div>`};
+  M.innerHTML=`${!it&&!all.length?`<div class="rpempty"><div class="big">${ico('wrench','#d9953a')}</div><b>ยังไม่มีงานแจ้งซ่อม</b><span>อุปกรณ์ IT เสีย กดปุ่ม “แจ้งซ่อม” ด้านล่าง<br>เลือกอุปกรณ์และพิมพ์อาการ ก็ส่งได้เลย</span></div>`:''}
+  ${all.length?`<div class="toolbar"><span class="cnt">${L.length} รายการ</span></div>${L.length?`<div class="list">${L.map(card).join('')}</div>`:'<div class="empty">ไม่มีรายการในหมวดนี้</div>'}`:''}`;
+};
+
+/* ---- แจ้งซ่อมใหม่: เรื่องที่ต้องกรอกขึ้นก่อน ข้อมูลผู้แจ้งจำจากครั้งก่อน ---- */
+repairNew=async function(){
+  rpFiles=[];const info=await getMeInfo();
+  const last=(DATA.repair||[]).filter(r=>rpMine(r)||(info.mail&&String(r.email||'').toLowerCase()===info.mail)).sort((a,b)=>String(b.dt||b.date).localeCompare(String(a.dt||a.date)))[0]||{};
+  const P={emp:last.empId||'',pos:last.pos||info.title||'',dept:last.dept||info.dept||'',tel:last.tel||info.tel||'',place:last.place||''};
+  const first=!last.no;
+  const reqLine=()=>{const v=id=>($(id)?$(id).value.trim():'');const x=[v('n_dept'),v('n_tel')&&'โทร '+v('n_tel'),v('n_place')].filter(Boolean).join(' · ');return x||'ยังไม่ได้กรอกแผนก / เบอร์ / สถานที่'};
+  openSheet(`${shh('<button class="x" id="n_x">ยกเลิก</button>','แจ้งซ่อมใหม่','<button class="x b" id="n_s">ส่ง</button>')}
+  <details class="rpreq" id="n_req" ${first?'open':''}><summary class="rpwho">${ico('person','#4a87c5')}<div><b>${esc(info.name)}</b><span id="n_reqs">${esc([P.dept,P.tel&&'โทร '+P.tel,P.place].filter(Boolean).join(' · ')||'ยังไม่ได้กรอกแผนก / เบอร์ / สถานที่')}</span></div><span class="ed">แก้ไข</span></summary>
+   <div class="formg">
+   <div class="f"><label>รหัสพนักงาน</label><input id="n_emp" value="${esc(P.emp)}" placeholder="เช่น EMP-0458"></div>
+   <div class="f"><label>ตำแหน่ง</label><input id="n_pos" value="${esc(P.pos)}" placeholder="ระบุ"></div>
+   <div class="f"><label>ฝ่าย / แผนก</label><input id="n_dept" value="${esc(P.dept)}" placeholder="ระบุ"></div>
+   <div class="f"><label>เบอร์ภายใน</label><input id="n_tel" type="tel" value="${esc(P.tel)}" placeholder="ระบุ"></div>
+   <div class="f"><label>สถานที่ตั้งเครื่อง</label><input id="n_place" value="${esc(P.place)}" placeholder="เช่น อาคาร 1 ชั้น 2"></div></div>
+   ${first?'<div class="gf" style="margin:6px 16px 0">กรอกครั้งเดียว ครั้งต่อไประบบเติมให้เอง</div>':''}</details>
+  <div class="fgroup" id="n_tg"><h3>อุปกรณ์ที่เสีย *</h3></div><div class="rptypes rpdev" id="n_types">${RP_TYPES.map(t=>`<button type="button" class="rptype" data-rpt="${t[0]}">${ico(t[2],t[3])}<span>${t[1]}</span></button>`).join('')}</div>
+  <div class="formg" id="n_oth_w" style="display:none"><div class="f"><label>อุปกรณ์อื่น ๆ</label><input id="n_oth" placeholder="ระบุอุปกรณ์"></div></div>
+  <div class="fgroup" id="n_sg"><h3>อาการเสีย *</h3></div><div class="formg"><div class="f area" id="n_sf"><textarea id="n_sym" placeholder="เช่น เปิดไม่ติด พิมพ์ไม่ออก มีข้อความ Error ขึ้นว่าอะไร"></textarea></div>
+   <div class="f"><label>เริ่มเป็นเมื่อ</label><input id="n_since" type="date" value="${today()}"></div>
+   <div class="f"><label>ความถี่</label>${r4Sel('n_freq',R4.freq,'')}</div>
+   <div class="f"><label>ผลต่องาน</label>${r4Sel('n_imp',R4.imp,'')}</div>
+   <div class="f"><label>ข้อมูลสำคัญในเครื่อง</label>${r4Sel('n_data',R4.data,'')}</div></div>
+  <div class="fgroup"><h3>ความเร่งด่วน</h3></div>${r4Seg('n_urg',R4.urg,'ปกติ')}
+  <div class="fgroup"><h3>ข้อมูลเครื่อง (ถ้ามี)</h3></div><div class="formg">
+   <div class="f"><label>เลขทรัพย์สิน</label><input id="n_asset" placeholder="ดูสติกเกอร์ เช่น UNB-NB-0123"></div>
+   <div class="f"><label>ยี่ห้อ / รุ่น</label><input id="n_brand" placeholder="เช่น Dell Latitude 5420"></div>
+   <div class="f"><label>นำมาด้วย</label><input id="n_acc" placeholder="เช่น สายชาร์จ เมาส์"></div></div>
+  <div class="fgroup"><h3>รูปถ่าย (ถ้ามี สูงสุด 3 รูป)</h3></div><div class="rpph" id="n_ph"><label class="rpadd"><input type="file" id="n_f" accept="image/*" multiple hidden><span>+</span>เพิ่มรูป</label></div>
+  <button class="cta" id="n_s2" style="display:block;width:100%;margin-top:22px">ส่งแจ้งซ่อม</button>`);
+  let type='';r4SegBind('n_urg');
+  ['n_dept','n_tel','n_place'].forEach(id=>$(id).addEventListener('input',()=>{$('n_reqs').textContent=reqLine()}));
+  document.querySelectorAll('[data-rpt]').forEach(b=>b.onclick=()=>{type=b.dataset.rpt;document.querySelectorAll('[data-rpt]').forEach(x=>x.classList.toggle('on',x===b));$('n_oth_w').style.display=type==='other'?'':'none';$('n_types').classList.remove('err');$('n_tg').classList.remove('err');const h=$('n_th');if(h)h.remove()});
+  $('n_sym').addEventListener('input',()=>{$('n_sf').classList.remove('err');$('n_sg').classList.remove('err');const h=$('n_sh');if(h)h.remove()});
+  $('n_x').onclick=closeSheet;
+  $('n_f').onchange=e=>{rpFiles=[...rpFiles,...e.target.files].slice(0,3);e.target.value='';drawPh()};
+  const drawPh=()=>{const box=$('n_ph');box.querySelectorAll('.rpth').forEach(x=>x.remove());rpFiles.forEach((f,i)=>{const d=document.createElement('div');d.className='rpth';d.innerHTML=`<img src="${URL.createObjectURL(f)}"><button data-i="${i}">×</button>`;d.querySelector('button').onclick=()=>{rpFiles.splice(i,1);drawPh()};box.insertBefore(d,box.lastElementChild)});box.lastElementChild.style.display=rpFiles.length>=3?'none':''};
+  const miss=(grp,box,hid,msg,el)=>{$(grp).classList.add('err');$(box).classList.add('err');if(!$(hid))$(box).insertAdjacentHTML('afterend',`<div class="rphint" id="${hid}">${msg}</div>`);el.scrollIntoView({block:'center',behavior:'smooth'})};
+  const send=async()=>{const sym=$('n_sym').value.trim();
+    if(!type){miss('n_tg','n_types','n_th','เลือกอุปกรณ์ที่เสีย 1 อย่าง',$('n_tg'));toast('เลือกอุปกรณ์ที่เสียก่อน');return}
+    if(!sym){miss('n_sg','n_sf','n_sh','บอกอาการสั้น ๆ ให้ IT รู้ว่าเสียอย่างไร',$('n_sg'));$('n_sym').focus({preventScroll:true});toast('พิมพ์อาการเสียก่อน');return}
+    $('n_s').disabled=$('n_s2').disabled=true;$('n_s2').textContent='กำลังส่ง…';const urg=r4SegVal('n_urg')||'ปกติ';const v=id=>$(id).value.trim();
+    const r={no:'',date:today(),dt:nowIso(),by:info.name,email:info.mail,urg,kpiU:urg!=='ปกติ',empId:v('n_emp'),pos:v('n_pos'),dept:v('n_dept'),tel:v('n_tel'),place:v('n_place'),type,typeOther:type==='other'?v('n_oth'):'',asset:v('n_asset'),brand:v('n_brand'),acc:v('n_acc'),symptom:sym,since:v('n_since'),freq:v('n_freq'),impact:v('n_imp'),dataImp:v('n_data'),status:'new',photos:[],log:[{at:nowIso(),by:info.name,a:'แจ้งซ่อม'+(urg!=='ปกติ'?' ('+urg+')':'')}]};
+    try{await store.save('repair',r);const x=DATA.repair[DATA.repair.length-1];
+      const d=new Date();x.no=`RP-${String(d.getFullYear()+543).slice(2)}${String(d.getMonth()+1).padStart(2,'0')}-${String(x._id).replace(/\D/g,'').slice(-4).padStart(3,'0')}`;
+      if(rpFiles.length){$('n_s2').textContent='กำลังอัปโหลดรูป…';x.photos=await rpUpload(x.no,rpFiles).catch(e=>{toast('อัปโหลดรูปไม่สำเร็จ: '+e.message);return []})}
+      await store.save('repair',x);closeSheet();RPF=rpIT()?'open':'all';render();toast('ส่งแจ้งซ่อมแล้ว · เลขที่ '+x.no+' · รอ IT รับเรื่อง');
+    }catch(e){$('n_s').disabled=$('n_s2').disabled=false;$('n_s2').textContent='ส่งแจ้งซ่อม';toast(e.status===403?'ไม่มีสิทธิ์แจ้งซ่อม (ติดต่อฝ่าย IT)':'ส่งไม่สำเร็จ: '+e.message)}};
+  $('n_s').onclick=send;$('n_s2').onclick=send;
+};
+
+/* ---- รายละเอียดงานซ่อม: ปุ่มงานหลักอยู่บนสุด แบบฟอร์ม A4 เปิดเมื่อต้องการ ---- */
+repairDetail=function(id){
+  const r=(DATA.repair||[]).find(x=>x._id===id);if(!r)return;const it=rpIT(),mine=rpMine(r),t=rpType(r.type);
+  const kv=(k,v)=>v||v===0?`<div><span class="k">${k}</span><span class="v">${v}</span></div>`:'';
+  const p2=r.result||r.fix||r.doneDate;
+  const acts=it?[r.status==='new'?'<button class="cta" id="r_acc">รับเรื่อง</button>':'',r.status!=='closed'?`<button class="cta${r.status==='new'?' g':''}" id="r_res">บันทึกผลการซ่อม</button>`:'<button class="cta g" id="r_res">แก้ไขผลการซ่อม</button>'].join(''):'';
+  openSheet(`${shh('',esc(r.no||'แจ้งซ่อม'),`<button class="x b" id="r_x">เสร็จ</button>`)}
+  <div class="rphead">${ico(t[2],t[3])}<div><h2 style="margin:0">${esc(r.type==='other'&&r.typeOther?r.typeOther:t[1])}</h2><div>${rpUrgB(r)} ${rpBadgeR(r)}${rpLate(r)?` <span class="badge b-bad">ค้าง ${rpAge(r)} วัน</span>`:''}</div></div></div>
+  ${mine&&RP_WAIT.includes(r.status)?`<div class="rpask"><b>${r.status==='done'?'ฝ่าย IT ซ่อมเสร็จแล้ว':'ฝ่าย IT แจ้งว่าซ่อมไม่ได้'}</b><span>${r.status==='done'?'ได้รับเครื่องและใช้งานได้ปกติแล้วใช่ไหม':'รับทราบผลและรับเครื่องคืนแล้วใช่ไหม'}</span><button class="cta" id="r_ok" style="width:100%;margin-top:12px">ยืนยันรับเครื่อง${r.status==='done'?' (ใช้งานได้)':''}</button><button class="rpline" id="r_back">ยังใช้งานไม่ได้ · ส่งกลับซ่อม</button></div>`:''}
+  ${acts?`<div class="rpacts">${acts}</div>`:''}
+  <div class="fgroup"><h3>อาการเสีย · อุปกรณ์</h3></div>
+  <div class="kv" style="margin-top:0">${kv('อาการที่พบ',esc(r.symptom))}${kv('เริ่มเป็นเมื่อ',thDate(r.since))}${kv('ความถี่',esc(r.freq))}${kv('ผลต่องาน',esc(r.impact))}${kv('ข้อมูลสำคัญในเครื่อง',esc(r.dataImp))}${kv('เลขทรัพย์สิน',esc(r.asset))}${kv('ยี่ห้อ / รุ่น',esc(r.brand))}${kv('นำมาด้วย',esc(r.acc))}</div>
+  ${(r.photos||[]).length?`<div class="rpph" id="r_ph">${r.photos.map(()=>'<div class="rpth"><div class="spin"></div></div>').join('')}</div>`:''}
+  <div class="fgroup"><h3>ผู้แจ้ง</h3></div>
+  <div class="kv" style="margin-top:0">${kv('ชื่อ',esc(r.by))}${r.tel?kv('เบอร์ภายใน',`<a href="tel:${esc(r.tel)}" style="color:var(--ink);font-weight:600">${esc(r.tel)}</a>`):''}${kv('ฝ่าย / แผนก',esc(r.dept))}${kv('สถานที่ตั้งเครื่อง',esc(r.place))}${kv('วันที่แจ้ง',thDate(r.date))}${kv('รหัสพนักงาน',esc(r.empId))}${kv('ตำแหน่ง',esc(r.pos))}${kv('อีเมล',esc(r.email))}</div>
+  ${p2?`<div class="fgroup"><h3>ผลการซ่อม (ฝ่าย IT)</h3></div><div class="kv" style="margin-top:0">${kv('ผลการซ่อม',esc(RP_RES_TXT[r.result]||''))}${kv('การแก้ไข',esc(r.fix))}${kv('สาเหตุที่พบ',esc(r.cause))}${kv('ผู้รับผิดชอบ',esc(r.owner))}${kv('วันที่รับเรื่อง',thDate(r4Recv(r)))}${kv('วันที่เริ่มซ่อม',thDate(r.startDate))}${kv('วันที่ซ่อมเสร็จ',thDate(r.doneDate))}${r.days!=null&&r.days!==''?kv('ใช้เวลา',r.days+' วัน'):''}${kv('อะไหล่ / ค่าใช้จ่าย',esc(r.parts))}${kv('เหตุผล / หมายเหตุ',esc(r.note))}${kv('ผู้จำหน่าย (ส่งเคลม)',esc(r.vendor))}${kv('รับคืนจากเคลม',thDate(r.claimBack))}${kv('ข้อเสนอแนะ',esc(r.advice))}</div>`:''}
+  <div class="fgroup"><h3>ความคืบหน้า</h3></div><div class="rptl">${(r.log||[]).slice().reverse().map(x=>`<div><i></i><b>${esc(x.a)}</b><span>${thDT(x.at)} · ${esc(x.by||'')}</span></div>`).join('')||'<div><i></i><b>แจ้งซ่อม</b><span>'+thDate(r.date)+'</span></div>'}</div>
+  <div class="fgroup"><h3>แบบคำร้อง FM-ITM-01-04</h3></div>
+  <div class="rpex"><button data-r4="xlsx"><b style="background:#1d6f42">XLS</b>Excel</button><button data-r4="pdf"><b>PDF</b>PDF</button><button data-r4="png"><b style="background:#bf5af2">IMG</b>รูปภาพ</button><button data-r4="print"><b style="background:#636366;font-size:20px">⎙</b>พิมพ์</button></div>
+  <button class="rpline" id="r4_tg">ดูตัวอย่างแบบฟอร์ม A4</button><div class="fmprev" id="r4_prev" style="display:none;margin-top:10px"></div>
+  ${(mine&&r.status==='new')||(it&&!mine)?`<div class="btnlist">${mine&&r.status==='new'?`<button class="d" id="r_cancel">ยกเลิกการแจ้งซ่อม</button>`:''}${it&&!mine?`<button class="d" id="r_del">ลบรายการ</button>`:''}</div>`:''}`);
+  $('r_x').onclick=closeSheet;
+  if((r.photos||[]).length)rpPhotoUrls(r).then(us=>{const b=$('r_ph');if(!b)return;b.innerHTML=us.map(u=>u?`<a class="rpth" href="${esc(u)}" target="_blank"><img src="${esc(u)}"></a>`:'').join('')}).catch(()=>{});
+  const prev=()=>{const P=$('r4_prev');if(!P||P.style.display==='none')return;P.innerHTML=`<div class="fmwrap" style="width:794px">${r4HTML(r)}</div>`;requestAnimationFrame(()=>{const w=P.querySelector('.fmwrap');if(!w)return;const s=P.clientWidth/794;w.style.transform=`scale(${s})`;w.style.transformOrigin='0 0';P.style.height=Math.ceil(1123*s)+'px'})};
+  $('r4_tg').onclick=()=>{const P=$('r4_prev'),on=P.style.display==='none';P.style.display=on?'':'none';$('r4_tg').textContent=on?'ซ่อนตัวอย่างแบบฟอร์ม':'ดูตัวอย่างแบบฟอร์ม A4';if(on){prev();if(!RP_LOGO&&!DEMO)rpTpl().then(()=>{if(RP_LOGO)prev()}).catch(()=>{})}};
+  document.querySelectorAll('[data-r4]').forEach(b=>b.onclick=async()=>{const k=b.dataset.r4,old=b.innerHTML;if(k!=='print'){b.disabled=true;b.innerHTML='<div class="spin"></div>'}try{await r4Export(r,k);if(k!=='print')toast('สร้างไฟล์แล้ว')}catch(e){toast('สร้างไฟล์ไม่สำเร็จ: '+e.message)}finally{b.disabled=false;b.innerHTML=old}});
+  if($('r_acc'))$('r_acc').onclick=()=>{$('r_acc').disabled=true;$('r_acc').textContent='กำลังรับเรื่อง…';rpAccept(r)};
+  if($('r_res'))$('r_res').onclick=()=>repairResult(r);
+  if($('r_ok'))$('r_ok').onclick=()=>{$('r_ok').disabled=true;$('r_ok').textContent='กำลังบันทึก…';rpConfirm(r)};
+  if($('r_back'))$('r_back').onclick=()=>rpSendBack(r);
+  const delf=async(msg)=>{try{await store.del('repair',r._id);closeSheet();render();toast(msg)}catch(e){toast(e.status===403?'ไม่มีสิทธิ์ลบ':'ลบไม่สำเร็จ: '+e.message)}};
+  if($('r_cancel'))$('r_cancel').onclick=()=>{if(confirm('ยกเลิกการแจ้งซ่อม '+(r.no||'')+' ?'))delf('ยกเลิกการแจ้งซ่อมแล้ว')};
+  if($('r_del'))$('r_del').onclick=()=>{if(confirm('ลบรายการ '+(r.no||'')+' ถาวร?'))delf('ลบแล้ว')};
+};
+
+/* ---- VPN: ตัดกล่องสรุปที่ซ้ำกับปุ่มกรอง ---- */
+renderVpn=function(){const M=$('main');if(!DATA.vpn){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
+  const all=vpList(),L=all.filter(vpFilter),it=isIT;
+  const card=r=>`<div class="it rpit" role="button" data-vid="${esc(r._id)}">${ico('shield','#5b6bbf')}<div class="bdw"><div class="bd"><div class="t"><b>${esc(r.no||'กำลังออกเลข…')}</b> · ${esc(r.name||'')}</div><div class="m rpsym">${esc(vpSysTxt(r))}${r.purpose?' — '+esc(r.purpose):''}</div><div class="m">${esc([VP_UT.find(u=>u[0]===r.utype)?.[1],r.company||r.dept].filter(Boolean).join(' · '))} · ${thDate(r.start)}${r.end?' – '+thDate(r.end):''}${r.uname?` · <span class="mono">${esc(r.uname)}</span>`:''}</div><div class="acts">${vpBadge(r)}</div></div><span class="r" style="padding-top:3px">${CHEV}</span></div></div>`;
+  M.innerHTML=`${!it&&!all.length?`<div class="rpempty"><div class="big">${ico('shield','#5b6bbf')}</div><b>ยังไม่มีคำขอใช้ VPN</b><span>กดปุ่ม “ขอใช้ VPN” ด้านล่าง<br>กรอกแบบฟอร์ม FM-ITM-01-10 ออนไลน์ได้เลย</span></div>`:''}
+  ${all.length?`<div class="toolbar"><span class="cnt">${L.length} รายการ</span></div>${L.length?`<div class="list">${L.map(card).join('')}</div>`:'<div class="empty">ไม่มีรายการในหมวดนี้</div>'}`:''}`};
 
 /* ===== Start ===== */
 (async()=>{
