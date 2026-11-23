@@ -11,7 +11,7 @@
 <title>Check list SO · UNB</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.3/lib/msal-browser.min.js"></script>
@@ -204,6 +204,72 @@ main{padding:20px 16px calc(var(--safe-b) + 100px);max-width:780px;margin:0 auto
 .navseg{display:flex;background:var(--card);border-radius:12px;padding:3px;margin:0 0 12px}
 .navseg a{flex:1;text-align:center;padding:7px 3px;border-radius:9px;font-size:clamp(12px,3.4vw,14px);font-weight:600;color:var(--muted);text-decoration:none;white-space:nowrap}
 .navseg a.on{background:var(--bg);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+
+/* ===== Calm theme (shared tokens with KPI app) ===== */
+:root,:root[data-x]{color-scheme:light;--bg:#f5f4f1;--card:#fff;--ink:#2b2f31;--muted:#5d6366;--line:#e3e0da;--line2:#d4d0c8;
+ --accent:#2e6b67;--accent-ink:#fff;--acc-soft:#e4efed;--acc-ink:#24564f;--blue:#2f6aa0;
+ --s-new:#7d8285;--s-prod:#b06a12;--s-ready:#2f6aa0;--s-partial:#6a5aa5;--s-done:#2f7a51;--danger:#a8432f;
+ --r1:6px;--r2:10px;--r3:14px;--sh:0 1px 2px rgba(43,40,32,.05);--f:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#f5f4f1;--card:#fff;--ink:#2b2f31;--muted:#5d6366;--line:#e3e0da;--accent:#2e6b67;--accent-ink:#fff}}
+html,body{font-family:var(--f)!important;font-size:15.5px;line-height:1.55;font-feature-settings:"tnum" 1;letter-spacing:0}
+.mono,.chips .chip b,.stat .n,.so-main .amt,.ln .q,.ln .c,.ln .a,.sum .r span:last-child{font-family:var(--f)!important;font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header{background:var(--bg)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border-bottom:1px solid var(--line)}
+.navseg{background:none;border-radius:0;padding:0;margin:0 0 16px;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.navseg::-webkit-scrollbar{display:none}
+.navseg a{flex:0 0 auto;border-radius:0;padding:12px 10px 11px;margin-bottom:-1px;font-size:15px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;box-shadow:none!important;background:none!important}
+.navseg a:hover{color:var(--ink)}
+.navseg a.on{color:var(--ink);font-weight:600;border-bottom-color:var(--accent)}
+@media(max-width:480px){.navseg{gap:0}.navseg a{flex:1 0 auto;padding:12px 6px 11px;font-size:14px}}
+.top h1{font-size:30px;font-weight:600;letter-spacing:0;line-height:1.25}
+@media(min-width:720px){.top h1{font-size:34px}}
+.sync{font-size:13px;color:var(--muted)}
+.iconbtn{border-radius:var(--r2);background:var(--card);border:1px solid var(--line)}
+.search input{border-radius:var(--r2);background:var(--card);border:1px solid var(--line);font-size:16px}
+.search input:focus{box-shadow:none;border-color:var(--accent)}
+.search span{color:var(--muted)}
+.tabs{background:var(--card);border:1px solid var(--line);border-radius:var(--r2)}
+.tabs button{border-radius:var(--r1);font-weight:500;color:var(--muted)}
+.tabs button.on{background:var(--acc-soft);color:var(--acc-ink);font-weight:600}
+.chips{background:var(--card);border:1px solid var(--line);border-radius:var(--r3)}
+.chips .chip{border-radius:var(--r2)}
+.chips .chip b{font-weight:600}
+.chips .chip.on{background:var(--acc-soft);box-shadow:none}
+.stat,.po,.so,.ex,.ltable,.notice,.fileitem{background:var(--card);border:1px solid var(--line);border-radius:var(--r3);box-shadow:var(--sh)}
+.stat .n{font-weight:600;letter-spacing:0}
+.stat .l,.po-h .sub,.r2{color:var(--muted)}
+.po-h .num,.so-main .sono{font-weight:600}
+.row{background:var(--bg);border-radius:var(--r2)}
+.chev{background:var(--bg);border-radius:var(--r1)}
+.bar>div{background:var(--accent)}
+.badge{border-radius:var(--r1);font-weight:600;font-size:12px;padding:2px 8px}
+.box,.lchk{border-color:var(--line2)}
+.so.checked .box,.lchk.on{background:var(--s-done);border-color:var(--s-done)}
+.so.checked{opacity:.6}
+.typesel select{border:1px solid var(--line2);background:var(--card);border-radius:var(--r2);font-weight:500}
+.f label{color:var(--muted);font-weight:500;font-size:13px}
+.f input,.f textarea,.f select{background:var(--card);border:1px solid var(--line2);border-radius:var(--r2)}
+.f input:focus,.f textarea:focus{box-shadow:none;border-color:var(--accent)}
+.stepper{background:var(--card);border:1px solid var(--line2);border-radius:var(--r2)}
+.btn{border:1px solid var(--line2);border-radius:var(--r2);font-weight:600;background:var(--card)}
+.btn.pri{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.ok{background:var(--card);color:var(--ink);border-color:var(--line2)}
+.btn.del{color:var(--danger);border-color:transparent;background:none}
+.menu .btn{border:1px solid var(--line);border-radius:var(--r2)}
+.seg button{border:1px solid var(--line2);border-radius:var(--r2);font-weight:500}
+.fab{border-radius:var(--r2);background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(46,107,103,.25)}
+.sheet{background:var(--bg);border-radius:16px 16px 0 0}
+.sheet h2{font-weight:600;letter-spacing:0}
+.scrim{background:rgba(35,38,40,.32)}
+.toast{background:var(--ink);color:#fff;border-radius:var(--r2)}
+.pdfbtn{border:1px solid var(--line2);background:var(--card);border-radius:var(--r1);font-weight:500}
+.pdfbar .btn{background:var(--card);border:1px solid var(--line2);border-radius:var(--r2)}
+.attach,.drop{border-radius:var(--r3);border-color:var(--line2)}
+.donebtn{border-radius:var(--r2);background:var(--s-done)}
+.empty{color:var(--muted)}
+.link-po,.odbar a,.fileitem .od{color:var(--blue)}
+.spin{border-top-color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
@@ -495,7 +561,7 @@ function rowHTML(it){
   if(num(it.amount))bits.push(`<span>฿${money(it.amount)}</span>`);
   if(it.files&&it.files.length)bits.push(clipBadge(it.files));
   return `<button class="row" data-id="${esc(it.id)}">
-    <div class="r1"><div class="spec">${esc(it.spec||'(ไม่มีสเปก)')}</div><span class="badge" style="background:var(${s.v})">${s.t}</span></div>
+    <div class="r1"><div class="spec">${esc(it.spec||'(ไม่มีสเปก)')}</div><span class="badge" style="color:var(${s.v});background:color-mix(in srgb,var(${s.v}) 13%,#fff)">${s.t}</span></div>
     <div class="r2">${bits.join('')}</div>
     ${it.note?`<div class="r2" style="color:var(--ink)">📝 ${esc(it.note)}</div>`:''}
   </button>`;
@@ -756,7 +822,7 @@ function renderSO(){
     return `<div class="so ${s.checked?'checked':''}">
       <button class="so-check" data-check="${esc(s.id)}" aria-label="ทำเครื่องหมายเสร็จ"><span class="box">${s.checked?'✓':''}</span></button>
       <button class="so-main" data-so="${esc(s.id)}">
-        <div class="t1"><span class="sono">${esc(s.so)}</span><span class="badge" style="background:var(${st.v})">${st.t}</span></div>
+        <div class="t1"><span class="sono">${esc(s.so)}</span><span class="badge" style="color:var(${st.v});background:color-mix(in srgb,var(${st.v}) 13%,#fff)">${st.t}</span></div>
         <div class="r2"><span>P/O ${inDel?`<span class="link-po">${esc(s.po)}</span>`:esc(s.po)}</span>${s.date?`<span>${thDate(s.date)}</span>`:''}${s.qt?`<span>${esc(s.qt)}</span>`:''}</div>
         ${num(s.amount)?`<div class="amt">฿${money(s.amount)}</div>`:''}
         ${s.note?`<div class="r2" style="color:var(--ink)">📝 ${esc(s.note)}</div>`:''}
