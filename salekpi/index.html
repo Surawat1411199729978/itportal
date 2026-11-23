@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#f5f6f8">
 <title>KPI Sale Center · UNB</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.3/lib/msal-browser.min.js"></script>
 <style>
 :root{--bg:#f2f2f7;--card:#fff;--ink:#000;--sub:#6e6e73;--faint:#8e8e93;--line:rgba(60,60,67,.18);--fill:rgba(118,118,128,.12);--acc:#007aff;--acc-soft:rgba(0,122,255,.12);
@@ -48,7 +48,7 @@ h1{margin:2px 0 0;font-size:34px;font-weight:700;letter-spacing:.01em;line-heigh
 .chip{display:flex;align-items:center;gap:5px;background:var(--acc-soft);color:var(--acc);border-radius:999px;padding:4px 10px;font-size:14px;font-weight:500}
 .chip span{font-size:13px;opacity:.75}
 .seg{display:flex;background:var(--fill);border-radius:9px;padding:2px;margin-top:10px}
-.seg button{flex:1;padding:6px;border-radius:7px;font-size:14px;font-weight:500}
+.seg button{flex:1;padding:6px 3px;border-radius:7px;font-size:clamp(12px,3.4vw,14px);font-weight:500;white-space:nowrap}
 .seg button.on{background:var(--card);font-weight:600;box-shadow:0 3px 8px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.04)}
 main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 .gh{font-size:13px;color:var(--sub);text-transform:uppercase;letter-spacing:.02em;margin:22px 16px 7px}
@@ -214,7 +214,7 @@ const DEMO=new URLSearchParams(location.search).has('demo');
 const CFG={clientId:"73241ae0-9aa1-49fe-b2c7-caa2449a0091",tenantId:"410b700e-bb2a-46d2-b4c0-449aec007d0e",siteUrl:"https://unboffice.sharepoint.com/sites/ITPortal"};
 const SCOPES=['User.Read','Sites.ReadWrite.All'];
 const MODS={};const HOME=[];
-let msal=null,account=null,siteId='',lists={},isIT=true,me='',mode='loading',view=location.hash==='#meet'?'meet':location.hash==='#jd'?'jd':'salekpi',errMsg='';
+let msal=null,account=null,siteId='',lists={},isIT=true,me='',mode='loading',view=location.hash==='#meet'?'meet':location.hash==='#jd'?'jd':location.hash==='#req'?'req':'salekpi',errMsg='';
 const DATA={};
 const ico=()=>'';
 let RP_LOGO='';
@@ -253,16 +253,16 @@ const store={
 };
 async function ensureSale(){if(!DATA.salekpi)DATA.salekpi=(await store.load('salekpi'))||null;return DATA.salekpi}
 function setHeader(){
-  const mt=view==='meet',jd=view==='jd';$('title').textContent=mt?'นัดหมายการประชุม':jd?'ใบกำหนดหน้าที่งาน':'KPI Sale Center';$('sub').textContent=mt?'FM-QMS-06-04 · แผนก Sale Center':jd?'FM-HRM-01-02 · แผนก Sale Center':'FM-QMS-01-03 · แผนก Sale Center';document.title=(mt?'นัดหมายการประชุม':jd?'JD Sale Center':'KPI Sale Center')+' · UNB';
-  $('back').style.display='none';$('tools').innerHTML=(mode==='ready'?`<div class="seg" style="margin:0 0 12px"><button data-vw="salekpi" class="${mt||jd?'':'on'}">KPI</button><button data-vw="meet" class="${mt?'on':''}">นัดประชุม</button><button data-vw="jd" class="${jd?'on':''}">JD</button><button data-vw="so">Check list SO</button></div>`:'')+(mt?meetTools():jd?jdTools():saleTools());
-  document.querySelectorAll('[data-vw]').forEach(b=>b.onclick=()=>{if(b.dataset.vw==='so'){location.href='so.html';return}if(view===b.dataset.vw)return;view=b.dataset.vw;history.replaceState(null,'',view==='meet'?'#meet':view==='jd'?'#jd':location.pathname+location.search);render();scrollTo(0,0)});
+  const mt=view==='meet',jd=view==='jd',rq=view==='req';$('title').textContent=mt?'นัดหมายการประชุม':jd?'ใบกำหนดหน้าที่งาน':rq?'ใบคำขอพัฒนาระบบ':'KPI Sale Center';$('sub').textContent=mt?'FM-QMS-06-04 · แผนก Sale Center':jd?'FM-HRM-01-02 · แผนก Sale Center':rq?'FM-ITM-01-16 · ใบคำขอพัฒนาระบบ':'FM-QMS-01-03 · แผนก Sale Center';document.title=(mt?'นัดหมายการประชุม':jd?'JD Sale Center':rq?'ใบคำขอพัฒนาระบบ':'KPI Sale Center')+' · UNB';
+  $('back').style.display='none';$('tools').innerHTML=(mode==='ready'?`<div class="seg" style="margin:0 0 12px"><button data-vw="salekpi" class="${mt||jd||rq?'':'on'}">KPI</button><button data-vw="meet" class="${mt?'on':''}">นัดประชุม</button><button data-vw="jd" class="${jd?'on':''}">JD</button><button data-vw="req" class="${rq?'on':''}">ใบคำขอ</button><button data-vw="so">Check list SO</button></div>`:'')+(mt?meetTools():jd?jdTools():rq?rqTools():saleTools());
+  document.querySelectorAll('[data-vw]').forEach(b=>b.onclick=()=>{if(b.dataset.vw==='so'){location.href='so.html';return}if(view===b.dataset.vw)return;view=b.dataset.vw;history.replaceState(null,'',view==='meet'?'#meet':view==='jd'?'#jd':view==='req'?'#req':location.pathname+location.search);render();scrollTo(0,0)});
 }
 function render(){
   setHeader();const M=$('main');
   if(mode==='loading'){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   if(mode==='signin'){M.innerHTML='<div class="center"><h2>เข้าสู่ระบบด้วยบัญชีบริษัท</h2><div>ใช้อีเมลและรหัสผ่าน Microsoft 365</div><button class="cta" id="login">เข้าสู่ระบบ Microsoft 365</button></div>';$('login').onclick=()=>msal.loginRedirect({scopes:SCOPES});return}
   if(mode==='err'){M.innerHTML=`<div class="center"><h2>เชื่อมต่อไม่สำเร็จ</h2><div style="font-size:14px">${esc(errMsg)}</div><button class="cta" id="retry">ลองใหม่</button></div>`;$('retry').onclick=()=>location.reload();return}
-  view==='meet'?renderMeet():view==='jd'?renderJD():renderSale();
+  view==='meet'?renderMeet():view==='jd'?renderJD():view==='req'?renderReq():renderSale();
 }
 async function boot(){
   if(DEMO){lists={'Sale KPI':'demo'};me='ทดลอง (demo)';mode='ready';await ensureSale();render();return}
@@ -280,7 +280,7 @@ async function boot(){
 }
 
 /* ===== KPI แผนก Sale Center (FM-QMS-01-03 · list 'Sale KPI' · นับจำนวนครั้ง ผ่านเมื่อ ≤ เป้า) ===== */
-MODS.salekpi={kind:'salekpi',list:'Sale KPI',title:'KPI Sale Center',icon:['chart','#ff9f0a'],desc:'ตัวชี้วัด · FM-QMS-01-03 · Sale Center',titleOf:r=>r.type==='jd'?'JD-'+(r.code||'')+'-'+(r.title||''):r.type==='mt'?'MT-'+(r.date||''):r.type==='m'?'M-'+r.ym:r.type==='cfg'?'cfg':'CA-'+(r.date||''),fields:[],filters:[],sorts:[['x','']],search:[]};
+MODS.salekpi={kind:'salekpi',list:'Sale KPI',title:'KPI Sale Center',icon:['chart','#ff9f0a'],desc:'ตัวชี้วัด · FM-QMS-01-03 · Sale Center',titleOf:r=>r.type==='req'?((r.no||'REQ')+' '+(r.job||'')).trim():r.type==='jd'?'JD-'+(r.code||'')+'-'+(r.title||''):r.type==='mt'?'MT-'+(r.date||''):r.type==='m'?'M-'+r.ym:r.type==='cfg'?'cfg':'CA-'+(r.date||''),fields:[],filters:[],sorts:[['x','']],search:[]};
 const SL_DEF=[
   {n:1,name:'ความผิดพลาดของการให้ราคาขาย',full:'1. ความผิดพลาดของการให้ราคาขายจากต้นทุนประเมิน ไม่เกิน 1 ครั้ง /เดือน',proc:'ความผิดพลาดของการให้ราคาขายจากต้นทุนประเมิน ไม่เกิน 1 ครั้ง /เดือน',target:1,sheet:'การประเมินผิด'},
   {n:2,name:'ความผิดพลาดของการตรวจสอบข้อมูล',full:'2. ความผิดพลาดของการตรวจสอบข้อมูล ไม่เกิน 3 ครั้ง/เดือน',proc:'ความผิดพลาดของการตรวจสอบข้อมูล ไม่เกิน 3 ครั้ง /เดือน',target:3,sheet:'ตรวจสอบข้อมูลผิด'}
@@ -687,6 +687,181 @@ function jdWordBlob(r){const save=MT_CACHE;MT_CACHE=null;let body;try{body=jdHTM
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${esc(r.title||'JD')}</title><style>@page WordSection1{size:595.3pt 841.9pt;margin:36pt 36pt 36pt 36pt}div.WordSection1{page:WordSection1}body{font-family:Tahoma,sans-serif}</style></head><body><div class="WordSection1">${body}</div></body></html>`;
   return new Blob(['﻿',html],{type:'application/msword'})}
 
+
+
+/* ===== ใบคำขอพัฒนาระบบ FM-ITM-01-16 (records type 'req' in list 'Sale KPI') ===== */
+const dmy=s=>{if(!s)return '';const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);return m?`${m[3]}/${m[2]}/${m[1]}`:String(s)};
+const safeName=s=>String(s||'').replace(/[\\/:*?"<>|]/g,'_').trim();
+const rqList=()=>(DATA.salekpi||[]).filter(x=>x.type==='req');
+const rqLogo=()=>(MT_CACHE&&MT_CACHE.logo)||'';
+const rqLoadLogo=()=>mtTpl().catch(()=>null);
+function rqTools(){return `<h1 style="font-size:30px;margin-top:0">ใบคำขอพัฒนาระบบ</h1><div class="sub" style="margin:0 0 4px">FM-ITM-01-16 · เว็บไซต์ / แอปพลิเคชัน · กรอกแล้วพิมพ์ / บันทึกเป็น PDF</div>`}
+function rqButtons(r){return `<div class="rpex" style="margin-top:6px;grid-template-columns:repeat(2,minmax(0,1fr))"><button data-wx="pdf"><b style="background:#ff453a">PDF</b>บันทึกเป็น PDF</button><button data-wx="print"><b style="background:#636366;font-size:20px">⎙</b>พิมพ์</button></div>`}
+const RQ_HDR={code:'FM-ITM-01-16',rev:'00',eff:'2026-10-01',title:'ใบคำขอพัฒนาระบบ (เว็บไซต์ / แอปพลิเคชัน)'};
+const RQ_OPT={urg:['ปกติ','ด่วน','ด่วนมาก'],nature:['ทำใหม่','ปรับปรุงของเดิม'],pri:['ต้องมี','มีก็ดี'],mock:['มีแบบร่างแล้ว','ให้ฝ่าย IT ออกแบบ'],sec:['ทั่วไป','ใช้ภายใน','ลับ','มีข้อมูลส่วนบุคคล'],dl:['เลื่อนได้','เลื่อนไม่ได้'],res:['อนุมัติ','ขอข้อมูลเพิ่ม','ใช้ระบบเดิมแทน','ไม่อนุมัติ']};
+const RQ_TYPES=[['web','เว็บไซต์'],['int','ระบบงานภายใน'],['app','แอปมือถือ']];
+const RQ_DEL=[['man','คู่มือการใช้งาน'],['train','อบรมผู้ใช้'],['uat','ทดสอบร่วม (UAT)'],['admin','สิทธิ์แอดมินให้ฝ่าย'],['rep','รายงาน / Export'],['store','เผยแพร่ใน Store']];
+const RQ_SIGN=[['p','ผู้จัดทำ (Prepared by)','ผู้ขอ'],['r','ผู้ทบทวน (Reviewed by)','หัวหน้าฝ่ายผู้ขอ'],['a','ผู้อนุมัติ (Approved by)','ผู้จัดการฝ่าย IT']];
+const RQ_MAXF=8;
+const rqTitle=d=>((d.no||'REQ')+' '+(d.job||'')).trim();
+const rqAll=()=>rqList().slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||String(b.no||'').localeCompare(String(a.no||'')));
+function rqNextNo(){const y=new Date().getFullYear();let n=0;rqList().forEach(r=>{const m=String(r.no||'').match(new RegExp('^REQ-'+y+'-(\\d+)$'));if(m)n=Math.max(n,+m[1])});return `REQ-${y}-${String(n+1).padStart(3,'0')}`}
+const RQ_BLANK=()=>({type:'req',no:rqNextNo(),date:today(),urg:'ปกติ',name:'',pos:'',dept:'',contact:'',job:'',types:{},nature:'ทำใหม่',users:'',problem:'',benefit:'',feats:[{f:'',d:'',p:'ต้องมี'}],excl:'',mock:'ให้ฝ่าย IT ออกแบบ',sec:'ใช้ภายใน',integ:'',attach:'',need:'',dl:'เลื่อนได้',cc:'',impact:'',del:{},sign:{},it:{}});
+function rqLeft(r){if(!r.date||!r.need)return '';const d=(new Date(r.need)-new Date(r.date))/864e5;return d>0?'≈ '+Math.round(d/30*10)/10+' เดือน':'ตรวจสอบวันที่'}
+function rqStatus(r){const x=(r.it||{}).res;return x||'รอพิจารณา'}
+const rqBadge=s=>({'อนุมัติ':'b-ok','ไม่อนุมัติ':'b-bad','ขอข้อมูลเพิ่ม':'b-warn','ใช้ระบบเดิมแทน':'b-mute'}[s]||'b-mute');
+
+/* ---- printed form: A4 portrait, 12 columns like the Excel sheet ---- */
+const RQ_CSS=`.rqf{width:794px;height:1123px;box-sizing:border-box;padding:30px 34px 0;background:#fff;color:#000;font-family:"Sarabun","Noto Sans Thai",Tahoma,sans-serif;font-size:9.5px;line-height:1.2;position:relative;text-align:left;letter-spacing:0}
+.rqf table{border-collapse:collapse;width:100%;table-layout:fixed}.rqf td{border:.8px solid #7f7f7f;padding:0 4px;vertical-align:middle;overflow:hidden}
+.rqf .hd td{border:1px solid #000}.rqf .co{text-align:center;font-size:18px;font-weight:700}.rqf .lg{text-align:center}.rqf .lg img{max-width:88%;max-height:56px}.rqf .lg b{font-size:26px;color:#1d6b3a}
+.rqf .wtt{text-align:center;font-size:16px;font-weight:700}.rqf .ti{text-align:center;font-size:12.5px;font-weight:700}.rqf .lb2{text-align:right;font-size:8px;white-space:nowrap;border-right:0}.rqf .vl2{text-align:center;font-weight:700;font-size:9px}
+.rqf .sec td{border-left:0;border-right:0;font-weight:700;font-size:10.5px;padding-top:1px}.rqf .k{font-size:8.5px;vertical-align:top;padding-top:1px}.rqf .v{font-size:9.5px}
+.rqf .c{text-align:center}.rqf .r{text-align:right}.rqf .b{font-weight:700}.rqf .note td{border:0;font-size:7.5px;color:#595959;font-style:italic}
+.rqf .th td{font-weight:700;text-align:center;font-size:9px}.rqf .tot td{border:0;text-align:right;color:#1f3864;font-weight:700;font-size:8.5px}
+.rqf .sg td{border:1px solid #000;text-align:center}.rqf .sg .h td{font-weight:700;font-size:10px}.rqf .sg .rl td{font-size:8.5px}.rqf .sg .dt td{font-weight:700;font-size:10px}
+.rqf .fit{overflow:hidden;word-break:break-word;white-space:pre-wrap}.rqf .ft{position:absolute;left:34px;bottom:22px;font-size:7.5px}`;
+function rqHTML(r){const S=0.628,px=pt=>Math.round(pt*1.3333*S);
+  const tr=(pt,cells,cls)=>`<tr${cls?` class="${cls}"`:''} style="height:${px(pt)}px">${cells}</tr>`;
+  const td=(span,html,cls,rs)=>`<td${span>1?` colspan="${span}"`:''}${rs?` rowspan="${rs}"`:''}${cls?` class="${cls}"`:''}>${html}</td>`;
+  const fv=(pt,v,cls,rows)=>`<div class="fit${cls?' '+cls:''}" data-h="${px(pt*(rows||1))-2}" style="max-height:${px(pt*(rows||1))-2}px">${esc(v||'')}</div>`;
+  const ck=on=>on?'<svg width="11" height="11" viewBox="0 0 12 12"><path d="M2 6.5 5 9.5 10.5 2.5" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>':'';
+  const T=r.types||{},D=r.del||{},I=r.it||{},SG=r.sign||{};const F=(r.feats||[]).slice(0,RQ_MAXF);while(F.length<RQ_MAXF)F.push({});
+  const nf=F.filter(x=>x.f).length,nm=F.filter(x=>x.f&&x.p==='ต้องมี').length,ng=F.filter(x=>x.f&&x.p==='มีก็ดี').length;
+  const sec=t=>tr(21.75,td(12,t),'sec');
+  const kv=(pt,k,v,span)=>td(2,fv(pt,k),'k')+td(span||10,fv(pt,v,'v'));
+  return `<div class="rqf"><table><colgroup><col style="width:11.1%">${'<col style="width:7.33%">'.repeat(10)}<col style="width:15.6%"></colgroup>
+  <tbody class="hd">${tr(58.5,td(12,esc(r.company||'บริษัทยูเนียนเบลท์ อินเตอร์เนชั่นแนล จำกัด'),'co'))}
+  ${tr(21.75,td(2,rqLogo()?`<img src="${rqLogo()}">`:'<b>UNB</b>','lg',4)+td(6,'Work Form','wtt',2)+td(3,'รหัสเอกสาร (Doc No) :','lb2')+td(1,RQ_HDR.code,'vl2'))}
+  ${tr(21.75,td(3,'แก้ไขครั้งที่ (Revision) :','lb2')+td(1,RQ_HDR.rev,'vl2'))}
+  ${tr(21.75,td(6,'เรื่อง : '+esc(RQ_HDR.title),'ti',2)+td(3,'วันที่บังคับใช้ (Effective date) :','lb2')+td(1,dmy(RQ_HDR.eff),'vl2'))}
+  ${tr(21.75,td(3,'หน้าที่ (Page) :','lb2')+td(1,'1','vl2'))}</tbody>
+  <tbody>${tr(21.75,td(2,'เลขที่คำขอ','k')+td(2,esc(r.no),'v c')+td(2,'วันที่ขอ','k')+td(2,esc(dmy(r.date)),'v c')+td(2,'ความเร่งด่วน','k')+td(2,esc(r.urg),'v c'))}
+  ${tr(15,td(12,'ผู้ขอกรอกส่วนที่ 1–6 • ส่วนที่ 7 ลงนาม • ส่วนที่ 8 ฝ่าย IT เป็นผู้กรอก'),'note')}
+  ${sec('1. ผู้ขอ')}
+  ${tr(21.75,td(2,'ชื่อ-นามสกุล','k')+td(4,fv(21.75,r.name,'v'))+td(2,'ตำแหน่ง','k')+td(4,fv(21.75,r.pos,'v')))}
+  ${tr(21.75,td(2,'ฝ่าย / แผนก','k')+td(4,fv(21.75,r.dept,'v'))+td(2,'เบอร์ภายใน / อีเมล','k')+td(4,fv(21.75,r.contact,'v')))}
+  ${sec('2. งานที่ต้องการ')}
+  ${tr(21.75,kv(21.75,'ชื่องาน',r.job))}
+  ${tr(21.75,td(2,'ประเภท','k')+td(1,ck(T.web),'c')+td(2,'เว็บไซต์','k')+td(1,ck(T.int),'c')+td(2,'ระบบงานภายใน','k')+td(1,ck(T.app),'c')+td(3,'แอปมือถือ','k'))}
+  ${tr(30,td(2,'ลักษณะงาน','k')+td(4,fv(30,r.nature,'v'))+td(2,'ผู้ใช้งาน<br>(ฝ่าย / จำนวนคน)','k')+td(4,fv(30,r.users,'v')))}
+  ${tr(37.5,kv(37.5,'ปัญหาปัจจุบัน',r.problem))}
+  ${tr(37.5,td(2,'ประโยชน์ที่คาดว่า<br>จะได้รับ','k')+td(10,fv(37.5,r.benefit,'v')))}
+  ${sec('3. ฟีเจอร์ที่ต้องการ')}
+  ${tr(19.5,td(1,'ที่')+td(3,'ฟีเจอร์')+td(6,'รายละเอียดสั้น ๆ')+td(2,'ความสำคัญ'),'th')}
+  ${F.map((x,i)=>tr(24,td(1,i+1,'c v')+td(3,fv(24,x.f,'v'))+td(6,fv(24,x.d,'v'))+td(2,x.f?esc(x.p||''):'','c v'))).join('')}
+  ${tr(18,td(12,`<div style="width:100%;text-align:right;white-space:nowrap">รวม ${nf} ฟีเจอร์ &#160;(ต้องมี ${nm} / มีก็ดี ${ng})</div>`),'tot')}
+  ${tr(30,kv(30,'ไม่รวมในงานนี้',r.excl))}
+  ${sec('4. ข้อมูลประกอบ')}
+  ${tr(21.75,td(2,'หน้าจอ / แบบร่าง','k')+td(4,fv(21.75,r.mock,'v'))+td(2,'ชั้นความลับข้อมูล','k')+td(4,fv(21.75,r.sec,'v')))}
+  ${tr(30,td(2,'ระบบภายในที่ต้องเชื่อม<br>(ERP, HR, AD ฯลฯ)','k')+td(10,fv(30,r.integ,'v')))}
+  ${tr(30,kv(30,'เอกสารแนบ',r.attach))}
+  ${sec('5. กำหนดเวลาและค่าใช้จ่าย')}
+  ${tr(21.75,td(2,'ต้องการใช้งาน','k')+td(4,esc(dmy(r.need)),'v')+td(2,'กำหนดเวลา','k')+td(4,fv(21.75,r.dl,'v')))}
+  ${tr(21.75,td(2,'เหลือเวลา','k')+td(4,esc(rqLeft(r)),'v b')+td(2,'Cost Center','k')+td(4,fv(21.75,r.cc,'v')))}
+  ${tr(30,td(2,'ผลกระทบหากล่าช้า /<br>ค่าใช้จ่ายเพิ่ม (ถ้ามี)','k')+td(10,fv(30,r.impact,'v')))}
+  ${sec('6. สิ่งที่ต้องการเมื่อส่งมอบ')}
+  ${tr(21.75,td(2,'ส่งมอบ','k',2)+[0,1,2].map(j=>td(1,ck(D[RQ_DEL[j][0]]),'c')+td(j===2?3:2,RQ_DEL[j][1],'k')).join(''))}
+  ${tr(21.75,[3,4,5].map(j=>td(1,ck(D[RQ_DEL[j][0]]),'c')+td(j===5?3:2,RQ_DEL[j][1],'k')).join(''))}
+  ${sec('7. ลงนาม')}</tbody>
+  <tbody class="sg">${tr(25.5,RQ_SIGN.map(([k,l])=>td(4,l)).join(''),'h')}
+  ${tr(61.5,RQ_SIGN.map(([k])=>td(4,(SG[k]||{}).n?`<div style="padding-top:${px(38)}px">( ${esc(SG[k].n)} )</div>`:'')).join(''))}
+  ${tr(21.75,RQ_SIGN.map(([k,,role])=>td(4,role)).join(''),'rl')}
+  ${tr(24,RQ_SIGN.map(([k])=>td(4,'วันที่ : '+((SG[k]||{}).d?esc(dmy(SG[k].d)):'...../...../........'))).join(''),'dt')}</tbody>
+  <tbody>${sec('8. สำหรับฝ่าย IT')}
+  ${tr(21.75,td(2,'วันที่รับเรื่อง','k')+td(4,esc(dmy(I.recv)),'v')+td(2,'ผลพิจารณา','k')+td(4,esc(I.res||''),'v b'))}
+  ${tr(21.75,td(2,'ผู้รับผิดชอบ','k')+td(4,fv(21.75,I.owner,'v'))+td(2,'ประมาณการ (วันทำงาน)','k')+td(4,esc(I.est||''),'v'))}
+  ${tr(21.75,td(2,'วันเริ่มงาน','k')+td(4,esc(dmy(I.start)),'v')+td(2,'วันส่งมอบ','k')+td(4,esc(dmy(I.done)),'v'))}
+  ${tr(33.75,kv(33.75,'ความเห็น',I.note))}</tbody></table>
+  <div class="ft">${RQ_HDR.code} Rev.${RQ_HDR.rev}</div></div>`}
+/* shrink text that does not fit its cell */
+function rqFit(root){root.querySelectorAll('.rqf .fit').forEach(el=>{const h=+el.dataset.h;let fs=parseFloat(getComputedStyle(el).fontSize);while(el.scrollHeight>h+1&&fs>6.5){fs-=.5;el.style.fontSize=fs+'px'}})}
+const RQ_FIT_SRC='('+rqFit.toString()+')(document)';
+function rqPrev(box,r){const sc=Math.min(1,box.clientWidth/794)||.45;box.style.height=Math.ceil(1123*sc)+'px';box.innerHTML=`<div style="width:794px;transform:scale(${sc});transform-origin:0 0"><style>${RQ_CSS}</style>${rqHTML(r)}</div>`;rqFit(box);(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>rqFit(box))}
+const rqFile=r=>safeName(`${RQ_HDR.code}_${r.no||''}_${r.job||''}`);
+async function rqPdf(r){await loadLib('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js','html2canvas');await loadLib('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js','jspdf');
+  const host=document.createElement('div');host.style.cssText='position:fixed;left:-12000px;top:0;width:794px';host.innerHTML=`<style>${RQ_CSS}</style>${rqHTML(r)}`;document.body.appendChild(host);
+  try{try{await document.fonts.ready}catch(_){};await Promise.all([...host.querySelectorAll('img')].map(i=>i.complete?0:new Promise(z=>{i.onload=i.onerror=z})));rqFit(host);
+    const c=await html2canvas(host.querySelector('.rqf'),{scale:2.5,backgroundColor:'#fff',logging:false});
+    const pdf=new jspdf.jsPDF({unit:'mm',format:'a4',orientation:'portrait'});pdf.addImage(c.toDataURL('image/jpeg',.93),'JPEG',0,0,210,297);
+    pdf.setProperties({title:rqTitle(r)});rpSaveFile(pdf.output('blob'),rqFile(r)+'.pdf')}finally{host.remove()}}
+function rqPrint(r){const w=window.open('','_blank');if(!w){toast('เบราว์เซอร์บล็อกหน้าต่างใหม่ ลองกดปุ่ม PDF แทน');return}
+  w.document.open();w.document.write(`<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><title>${esc(rqFile(r))}</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet"><style>@page{size:A4 portrait;margin:0}html,body{margin:0;background:#fff}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}${RQ_CSS}.rqf{height:1120px;overflow:hidden}</style></head><body>${rqHTML(r)}<script>(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{${RQ_FIT_SRC};setTimeout(()=>window.print(),300)})<\/script></body></html>`);w.document.close()}
+function rqWire(get){document.querySelectorAll('[data-wx]').forEach(b=>b.onclick=async()=>{const r=get();if(!r)return;if(b.dataset.wx==='print'){rqPrint(r);return}
+  const old=b.innerHTML;b.disabled=true;b.innerHTML='<div class="spin"></div>';try{await rqPdf(r);toast('บันทึก PDF แล้ว')}catch(e){toast('สร้าง PDF ไม่สำเร็จ: '+e.message)}finally{b.disabled=false;b.innerHTML=old}})}
+
+/* ---- screens ---- */
+function renderReq(){const M=$('main');
+  if(!lists[MODS.salekpi.list]){M.innerHTML='<div class="empty">ยังไม่มี list "Sale KPI" ใน SharePoint</div>';return}
+  if(!DATA.salekpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
+  const L=rqAll();
+  M.innerHTML=`<button class="mtcta" id="rq_new"><span style="font-size:24px">📝</span><span><b>เขียนใบคำขอพัฒนาระบบ</b><small>FM-ITM-01-16 · ผู้ขอกรอกส่วนที่ 1–6 · ฝ่าย IT กรอกส่วนที่ 8</small></span>${CHEV}</button>`+
+  (L.length?L.map(r=>{const st=rqStatus(r);return `<div class="kpca" data-rq="${esc(r._id)}"><div class="d" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>${esc(r.no||'')} · ${esc(dmy(r.date))} · ${esc(r.urg||'')}</span><span class="badge ${rqBadge(st)}">${esc(st)}</span></div><p style="font-weight:700;font-size:16px">${esc(r.job||'(ยังไม่ระบุชื่องาน)')}</p><p style="color:var(--sub);font-size:13px">${esc(r.name||'')}${r.dept?' · '+esc(r.dept):''}${r.need?' · ต้องการใช้ '+esc(dmy(r.need)):''}</p></div>`}).join(''):'<div class="empty">ยังไม่มีใบคำขอ · กด “เขียนใบคำขอพัฒนาระบบ”</div>');
+  $('rq_new').onclick=()=>rqEdit(null);
+  M.querySelectorAll('[data-rq]').forEach(c=>c.onclick=()=>rqView(rqList().find(x=>x._id===c.dataset.rq)))}
+function rqView(r){if(!r)return;
+  openSheet(`${shh('<button class="x" id="rv_e">แก้ไข</button>',esc(r.no||'ใบคำขอ'),'<button class="x b" id="rv_x">เสร็จ</button>')}${rqButtons(r)}
+  <div class="vpnote">สถานะ: ${esc(rqStatus(r))} · พิมพ์ = เลือก “บันทึกเป็น PDF” ในหน้าต่างพิมพ์ได้${r.at?' · แก้ไขล่าสุด '+esc(String(r.at).slice(0,10))+(r.by?' โดย '+esc(r.by):''):''}</div>
+  <div class="fmprev" id="rv_prev" style="margin-top:12px;cursor:default"></div>
+  <div class="btnlist"><button id="rv_dup">คัดลอกเป็นใบคำขอใหม่</button></div>`);
+  const pv=()=>{if($('rv_prev'))rqPrev($('rv_prev'),r)};pv();if(!rqLogo())rqLoadLogo().then(pv);
+  $('rv_x').onclick=closeSheet;$('rv_e').onclick=()=>rqEdit(r);rqWire(()=>r);
+  $('rv_dup').onclick=()=>{const{_id,by,at,...x}=JSON.parse(JSON.stringify(r));Object.assign(x,{no:rqNextNo(),date:today(),sign:{},it:{}});rqEdit(null,x)}}
+function rqEdit(r,draft){const isNew=!r||!r._id;const m=draft||JSON.parse(JSON.stringify(r||RQ_BLANK()));
+  ['types','del','sign','it'].forEach(k=>m[k]=m[k]||{});if(!Array.isArray(m.feats))m.feats=[];RQ_SIGN.forEach(([k])=>m.sign[k]=m.sign[k]||{n:'',d:''});
+  const inp='border:0;background:var(--k2,#fff);border-radius:8px;padding:8px 10px;font-size:15px;min-width:0';
+  const sel=(id,opts,v,blank)=>`<select id="${id}">${blank?`<option value="">${blank}</option>`:''}${opts.map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+  const F=(lab,html)=>`<div class="f"><label>${lab}</label>${html}</div>`;
+  const I=(id,v,ph,type)=>`<input id="${id}" ${type?`type="${type}"`:''} value="${esc(v||'')}" placeholder="${esc(ph||'')}">`;
+  const A=(lab,id,v,ph)=>`<div class="f area"><label>${lab}</label><textarea id="${id}" rows="2" placeholder="${esc(ph||'')}">${esc(v||'')}</textarea></div>`;
+  const chips=(grp,list,obj)=>`<div style="display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px">${list.map(([k,l])=>`<button type="button" class="chip" data-${grp}="${k}" style="${obj[k]?'':'background:var(--k2,#fff)!important;color:var(--ink)!important'};border-radius:999px;padding:8px 14px;font-size:14px">${obj[k]?'✓ ':''}${l}</button>`).join('')}</div>`;
+  const val=id=>($(id)||{}).value;
+  const sync=()=>{if(!$('rq_s'))return;['no','date','urg','name','pos','dept','contact','job','nature','users','problem','benefit','excl','mock','sec','integ','attach','need','dl','cc','impact'].forEach(k=>{if($('rq_'+k))m[k]=val('rq_'+k)});
+    m.feats=[...document.querySelectorAll('[data-ft]')].map(el=>({f:el.querySelector('[data-f="f"]').value,d:el.querySelector('[data-f="d"]').value,p:el.querySelector('[data-f="p"]').value}));
+    RQ_SIGN.forEach(([k])=>m.sign[k]={n:val('rq_sn'+k)||'',d:val('rq_sd'+k)||''});
+    ['recv','res','owner','est','start','done','note'].forEach(k=>{if($('rq_it_'+k))m.it[k]=val('rq_it_'+k)})};
+  let tm=0;const upd=()=>{clearTimeout(tm);tm=setTimeout(()=>{sync();if($('rq_prev'))rqPrev($('rq_prev'),m)},300)};
+  const redo=()=>{const st=$('sheet').scrollTop;draw();$('sheet').scrollTop=st};
+  function draw(){
+  openSheet(`${shh('<button class="x" id="rq_x">ยกเลิก</button>',isNew?'ใบคำขอใหม่':'แก้ไขใบคำขอ','<button class="x b" id="rq_s">บันทึก</button>')}
+  <div class="formg">${F('เลขที่คำขอ',I('rq_no',m.no))}${F('วันที่ขอ',I('rq_date',m.date,'','date'))}${F('ความเร่งด่วน',sel('rq_urg',RQ_OPT.urg,m.urg))}</div>
+  <div class="fgroup"><h3>1. ผู้ขอ</h3></div><div class="formg">${F('ชื่อ-นามสกุล',I('rq_name',m.name))}${F('ตำแหน่ง',I('rq_pos',m.pos))}${F('ฝ่าย / แผนก',I('rq_dept',m.dept))}${F('เบอร์ภายใน / อีเมล',I('rq_contact',m.contact,'เช่น 1031 / name@unionbelt.co.th'))}</div>
+  <div class="fgroup"><h3>2. งานที่ต้องการ</h3></div><div class="formg">${F('ชื่องาน',I('rq_job',m.job,'เช่น ระบบเก็บรูปภาพงานตาม SO'))}
+    <div class="f area"><label>ประเภท (เลือกได้หลายข้อ)</label></div>${chips('ty',RQ_TYPES,m.types)}
+    ${F('ลักษณะงาน',sel('rq_nature',RQ_OPT.nature,m.nature))}${F('ผู้ใช้งาน (ฝ่าย / จำนวนคน)',I('rq_users',m.users))}
+    ${A('ปัญหาปัจจุบัน','rq_problem',m.problem)}${A('ประโยชน์ที่คาดว่าจะได้รับ','rq_benefit',m.benefit)}</div>
+  <div class="fgroup"><h3>3. ฟีเจอร์ที่ต้องการ (สูงสุด ${RQ_MAXF} ข้อ)</h3></div>
+  ${m.feats.map((x,i)=>`<div class="kpjob" data-ft="${i}" style="padding:10px 12px;display:block"><div style="display:flex;gap:8px;align-items:center"><b style="width:18px;color:var(--sub)">${i+1}</b><input data-f="f" value="${esc(x.f||'')}" placeholder="ฟีเจอร์" style="${inp};flex:1"><select data-f="p" style="${inp};flex:none">${RQ_OPT.pri.map(o=>`<option ${o===(x.p||'ต้องมี')?'selected':''}>${o}</option>`).join('')}</select><button data-fdel="${i}" style="color:var(--bad);font-size:20px;width:26px">×</button></div>
+    <input data-f="d" value="${esc(x.d||'')}" placeholder="รายละเอียดสั้น ๆ" style="${inp};width:100%;margin-top:6px"></div>`).join('')}
+  ${m.feats.length<RQ_MAXF?'<div class="btnlist" style="margin-top:10px"><button id="rq_fadd">+ เพิ่มฟีเจอร์</button></div>':''}
+  <div class="formg">${A('ไม่รวมในงานนี้','rq_excl',m.excl,'สิ่งที่ไม่ต้องทำในงานนี้')}</div>
+  <div class="fgroup"><h3>4. ข้อมูลประกอบ</h3></div><div class="formg">${F('หน้าจอ / แบบร่าง',sel('rq_mock',RQ_OPT.mock,m.mock))}${F('ชั้นความลับข้อมูล',sel('rq_sec',RQ_OPT.sec,m.sec))}
+    ${A('ระบบภายในที่ต้องเชื่อม (ERP, HR, AD ฯลฯ)','rq_integ',m.integ)}${A('เอกสารแนบ','rq_attach',m.attach)}</div>
+  <div class="fgroup"><h3>5. กำหนดเวลาและค่าใช้จ่าย</h3></div><div class="formg">${F('ต้องการใช้งาน',I('rq_need',m.need,'','date'))}${F('กำหนดเวลา',sel('rq_dl',RQ_OPT.dl,m.dl))}${F('Cost Center',I('rq_cc',m.cc))}
+    ${A('ผลกระทบหากล่าช้า / ค่าใช้จ่ายเพิ่ม (ถ้ามี)','rq_impact',m.impact)}</div>
+  <div class="fgroup"><h3>6. สิ่งที่ต้องการเมื่อส่งมอบ</h3></div><div class="formg">${chips('dv',RQ_DEL,m.del)}</div>
+  <div class="fgroup"><h3>7. ลงนาม (เว้นว่างได้ ถ้าจะเซ็นมือ)</h3></div><div class="formg">
+  ${RQ_SIGN.map(([k,,role])=>F(role,I('rq_sn'+k,m.sign[k].n,'ชื่อ-นามสกุล'))+F('วันที่ ('+role+')',I('rq_sd'+k,m.sign[k].d,'','date'))).join('')}</div>
+  <div class="fgroup"><h3>8. สำหรับฝ่าย IT</h3></div><div class="formg">${F('วันที่รับเรื่อง',I('rq_it_recv',m.it.recv,'','date'))}${F('ผลพิจารณา',sel('rq_it_res',RQ_OPT.res,m.it.res,'— ยังไม่พิจารณา —'))}
+    ${F('ผู้รับผิดชอบ',I('rq_it_owner',m.it.owner))}${F('ประมาณการ (วันทำงาน)',I('rq_it_est',m.it.est,'','number'))}${F('วันเริ่มงาน',I('rq_it_start',m.it.start,'','date'))}${F('วันส่งมอบ',I('rq_it_done',m.it.done,'','date'))}
+    ${A('ความเห็น','rq_it_note',m.it.note)}</div>
+  <div class="fgroup"><h3>ตัวอย่างก่อนพิมพ์</h3></div><div class="fmprev" id="rq_prev" style="cursor:default"></div>
+  ${rqButtons(m)}
+  ${isNew?'':'<div class="btnlist"><button class="d" id="rq_del">ลบใบคำขอนี้</button></div>'}`);
+  rqPrev($('rq_prev'),m);
+  $('sheet').querySelectorAll('input,select,textarea').forEach(el=>{el.addEventListener('input',upd);el.addEventListener('change',upd)});
+  $('sheet').querySelectorAll('[data-ty]').forEach(b=>b.onclick=()=>{sync();const k=b.dataset.ty;m.types[k]=!m.types[k];redo()});
+  $('sheet').querySelectorAll('[data-dv]').forEach(b=>b.onclick=()=>{sync();const k=b.dataset.dv;m.del[k]=!m.del[k];redo()});
+  if($('rq_fadd'))$('rq_fadd').onclick=()=>{sync();m.feats.push({f:'',d:'',p:'ต้องมี'});redo()};
+  $('sheet').querySelectorAll('[data-fdel]').forEach(b=>b.onclick=()=>{sync();m.feats.splice(+b.dataset.fdel,1);redo()});
+  $('rq_x').onclick=()=>r&&r._id?rqView(rqList().find(x=>x._id===r._id)):closeSheet();
+  rqWire(()=>{sync();return m});
+  $('rq_s').onclick=async()=>{sync();if(!m.name){toast('กรุณากรอกชื่อผู้ขอ');$('rq_name').focus();return}if(!m.job){toast('กรุณากรอกชื่องาน');$('rq_job').focus();return}
+    m.feats=m.feats.filter(x=>x.f||x.d);const b=$('rq_s');b.disabled=true;clearTimeout(tm);const rec={...JSON.parse(JSON.stringify(m)),type:'req',by:me,at:nowIso()};if(r&&r._id)rec._id=r._id;
+    try{await store.save('salekpi',rec);toast('บันทึกแล้ว');render();rqView(rec._id?rqList().find(x=>x._id===rec._id):DATA.salekpi[DATA.salekpi.length-1])}catch(e){toast(e.status===403?'ไม่มีสิทธิ์บันทึก':'บันทึกไม่สำเร็จ: '+e.message)}finally{if($('rq_s'))b.disabled=false}};
+  if($('rq_del'))$('rq_del').onclick=async()=>{if(!confirm('ลบใบคำขอ “'+(m.no||'')+' '+(m.job||'')+'” ?'))return;try{await store.del('salekpi',r._id);closeSheet();toast('ลบแล้ว');render()}catch(e){toast('ลบไม่สำเร็จ: '+e.message)}};
+  }
+  draw();if(!rqLogo())rqLoadLogo().then(()=>{if($('rq_prev'))rqPrev($('rq_prev'),m)})}
 
 
 boot();
