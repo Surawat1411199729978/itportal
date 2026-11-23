@@ -571,17 +571,21 @@ function renderJD(){const M=$('main');
   if(!lists[MODS.salekpi.list]){M.innerHTML='<div class="empty">ยังไม่มี list "Sale KPI" ใน SharePoint</div>';return}
   if(!DATA.salekpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   const L=jdAll();
-  M.innerHTML=L.length?L.map(r=>`<div class="kpca" data-jd="${esc(r._id)}"><div class="d">${esc(r.code||'FM-HRM-01-02')} · แผนก${esc(r.dept||'')} · ระดับ${esc(r.level||'')}</div><p style="font-weight:700;font-size:17px">${esc(r.title||'')}</p><p style="color:var(--sub);font-size:13.5px">ผู้บังคับบัญชา: ${esc(r.boss||'')}</p><p style="color:var(--sub);font-size:13px">หน้าที่หลัก ${(r.duties||[]).length} หมวด · ${(r.duties||[]).reduce((a,d)=>a+(d.items||[]).length,0)} ข้อ</p></div>`).join(''):'<div class="empty">ยังไม่มี JD ในระบบ</div>';
+  M.innerHTML=`<button class="mtcta" id="jd_new"><span style="font-size:24px">📝</span><span><b>เพิ่ม JD ตำแหน่งใหม่</b><small>กรอกหน้าที่ ผลที่คาดหวัง หน่วยงานที่เกี่ยวข้อง อำนาจอนุมัติ และคุณสมบัติ</small></span>${CHEV}</button>`+(L.length?L.map(r=>`<div class="kpca" data-jd="${esc(r._id)}"><div class="d">${esc(r.code||'FM-HRM-01-02')} · แผนก${esc(r.dept||'')} · ระดับ${esc(r.level||'')}</div><p style="font-weight:700;font-size:17px">${esc(r.title||'')}</p><p style="color:var(--sub);font-size:13.5px">ผู้บังคับบัญชา: ${esc(r.boss||'')}</p><p style="color:var(--sub);font-size:13px">หน้าที่หลัก ${(r.duties||[]).length} หมวด · ${(r.duties||[]).reduce((a,d)=>a+(d.items||[]).length,0)} ข้อ</p></div>`).join(''):'<div class="empty">ยังไม่มี JD ในระบบ</div>');
+  $('jd_new').onclick=()=>jdEdit(null);
   M.querySelectorAll('[data-jd]').forEach(c=>c.onclick=()=>jdView(jdAll().find(x=>x._id===c.dataset.jd)))}
 function jdView(r){if(!r)return;
-  openSheet(`${shh('<span></span>','JD · '+esc(r.title||''),'<button class="x b" id="jv_x">เสร็จ</button>')}
+  openSheet(`${shh('<button class="x" id="jv_e">แก้ไข</button>','JD · '+esc(r.title||''),'<button class="x b" id="jv_x">เสร็จ</button>')}
   <div class="rpex" style="margin-top:6px"><button data-jx="docx"><b style="background:#2b579a">DOC</b>Word</button><button data-jx="print"><b style="background:#636366;font-size:20px">⎙</b>พิมพ์ / PDF</button></div>
-  <div class="vpnote">Word = ไฟล์ FM-HRM-01-02 ตัวจริงใน SharePoint · พิมพ์ / PDF = เลือก "บันทึกเป็น PDF" ในหน้าต่างพิมพ์ได้</div>
-  <div class="jdwrap" id="jv_doc">${jdHTML(r)}</div>`);
-  $('jv_x').onclick=closeSheet;
+  <div class="vpnote">${r.edited||!r.file?'Word = สร้างจากข้อมูลล่าสุดในระบบ':'Word = ไฟล์ FM-HRM-01-02 ตัวจริงใน SharePoint'} · พิมพ์ / PDF = เลือก "บันทึกเป็น PDF" ในหน้าต่างพิมพ์ได้${r.at?' · แก้ไขล่าสุด '+esc(String(r.at).slice(0,10))+(r.by?' โดย '+esc(r.by):''):''}</div>
+  <div class="jdwrap" id="jv_doc">${jdHTML(r)}</div>
+  <div class="btnlist"><button id="jv_dup">คัดลอกเป็น JD ตำแหน่งใหม่</button></div>`);
+  $('jv_x').onclick=closeSheet;$('jv_e').onclick=()=>jdEdit(r);
+  $('jv_dup').onclick=()=>{const{_id,by,at,file,edited,...x}=JSON.parse(JSON.stringify(r));x.title='';jdEdit(null,x)};
   if(!MT_CACHE&&!DEMO)mtTpl().then(()=>{if($('jv_doc'))$('jv_doc').innerHTML=jdHTML(r)}).catch(()=>{});
   document.querySelectorAll('[data-jx]').forEach(b=>b.onclick=async()=>{const k=b.dataset.jx,old=b.innerHTML;
     if(k==='print'){jdPrint(r);return}
+    if(r.edited||!r.file){rpSaveFile(jdWordBlob(r),`${r.code||'JD'}_JD_${(r.title||'').replace(/[\\/:*?"<>|]/g,'_')}.doc`);toast('สร้างไฟล์ Word แล้ว');return}
     b.disabled=true;b.innerHTML='<div class="spin"></div>';
     try{const path=String(r.file||'').split('/').map(encodeURIComponent).join('/');const it=await g(`/sites/${siteId}/drive/root:/${path}`);const res=await fetch(it['@microsoft.graph.downloadUrl']);if(!res.ok)throw new Error('HTTP '+res.status);rpSaveFile(await res.blob(),String(r.file).split('/').pop());toast('ดาวน์โหลดแล้ว')}
     catch(e){toast('ดาวน์โหลดไม่สำเร็จ: '+e.message)}finally{b.disabled=false;b.innerHTML=old}})}
@@ -593,7 +597,7 @@ const JD_CSS=`.jdoc{background:#fff;color:#000;font-family:Tahoma,"Sarabun","Not
 .jdoc h4{margin:16px 0 6px;font-size:14.5px;font-weight:700}.jdoc .dh{font-weight:700;text-decoration:underline;margin-bottom:2px}
 .jdoc ol{margin:0;padding-left:20px}.jdoc li{margin:1px 0}.jdoc .c{text-align:center}.jdoc .sub2{background:#dbe5f1;text-align:center;font-weight:700}
 .jdoc .sg td{text-align:center;height:64px;vertical-align:bottom}.jdoc .sg th{background:#a7c4a9}.jdoc tr{break-inside:avoid}.jdoc h4{break-after:avoid}
-.jdwrap{background:#fff;border-radius:14px;padding:16px;margin-top:12px;overflow-x:auto}.jdwrap .jdoc{min-width:680px}`;
+.jdwrap{background:#fff;border-radius:14px;padding:16px;margin-top:12px;overflow-x:auto}.jdwrap .jdoc{min-width:640px}`;
 function jdHTML(r){const logo=MT_CACHE&&MT_CACHE.logo;const ol=a=>`<ol>${(a||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`;
   const t2=(rows)=>`<table><colgroup><col style="width:34%"><col></colgroup><tr><th>หน่วยงาน / ผู้เกี่ยวข้อง</th><th>ลักษณะการประสานงาน</th></tr>${rows.map((x,i)=>`<tr><td>${i+1}. ${esc(x[0])}</td><td>${esc(x[1])}</td></tr>`).join('')}</table>`;
   return `<style>${JD_CSS}</style><div class="jdoc">
@@ -615,6 +619,73 @@ function jdHTML(r){const logo=MT_CACHE&&MT_CACHE.logo;const ol=a=>`<ol>${(a||[])
   <table class="sg"><tr><th>ผู้จัดทำ (Prepared by)</th><th>พนักงาน (Employee)</th><th>ผู้อนุมัติ (Approved by)</th></tr><tr><td>(..................................)<br>วันที่ ......../......../........</td><td>(..................................)<br>วันที่ ......../......../........</td><td>(..................................)<br>วันที่ ......../......../........</td></tr></table></div>`}
 function jdPrint(r){const w=window.open('','_blank');if(!w){toast('เบราว์เซอร์บล็อกหน้าต่างใหม่');return}
   w.document.open();w.document.write(`<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><title>${esc((r.code||'JD')+'_'+(r.title||''))}</title><style>@page{size:A4 portrait;margin:12mm}body{margin:0}</style></head><body>${jdHTML(r)}<script>window.onload=()=>setTimeout(()=>window.print(),300)<\/script></body></html>`);w.document.close()}
+
+/* ---- JD: แก้ไข / เพิ่ม / ลบ ---- */
+const JD_BLANK=()=>({type:'jd',code:'FM-HRM-01-02',rev:'00',eff:'',title:'',dept:'ขาย',org:'ฝ่ายขาย',level:'',boss:'',duties:[{h:'หมวด 1. ',items:[],res:[]}],rel:[],ext:[],auth:[],qual:[],know:[],skill:[],trait:[]});
+const jdLines=s=>String(s||'').split('\n').map(x=>x.replace(/^\s*\d+[.)]\s*/,'').trim()).filter(Boolean);
+function jdEdit(r,draft){const isNew=!r||!r._id;const m=draft||JSON.parse(JSON.stringify(r||JD_BLANK()));['duties','rel','ext','auth','qual','know','skill','trait'].forEach(k=>{if(!Array.isArray(m[k]))m[k]=[]});
+  const ta=(id,arr,ph,rows)=>`<textarea id="${id}" rows="${rows||Math.max(3,(arr||[]).length+1)}" placeholder="${esc(ph||'1 บรรทัดต่อ 1 ข้อ')}" style="width:100%;border:0;background:var(--fill);border-radius:10px;padding:9px 11px;font-size:15px;line-height:1.5;resize:vertical">${esc((arr||[]).join('\n'))}</textarea>`;
+  const inp='border:0;background:var(--fill);border-radius:8px;padding:8px 10px;font-size:15px;min-width:0';
+  const pairRows=(key,ph1,ph2)=>m[key].map((x,i)=>`<div class="kpjob" data-${key}="${i}" style="padding:8px 12px;display:flex;gap:8px;align-items:flex-start"><b style="width:18px;color:var(--sub);font-size:14px;padding-top:8px">${i+1}</b><div style="flex:1;display:flex;flex-direction:column;gap:6px"><input data-f="a" value="${esc(x[0]||'')}" placeholder="${ph1}" style="${inp}"><input data-f="b" value="${esc(x[1]||'')}" placeholder="${ph2}" style="${inp}"></div><button data-del-${key}="${i}" style="color:var(--bad);font-size:20px;width:26px;padding-top:6px">×</button></div>`).join('');
+  openSheet(`${shh('<button class="x" id="je_x">ยกเลิก</button>',isNew?'JD ตำแหน่งใหม่':'แก้ไข JD','<button class="x b" id="je_s">บันทึก</button>')}
+  <div class="vpnote" style="margin-top:4px">ช่องรายการ: พิมพ์ 1 บรรทัดต่อ 1 ข้อ ไม่ต้องใส่เลขลำดับ ระบบใส่ให้เอง</div>
+  <div class="fgroup"><h3>ข้อมูลตำแหน่ง</h3></div><div class="formg">
+  <div class="f"><label>ตำแหน่ง</label><input id="je_title" value="${esc(m.title)}" placeholder="เช่น เจ้าหน้าที่ฝ่ายขายส่วนกลาง"></div>
+  <div class="f"><label>แผนก</label><input id="je_dept" value="${esc(m.dept)}"></div>
+  <div class="f"><label>สังกัด</label><input id="je_org" value="${esc(m.org)}"></div>
+  <div class="f"><label>ระดับตำแหน่ง</label><input id="je_level" value="${esc(m.level)}"></div>
+  <div class="f"><label>ผู้บังคับบัญชา</label><input id="je_boss" value="${esc(m.boss)}"></div></div>
+  <div class="fgroup"><h3>เอกสาร</h3></div><div class="formg">
+  <div class="f"><label>รหัสเอกสาร</label><input id="je_code" value="${esc(m.code)}"></div>
+  <div class="f"><label>แก้ไขครั้งที่</label><input id="je_rev" value="${esc(m.rev)}"></div>
+  <div class="f"><label>วันที่บังคับใช้</label><input id="je_eff" value="${esc(m.eff)}" placeholder="dd/mm/yyyy"></div></div>
+  <div class="fgroup"><h3>หน้าที่หลัก และผลที่คาดหวัง (${m.duties.length} หมวด)</h3></div>
+  ${m.duties.map((d,i)=>`<div class="kpjob" data-du="${i}" style="padding:12px;display:block">
+    <div style="display:flex;gap:8px;align-items:center"><input data-f="h" value="${esc(d.h||'')}" placeholder="ชื่อหมวด เช่น หมวด 1. ..." style="${inp};flex:1;font-weight:700"><button data-up-du="${i}" title="เลื่อนขึ้น" style="font-size:18px;width:26px;color:var(--sub)" ${i?'':'disabled'}>↑</button><button data-del-du="${i}" style="color:var(--bad);font-size:20px;width:26px">×</button></div>
+    <div style="font-size:13px;color:var(--sub);margin:8px 0 4px">หน้าที่ (1 บรรทัดต่อ 1 ข้อ)</div>${ta('je_di'+i,d.items)}
+    <div style="font-size:13px;color:var(--sub);margin:8px 0 4px">ผลที่คาดหวัง</div>${ta('je_dr'+i,d.res,'',2)}</div>`).join('')}
+  <div class="btnlist" style="margin-top:10px"><button id="je_adddu">+ เพิ่มหมวดหน้าที่</button></div>
+  <div class="fgroup"><h3>หมวด 5 หน่วยงานที่เกี่ยวข้อง (ภายใน)</h3></div>${pairRows('rel','หน่วยงาน / ผู้เกี่ยวข้อง','ลักษณะการประสานงาน')}
+  <div class="btnlist" style="margin-top:10px"><button id="je_addrel">+ เพิ่มหน่วยงาน</button></div>
+  <div class="fgroup"><h3>หมวด 5.1 หน่วยงานภายนอก</h3></div>${pairRows('ext','หน่วยงาน / ผู้เกี่ยวข้อง','ลักษณะการประสานงาน')}
+  <div class="btnlist" style="margin-top:10px"><button id="je_addext">+ เพิ่มหน่วยงานภายนอก</button></div>
+  <div class="fgroup"><h3>หมวด 6 ระดับอำนาจอนุมัติ</h3></div>
+  ${m.auth.map((a,i)=>`<div class="kpjob" data-au="${i}" style="padding:8px 12px;display:flex;gap:8px;align-items:center"><b style="width:18px;color:var(--sub);font-size:14px">${i+1}</b><input data-f="t" value="${esc(a[0]||'')}" placeholder="ข้อกำหนด" style="${inp};flex:1"><select data-f="ok" style="${inp};flex:none"><option value="1" ${a[1]?'selected':''}>อนุมัติได้</option><option value="0" ${a[1]?'':'selected'}>เสนอผู้บังคับบัญชา</option></select><button data-del-au="${i}" style="color:var(--bad);font-size:20px;width:26px">×</button></div>`).join('')}
+  <div class="btnlist" style="margin-top:10px"><button id="je_addau">+ เพิ่มข้อกำหนด</button></div>
+  <div class="fgroup"><h3>หมวด 7 คุณสมบัติประจำตำแหน่ง</h3></div>${ta('je_qual',m.qual)}
+  <div class="fgroup"><h3>หมวด 8 ความรู้</h3></div>${ta('je_know',m.know)}
+  <div class="fgroup"><h3>หมวด 8 ทักษะ</h3></div>${ta('je_skill',m.skill)}
+  <div class="fgroup"><h3>หมวด 8 ความสามารถด้านการคิด / บุคลิกภาพ</h3></div>${ta('je_trait',m.trait)}
+  ${isNew?'':'<div class="btnlist"><button class="d" id="je_del">ลบ JD นี้</button></div>'}`);
+  const read=()=>{const v=id=>$(id)?$(id).value.trim():'';
+    const pair=k=>[...document.querySelectorAll(`[data-${k}]`)].map(e=>[e.querySelector('[data-f="a"]').value.trim(),e.querySelector('[data-f="b"]').value.trim()]);
+    return {...m,title:v('je_title'),dept:v('je_dept'),org:v('je_org'),level:v('je_level'),boss:v('je_boss'),code:v('je_code'),rev:v('je_rev'),eff:v('je_eff'),
+      duties:[...document.querySelectorAll('[data-du]')].map((e,i)=>({h:e.querySelector('[data-f="h"]').value.trim(),items:jdLines($('je_di'+i).value),res:jdLines($('je_dr'+i).value)})),
+      rel:pair('rel'),ext:pair('ext'),auth:[...document.querySelectorAll('[data-au]')].map(e=>[e.querySelector('[data-f="t"]').value.trim(),e.querySelector('[data-f="ok"]').value==='1']),
+      qual:jdLines(v('je_qual')),know:jdLines(v('je_know')),skill:jdLines(v('je_skill')),trait:jdLines(v('je_trait'))}};
+  const redo=(fn)=>{const x=read();fn(x);const st=$('sheet')?$('sheet').scrollTop:0;jdEdit(r,x);requestAnimationFrame(()=>{if($('sheet'))$('sheet').scrollTop=st})};
+  $('je_x').onclick=()=>isNew?closeSheet():jdView(r);
+  $('je_adddu').onclick=()=>redo(x=>x.duties.push({h:'หมวด '+(x.duties.length+1)+'. ',items:[],res:[]}));
+  $('je_addrel').onclick=()=>redo(x=>x.rel.push(['','']));$('je_addext').onclick=()=>redo(x=>x.ext.push(['','']));$('je_addau').onclick=()=>redo(x=>x.auth.push(['',false]));
+  document.querySelectorAll('[data-del-du]').forEach(b=>b.onclick=()=>{if(confirm('ลบหมวดนี้?'))redo(x=>x.duties.splice(+b.dataset.delDu,1))});
+  document.querySelectorAll('[data-up-du]').forEach(b=>b.onclick=()=>redo(x=>{const i=+b.dataset.upDu;if(i>0)[x.duties[i-1],x.duties[i]]=[x.duties[i],x.duties[i-1]]}));
+  document.querySelectorAll('[data-del-rel]').forEach(b=>b.onclick=()=>redo(x=>x.rel.splice(+b.dataset.delRel,1)));
+  document.querySelectorAll('[data-del-ext]').forEach(b=>b.onclick=()=>redo(x=>x.ext.splice(+b.dataset.delExt,1)));
+  document.querySelectorAll('[data-del-au]').forEach(b=>b.onclick=()=>redo(x=>x.auth.splice(+b.dataset.delAu,1)));
+  $('je_s').onclick=async()=>{const x=read();if(!x.title){toast('กรอกชื่อตำแหน่ง');return}
+    x.rel=x.rel.filter(p=>p[0]||p[1]);x.ext=x.ext.filter(p=>p[0]||p[1]);x.auth=x.auth.filter(a=>a[0]);x.duties=x.duties.filter(d=>d.h||d.items.length);
+    x.edited=true;x.by=me;x.at=nowIso();const old=new Set(jdAll().map(o=>o._id));
+    if(await saleSave(x,'บันทึก JD แล้ว')){const saved=x._id?jdAll().find(o=>o._id===x._id):jdAll().find(o=>!old.has(o._id));jdView(saved||x)}};
+  if($('je_del'))$('je_del').onclick=async()=>{if(!confirm('ลบ JD "'+(r.title||'')+'" ?'))return;try{await store.del('salekpi',r._id);toast('ลบแล้ว');closeSheet();render()}catch(e){toast('ลบไม่สำเร็จ: '+e.message)}}}
+/* Word ที่สร้างจากข้อมูลปัจจุบัน (ใช้เมื่อ JD ถูกแก้ไขแล้ว) */
+function jdWordBlob(r){const save=MT_CACHE;MT_CACHE=null;let body;try{body=jdHTML(r)}finally{MT_CACHE=save}
+  body=body.replace(/<style>[\s\S]*?<\/style>/,'').replace(/<table( class="[^"]*")?>/g,'<table$1 border="1" cellspacing="0" cellpadding="5" width="100%" style="border-collapse:collapse;width:100%;margin-bottom:12pt;font-size:10.5pt">')
+    .replace(/<th>/g,'<th style="background:#dbe5f1;text-align:center">').replace(/<td class="sub2">/g,'<td style="background:#dbe5f1;text-align:center;font-weight:bold">')
+    .replace(/ class="wf"/g,' style="background:#a7c4a9;text-align:center;font-weight:bold"').replace(/ class="co"/g,' style="text-align:center;font-size:15pt;font-weight:bold"')
+    .replace(/ class="ti"/g,' style="text-align:center;font-weight:bold"').replace(/ class="lb"/g,' style="font-size:8.5pt;font-weight:bold"').replace(/ class="(vl|c|lg)"/g,' style="text-align:center"')
+    .replace(/<div class="dh">/g,'<div style="font-weight:bold;text-decoration:underline">').replace(/<h4>/g,'<h4 style="font-size:11.5pt;margin:10pt 0 4pt">');
+  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${esc(r.title||'JD')}</title><style>@page WordSection1{size:595.3pt 841.9pt;margin:36pt 36pt 36pt 36pt}div.WordSection1{page:WordSection1}body{font-family:Tahoma,sans-serif}</style></head><body><div class="WordSection1">${body}</div></body></html>`;
+  return new Blob(['﻿',html],{type:'application/msword'})}
 
 
 
