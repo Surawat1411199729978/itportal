@@ -214,7 +214,7 @@ const DEMO=new URLSearchParams(location.search).has('demo');
 const CFG={clientId:"73241ae0-9aa1-49fe-b2c7-caa2449a0091",tenantId:"410b700e-bb2a-46d2-b4c0-449aec007d0e",siteUrl:"https://unboffice.sharepoint.com/sites/ITPortal"};
 const SCOPES=['User.Read','Sites.ReadWrite.All'];
 const MODS={};const HOME=[];
-let msal=null,account=null,siteId='',lists={},isIT=true,me='',mode='loading',view=location.hash==='#meet'?'meet':'salekpi',errMsg='';
+let msal=null,account=null,siteId='',lists={},isIT=true,me='',mode='loading',view=location.hash==='#meet'?'meet':location.hash==='#jd'?'jd':'salekpi',errMsg='';
 const DATA={};
 const ico=()=>'';
 let RP_LOGO='';
@@ -253,16 +253,16 @@ const store={
 };
 async function ensureSale(){if(!DATA.salekpi)DATA.salekpi=(await store.load('salekpi'))||null;return DATA.salekpi}
 function setHeader(){
-  const mt=view==='meet';$('title').textContent=mt?'นัดหมายการประชุม':'KPI Sale Center';$('sub').textContent=mt?'FM-QMS-06-04 · แผนก Sale Center':'FM-QMS-01-03 · แผนก Sale Center';document.title=(mt?'นัดหมายการประชุม':'KPI Sale Center')+' · UNB';
-  $('back').style.display='none';$('tools').innerHTML=(mode==='ready'?`<div class="seg" style="margin:0 0 12px"><button data-vw="salekpi" class="${mt?'':'on'}">KPI</button><button data-vw="meet" class="${mt?'on':''}">นัดประชุม</button><button data-vw="so">Check list SO</button></div>`:'')+(mt?meetTools():saleTools());
-  document.querySelectorAll('[data-vw]').forEach(b=>b.onclick=()=>{if(b.dataset.vw==='so'){location.href='so.html';return}if(view===b.dataset.vw)return;view=b.dataset.vw;history.replaceState(null,'',view==='meet'?'#meet':location.pathname+location.search);render();scrollTo(0,0)});
+  const mt=view==='meet',jd=view==='jd';$('title').textContent=mt?'นัดหมายการประชุม':jd?'ใบกำหนดหน้าที่งาน':'KPI Sale Center';$('sub').textContent=mt?'FM-QMS-06-04 · แผนก Sale Center':jd?'FM-HRM-01-02 · แผนก Sale Center':'FM-QMS-01-03 · แผนก Sale Center';document.title=(mt?'นัดหมายการประชุม':jd?'JD Sale Center':'KPI Sale Center')+' · UNB';
+  $('back').style.display='none';$('tools').innerHTML=(mode==='ready'?`<div class="seg" style="margin:0 0 12px"><button data-vw="salekpi" class="${mt||jd?'':'on'}">KPI</button><button data-vw="meet" class="${mt?'on':''}">นัดประชุม</button><button data-vw="jd" class="${jd?'on':''}">JD</button><button data-vw="so">Check list SO</button></div>`:'')+(mt?meetTools():jd?jdTools():saleTools());
+  document.querySelectorAll('[data-vw]').forEach(b=>b.onclick=()=>{if(b.dataset.vw==='so'){location.href='so.html';return}if(view===b.dataset.vw)return;view=b.dataset.vw;history.replaceState(null,'',view==='meet'?'#meet':view==='jd'?'#jd':location.pathname+location.search);render();scrollTo(0,0)});
 }
 function render(){
   setHeader();const M=$('main');
   if(mode==='loading'){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   if(mode==='signin'){M.innerHTML='<div class="center"><h2>เข้าสู่ระบบด้วยบัญชีบริษัท</h2><div>ใช้อีเมลและรหัสผ่าน Microsoft 365</div><button class="cta" id="login">เข้าสู่ระบบ Microsoft 365</button></div>';$('login').onclick=()=>msal.loginRedirect({scopes:SCOPES});return}
   if(mode==='err'){M.innerHTML=`<div class="center"><h2>เชื่อมต่อไม่สำเร็จ</h2><div style="font-size:14px">${esc(errMsg)}</div><button class="cta" id="retry">ลองใหม่</button></div>`;$('retry').onclick=()=>location.reload();return}
-  view==='meet'?renderMeet():renderSale();
+  view==='meet'?renderMeet():view==='jd'?renderJD():renderSale();
 }
 async function boot(){
   if(DEMO){lists={'Sale KPI':'demo'};me='ทดลอง (demo)';mode='ready';await ensureSale();render();return}
@@ -280,7 +280,7 @@ async function boot(){
 }
 
 /* ===== KPI แผนก Sale Center (FM-QMS-01-03 · list 'Sale KPI' · นับจำนวนครั้ง ผ่านเมื่อ ≤ เป้า) ===== */
-MODS.salekpi={kind:'salekpi',list:'Sale KPI',title:'KPI Sale Center',icon:['chart','#ff9f0a'],desc:'ตัวชี้วัด · FM-QMS-01-03 · Sale Center',titleOf:r=>r.type==='mt'?'MT-'+(r.date||''):r.type==='m'?'M-'+r.ym:r.type==='cfg'?'cfg':'CA-'+(r.date||''),fields:[],filters:[],sorts:[['x','']],search:[]};
+MODS.salekpi={kind:'salekpi',list:'Sale KPI',title:'KPI Sale Center',icon:['chart','#ff9f0a'],desc:'ตัวชี้วัด · FM-QMS-01-03 · Sale Center',titleOf:r=>r.type==='jd'?'JD-'+(r.code||'')+'-'+(r.title||''):r.type==='mt'?'MT-'+(r.date||''):r.type==='m'?'M-'+r.ym:r.type==='cfg'?'cfg':'CA-'+(r.date||''),fields:[],filters:[],sorts:[['x','']],search:[]};
 const SL_DEF=[
   {n:1,name:'ความผิดพลาดของการให้ราคาขาย',full:'1. ความผิดพลาดของการให้ราคาขายจากต้นทุนประเมิน ไม่เกิน 1 ครั้ง /เดือน',proc:'ความผิดพลาดของการให้ราคาขายจากต้นทุนประเมิน ไม่เกิน 1 ครั้ง /เดือน',target:1,sheet:'การประเมินผิด'},
   {n:2,name:'ความผิดพลาดของการตรวจสอบข้อมูล',full:'2. ความผิดพลาดของการตรวจสอบข้อมูล ไม่เกิน 3 ครั้ง/เดือน',proc:'ความผิดพลาดของการตรวจสอบข้อมูล ไม่เกิน 3 ครั้ง /เดือน',target:3,sheet:'ตรวจสอบข้อมูลผิด'}
@@ -564,6 +564,57 @@ async function meetXlsx(r){const T=await mtTpl();const z=await JSZip.loadAsync(T
   for(let i=0;i<MT_MAX;i++){const rn=17+i,p=(r.people||[])[i];set('A'+rn,p?i+1:'');set('B'+rn,p?p.n||'':'');const pc=rn===24?'E':'D';set(pc==='D'?'E'+rn:'D'+rn,'');set(pc+rn,p?p.pos||'':'');set('G'+rn,p&&p.abs?'✓':'');set('H'+rn,p?p.why||'':'')}
   set('I33',r.dept||'');set('I34',/^\d+$/.test(r.contact||'')?+r.contact:(r.contact||''));
   wr(P,doc);return z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+/* ===== JD ใบกำหนดหน้าที่งาน (FM-HRM-01-02 · เก็บใน list 'Sale KPI' type 'jd' · ไฟล์ Word ใน Documents/Sale Center/JD) ===== */
+const jdAll=()=>(DATA.salekpi||[]).filter(r=>r.type==='jd').sort((a,b)=>String(a.title).localeCompare(String(b.title),'th'));
+function jdTools(){return `<h1 style="font-size:30px;margin-top:0">ใบกำหนดหน้าที่งาน (JD)</h1><div class="sub" style="margin:0 0 4px">FM-HRM-01-02 · Job Description</div>`}
+function renderJD(){const M=$('main');
+  if(!lists[MODS.salekpi.list]){M.innerHTML='<div class="empty">ยังไม่มี list "Sale KPI" ใน SharePoint</div>';return}
+  if(!DATA.salekpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
+  const L=jdAll();
+  M.innerHTML=L.length?L.map(r=>`<div class="kpca" data-jd="${esc(r._id)}"><div class="d">${esc(r.code||'FM-HRM-01-02')} · แผนก${esc(r.dept||'')} · ระดับ${esc(r.level||'')}</div><p style="font-weight:700;font-size:17px">${esc(r.title||'')}</p><p style="color:var(--sub);font-size:13.5px">ผู้บังคับบัญชา: ${esc(r.boss||'')}</p><p style="color:var(--sub);font-size:13px">หน้าที่หลัก ${(r.duties||[]).length} หมวด · ${(r.duties||[]).reduce((a,d)=>a+(d.items||[]).length,0)} ข้อ</p></div>`).join(''):'<div class="empty">ยังไม่มี JD ในระบบ</div>';
+  M.querySelectorAll('[data-jd]').forEach(c=>c.onclick=()=>jdView(jdAll().find(x=>x._id===c.dataset.jd)))}
+function jdView(r){if(!r)return;
+  openSheet(`${shh('<span></span>','JD · '+esc(r.title||''),'<button class="x b" id="jv_x">เสร็จ</button>')}
+  <div class="rpex" style="margin-top:6px"><button data-jx="docx"><b style="background:#2b579a">DOC</b>Word</button><button data-jx="print"><b style="background:#636366;font-size:20px">⎙</b>พิมพ์ / PDF</button></div>
+  <div class="vpnote">Word = ไฟล์ FM-HRM-01-02 ตัวจริงใน SharePoint · พิมพ์ / PDF = เลือก "บันทึกเป็น PDF" ในหน้าต่างพิมพ์ได้</div>
+  <div class="jdwrap" id="jv_doc">${jdHTML(r)}</div>`);
+  $('jv_x').onclick=closeSheet;
+  if(!MT_CACHE&&!DEMO)mtTpl().then(()=>{if($('jv_doc'))$('jv_doc').innerHTML=jdHTML(r)}).catch(()=>{});
+  document.querySelectorAll('[data-jx]').forEach(b=>b.onclick=async()=>{const k=b.dataset.jx,old=b.innerHTML;
+    if(k==='print'){jdPrint(r);return}
+    b.disabled=true;b.innerHTML='<div class="spin"></div>';
+    try{const path=String(r.file||'').split('/').map(encodeURIComponent).join('/');const it=await g(`/sites/${siteId}/drive/root:/${path}`);const res=await fetch(it['@microsoft.graph.downloadUrl']);if(!res.ok)throw new Error('HTTP '+res.status);rpSaveFile(await res.blob(),String(r.file).split('/').pop());toast('ดาวน์โหลดแล้ว')}
+    catch(e){toast('ดาวน์โหลดไม่สำเร็จ: '+e.message)}finally{b.disabled=false;b.innerHTML=old}})}
+const JD_CSS=`.jdoc{background:#fff;color:#000;font-family:Tahoma,"Sarabun","Noto Sans Thai",sans-serif;font-size:13.5px;line-height:1.45;max-width:794px;margin:0 auto}
+.jdoc table{border-collapse:collapse;width:100%;table-layout:fixed;margin:0 0 14px}.jdoc td,.jdoc th{border:1px solid #000;padding:4px 7px;vertical-align:top;text-align:left}
+.jdoc th{background:#dbe5f1;text-align:center;font-weight:700}.jdoc .hd td{vertical-align:middle}.jdoc .co{text-align:center;font-size:20px;font-weight:700}
+.jdoc .wf{background:#a7c4a9;text-align:center;font-size:16px;font-weight:700}.jdoc .ti{text-align:center;font-size:16px;font-weight:700}.jdoc .lb{font-size:10.5px;font-weight:700;white-space:nowrap}.jdoc .vl{text-align:center;font-size:11.5px}
+.jdoc .lg{text-align:center;vertical-align:middle}.jdoc .lg img{max-width:95%;max-height:64px}
+.jdoc h4{margin:16px 0 6px;font-size:14.5px;font-weight:700}.jdoc .dh{font-weight:700;text-decoration:underline;margin-bottom:2px}
+.jdoc ol{margin:0;padding-left:20px}.jdoc li{margin:1px 0}.jdoc .c{text-align:center}.jdoc .sub2{background:#dbe5f1;text-align:center;font-weight:700}
+.jdoc .sg td{text-align:center;height:64px;vertical-align:bottom}.jdoc .sg th{background:#a7c4a9}.jdoc tr{break-inside:avoid}.jdoc h4{break-after:avoid}
+.jdwrap{background:#fff;border-radius:14px;padding:16px;margin-top:12px;overflow-x:auto}.jdwrap .jdoc{min-width:680px}`;
+function jdHTML(r){const logo=MT_CACHE&&MT_CACHE.logo;const ol=a=>`<ol>${(a||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`;
+  const t2=(rows)=>`<table><colgroup><col style="width:34%"><col></colgroup><tr><th>หน่วยงาน / ผู้เกี่ยวข้อง</th><th>ลักษณะการประสานงาน</th></tr>${rows.map((x,i)=>`<tr><td>${i+1}. ${esc(x[0])}</td><td>${esc(x[1])}</td></tr>`).join('')}</table>`;
+  return `<style>${JD_CSS}</style><div class="jdoc">
+  <table class="hd"><colgroup><col style="width:18%"><col style="width:46%"><col style="width:22%"><col style="width:14%"></colgroup>
+  <tr><td class="co" colspan="4">บริษัท ยูเนียนเบลท์ อินเตอร์เนชั่นแนล จำกัด</td></tr>
+  <tr><td rowspan="4" class="lg">${logo?`<img src="${logo}">`:'<b style="font-size:28px;color:#1a7f37">UNB</b>'}</td><td rowspan="2" class="wf">เอกสาร ( Work form )</td><td class="lb">รหัสเอกสาร (Doc No.)</td><td class="vl">${esc(r.code||'')}</td></tr>
+  <tr><td class="lb">แก้ไขครั้งที่ (Revision)</td><td class="vl">${esc(r.rev||'')}</td></tr>
+  <tr><td rowspan="2" class="ti">ใบกำหนดหน้าที่งาน JOB DESCRIPTION</td><td class="lb">วันที่บังคับใช้ (Effective date)</td><td class="vl">${esc(r.eff||'')}</td></tr>
+  <tr><td class="lb">หน้าที่ (Page)</td><td class="vl">–</td></tr></table>
+  <table><tr><td colspan="2"><b>ตำแหน่ง:</b> ${esc(r.title||'')}</td></tr><tr><td><b>แผนก :</b> ${esc(r.dept||'')}</td><td><b>สังกัด:</b> ${esc(r.org||'')}</td></tr><tr><td><b>ระดับตำแหน่งงาน:</b> ${esc(r.level||'')}</td><td><b>ผู้บังคับบัญชา :</b> ${esc(r.boss||'')}</td></tr></table>
+  <table><colgroup><col style="width:58%"><col></colgroup><tr><th>หน้าที่หลัก</th><th>ผลที่คาดหวัง</th></tr>
+  ${(r.duties||[]).map(d=>`<tr><td><div class="dh">${esc(d.h)}</div>${ol(d.items)}</td><td>${(d.res||[]).length>1?ol(d.res):esc((d.res||[])[0]||'')}</td></tr>`).join('')}</table>
+  <h4>หมวด 5 หน่วยงานที่เกี่ยวข้อง</h4>${t2(r.rel||[])}
+  <h4>หมวด 5.1 หน่วยงานภายนอกที่เกี่ยวข้อง</h4>${t2(r.ext||[])}
+  <h4>หมวด 6 ระดับอำนาจอนุมัติ</h4><table><colgroup><col style="width:60%"><col style="width:18%"><col></colgroup><tr><th>ข้อกำหนด</th><th>อนุมัติได้</th><th>นำเสนอผู้บังคับบัญชา</th></tr>
+  ${(r.auth||[]).map((a,i)=>`<tr><td>${i+1}. ${esc(a[0])}</td><td class="c">${a[1]?'✓':''}</td><td class="c">${a[1]?'':'✓'}</td></tr>`).join('')}</table>
+  <h4>หมวด 7 คุณสมบัติประจำตำแหน่ง</h4><table><tr><td>${ol(r.qual)}</td></tr></table>
+  <h4>หมวด 8 ความสามารถประจำตำแหน่ง</h4><table><tr><td class="sub2">ความรู้</td></tr><tr><td>${ol(r.know)}</td></tr><tr><td class="sub2">ทักษะ</td></tr><tr><td>${ol(r.skill)}</td></tr><tr><td class="sub2">ความสามารถด้านการคิด / บุคลิกภาพ</td></tr><tr><td>${ol(r.trait)}</td></tr></table>
+  <table class="sg"><tr><th>ผู้จัดทำ (Prepared by)</th><th>พนักงาน (Employee)</th><th>ผู้อนุมัติ (Approved by)</th></tr><tr><td>(..................................)<br>วันที่ ......../......../........</td><td>(..................................)<br>วันที่ ......../......../........</td><td>(..................................)<br>วันที่ ......../......../........</td></tr></table></div>`}
+function jdPrint(r){const w=window.open('','_blank');if(!w){toast('เบราว์เซอร์บล็อกหน้าต่างใหม่');return}
+  w.document.open();w.document.write(`<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><title>${esc((r.code||'JD')+'_'+(r.title||''))}</title><style>@page{size:A4 portrait;margin:12mm}body{margin:0}</style></head><body>${jdHTML(r)}<script>window.onload=()=>setTimeout(()=>window.print(),300)<\/script></body></html>`);w.document.close()}
 
 
 
