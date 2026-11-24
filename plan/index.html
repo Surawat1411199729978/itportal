@@ -370,13 +370,40 @@ html .spin{border-color:var(--c-line)!important;border-top-color:var(--c-acc)!im
 header .back{text-decoration:none}
 .who span{max-width:30vw;overflow:hidden;text-overflow:ellipsis}
 .back .lu{margin-left:-4px}header .back{min-height:44px;align-items:center}.who.on{min-height:44px}.shh .x{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center}.who{gap:8px!important;align-items:center}#fab.add{gap:8px!important}#fab .lu{width:20px;height:20px}.btnlist .btnl,.btnlist button{display:flex!important;align-items:center;justify-content:center;gap:8px}
+/* ===== Responsive: fluid layout ตามพื้นที่จริง ===== */
+:root:root:root{--f:"IBM Plex Sans Thai","Noto Sans Thai","Leelawadee UI","Segoe UI","Thonburi","Sukhumvit Set",Tahoma,system-ui,sans-serif;--gut:clamp(16px,4vw,32px)}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html:root body.apv .hin,html:root body.apv main{max-width:1240px!important;padding-left:max(var(--gut),env(safe-area-inset-left))!important;padding-right:max(var(--gut),env(safe-area-inset-right))!important;box-sizing:border-box}
+@media(min-width:1600px){html:root body.apv .hin,html:root body.apv main{max-width:1480px!important}}
+html body{overflow-x:hidden}
+main{min-width:0}
+.bnm{white-space:nowrap}
+.skip{position:absolute;left:8px;top:-60px;z-index:60;background:var(--c-ink);color:#fff;padding:10px 14px;border-radius:var(--r2);text-decoration:none;font-size:var(--fs-small)}
+.skip:focus{top:calc(env(safe-area-inset-top,0px) + 8px)}
+/* แผ่นหน้าต่าง (sheet): หัวค้างไว้เมื่อเลื่อน, ใช้ dvh เพื่อไม่ถูกแถบเบราว์เซอร์มือถือบัง */
+html .sheet{max-height:92vh!important;max-height:92dvh!important;padding-left:max(16px,env(safe-area-inset-left))!important;padding-right:max(16px,env(safe-area-inset-right))!important;overscroll-behavior:contain}
+html .sheet .shh{position:sticky;top:-6px;z-index:6;background:var(--c-bg);margin:0 -4px;padding:0 4px}
+@media(min-width:900px){html .sheet{max-height:92dvh!important;top:4vh;top:4dvh}}
+@media(max-width:899px){html .sheet{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 24px)!important}}
+body.shon{overflow:hidden}
+/* ฟอร์มบนจอแคบ: label อยู่บน ช่องกรอกเต็มแถว */
+@media(max-width:520px){html .sheet .formg .f:not(.area){flex-direction:column;align-items:stretch;gap:0;padding-top:10px;min-height:0}html .sheet .formg .f label{width:auto!important;font-size:var(--fs-cap)!important}html .sheet .formg .f input,html .sheet .formg .f select{padding:6px 0 10px!important}}
+/* ปุ่มลอยบนมือถือ: เว้น safe-area และไม่บังรายการสุดท้าย */
+html #fab.add{right:max(16px,env(safe-area-inset-right))!important;bottom:calc(env(safe-area-inset-bottom,0px) + 16px)!important}
+@media(max-width:719px){html body.apv main{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 96px)!important}}
+/* จอเตี้ย (มือถือแนวนอน / หน้าต่างเตี้ย): บีบหัวหน้าให้กระชับ */
+@media(max-height:520px){html #tools h1{font-size:22px!important}.aphd p{display:none}.apstats button{padding:8px var(--s4)}.apstats b{font-size:20px}.apbar{margin:var(--s3) 0 var(--s2)}html header{position:static!important}}
+/* สลับมุมมองและค้นหา จัดเรียงตามพื้นที่ */
+@media(max-width:480px){.apact{gap:4px}.apact .apbtn.s{padding:0 12px}.apact .apbtn.t{padding:0 8px}.apbtn .xs{display:none}.apmon{flex-wrap:wrap}.apmon .cnt{flex-basis:100%;margin:2px 2px 0}}
+@media(max-width:519px){.apbar .search{flex:1 1 100%}}
+
 .brand{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:var(--c-ink);text-decoration:none;min-height:44px;justify-self:start;border-radius:var(--r1)}.bmk{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--c-acc);color:#fff}.ntitle{visibility:hidden}
 </style>
 </head>
 <body class="apv">
-<a href="#main" class="sr" style="position:absolute;left:-9999px">ข้ามไปเนื้อหา</a>
+<a href="#main" class="skip">ข้ามไปเนื้อหา</a>
 <header id="hdr"><div class="hin">
-  <div class="nav"><a class="brand" href="./" aria-label="แผนการผลิต หน้าแรก"><span class="bmk"><svg class="lu" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 6h8" /><path d="M12 16h6" /><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="M8 11h7" /></svg></span><span>แผนการผลิต</span></a><div class="ntitle" id="ntitle">แผนการผลิต</div><div class="navr"><button class="who" id="who" aria-label="บัญชีผู้ใช้"></button></div></div>
+  <div class="nav"><a class="brand" href="./" aria-label="Action Plan แผนการผลิต หน้าแรก"><span class="bmk"><svg class="lu" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 6h8" /><path d="M12 16h6" /><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="M8 11h7" /></svg></span><span class="bnm">Action Plan</span></a><div class="ntitle" id="ntitle">แผนการผลิต</div><div class="navr"><button class="who" id="who" aria-label="บัญชีผู้ใช้"></button></div></div>
   <div id="tools"></div>
 </div></header>
 <main id="main" tabindex="-1"><div class="center"><div class="spin"></div></div></main>
@@ -387,7 +414,7 @@ header .back{text-decoration:none}
 const LU={"chevron-left":"<path d=\"m15 18-6-6 6-6\" />","chevron-right":"<path d=\"m9 18 6-6-6-6\" />","circle-user-round":"<path d=\"M17.925 20.056a6 6 0 0 0-11.851.001\" /><circle cx=\"12\" cy=\"11\" r=\"4\" /><circle cx=\"12\" cy=\"12\" r=\"10\" />","file-text":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" /><path d=\"M14 2v5a1 1 0 0 0 1 1h5\" /><path d=\"M10 9H8\" /><path d=\"M16 13H8\" /><path d=\"M16 17H8\" />","settings":"<path d=\"M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915\" /><circle cx=\"12\" cy=\"12\" r=\"3\" />","plus":"<path d=\"M5 12h14\" /><path d=\"M12 5v14\" />","search":"<path d=\"m21 21-4.34-4.34\" /><circle cx=\"11\" cy=\"11\" r=\"8\" />","chart-gantt":"<path d=\"M10 6h8\" /><path d=\"M12 16h6\" /><path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /><path d=\"M8 11h7\" />","list":"<path d=\"M3 5h.01\" /><path d=\"M3 12h.01\" /><path d=\"M3 19h.01\" /><path d=\"M8 5h13\" /><path d=\"M8 12h13\" /><path d=\"M8 19h13\" />","circle-check":"<circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"m16 9-5.5 5.5L8 12\" />","circle-alert":"<circle cx=\"12\" cy=\"12\" r=\"10\" /><line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\" /><line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\" />","check":"<path d=\"M20 6 9 17l-5-5\" />","pencil":"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /><path d=\"m15 5 4 4\" />","trash-2":"<path d=\"M10 11v6\" /><path d=\"M14 11v6\" /><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\" /><path d=\"M3 6h18\" /><path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />","x":"<path d=\"M18 6 6 18\" /><path d=\"m6 6 12 12\" />","undo-2":"<path d=\"M9 14 4 9l5-5\" /><path d=\"M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11\" />","sticky-note":"<path d=\"M21 9a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z\" /><path d=\"M15 3v5a1 1 0 0 0 1 1h5\" />","file-spreadsheet":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" /><path d=\"M14 2v5a1 1 0 0 0 1 1h5\" /><path d=\"M8 13h2\" /><path d=\"M14 13h2\" /><path d=\"M8 17h2\" /><path d=\"M14 17h2\" />","image":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\" /><circle cx=\"9\" cy=\"9\" r=\"2\" /><path d=\"m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\" />","printer":"<path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\" /><path d=\"M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6\" /><rect x=\"6\" y=\"14\" width=\"12\" height=\"8\" rx=\"1\" />","file-up":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" /><path d=\"M14 2v5a1 1 0 0 0 1 1h5\" /><path d=\"M12 12v6\" /><path d=\"m15 15-3-3-3 3\" />","clipboard-list":"<rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\" ry=\"1\" /><path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\" /><path d=\"M12 11h4\" /><path d=\"M12 16h4\" /><path d=\"M8 11h.01\" /><path d=\"M8 16h.01\" />","package-check":"<path d=\"M12 22V12\" /><path d=\"m16 17 2 2 4-4\" /><path d=\"M21 11.127V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.729l7 4a2 2 0 0 0 2 .001l1.32-.753\" /><path d=\"M3.29 7 12 12l8.71-5\" /><path d=\"m7.5 4.27 8.997 5.148\" />","arrow-left-right":"<path d=\"M8 3 4 7l4 4\" /><path d=\"M4 7h16\" /><path d=\"m16 21 4-4-4-4\" /><path d=\"M20 17H4\" />","log-out":"<path d=\"m16 17 5-5-5-5\" /><path d=\"M21 12H9\" /><path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\" />","external-link":"<path d=\"M15 3h6v6\" /><path d=\"M10 14 21 3\" /><path d=\"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6\" />","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /><path d=\"M16 3.128a4 4 0 0 1 0 7.744\" /><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /><circle cx=\"9\" cy=\"7\" r=\"4\" />","user-plus":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /><circle cx=\"9\" cy=\"7\" r=\"4\" /><line x1=\"19\" x2=\"19\" y1=\"8\" y2=\"14\" /><line x1=\"22\" x2=\"16\" y1=\"11\" y2=\"11\" />","shield-check":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" /><path d=\"m9 12 2 2 4-4\" />","eye":"<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" /><circle cx=\"12\" cy=\"12\" r=\"3\" />","rotate-ccw":"<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\" /><path d=\"M3 3v5h5\" />","lock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /><path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />"};
 const lu=(n,s=18,c='')=>`<svg class="lu ${c}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${LU[n]}</svg>`;
 /* ===== แผนการผลิต · Action Plan (ข้อมูล: ลิสต์ SharePoint "Production Plan") ===== */
-const APP_VERSION='2026-11-24.5';
+const APP_VERSION='2026-11-24.6';
 const CFG={clientId:"73241ae0-9aa1-49fe-b2c7-caa2449a0091",tenantId:"410b700e-bb2a-46d2-b4c0-449aec007d0e",siteUrl:"https://unboffice.sharepoint.com/sites/ITPortal",authRedirect:"https://surawat1411199729978.github.io/itportal/"};
 const SCOPES=['User.Read','Sites.ReadWrite.All'];
 const SP_ORIGIN=new URL(CFG.siteUrl).origin;
@@ -402,8 +429,11 @@ const nowIso=()=>new Date().toISOString();
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2400)}
 const loadLib=(u,gv)=>window[gv]?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=()=>no(new Error('โหลดตัวช่วยสร้างไฟล์ไม่สำเร็จ'));document.head.appendChild(s)});
 function rpSaveFile(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),60000)}
-function openSheet(html){const s=$('sheet');s.innerHTML='<div class="grab"></div>'+html;s.classList.add('on');$('scrim').classList.add('on');s.scrollTop=0;s.setAttribute('aria-hidden','false');setTimeout(()=>{const f=s.querySelector('.shh .x.b,.shh .x');if(f)f.focus({preventScroll:true})},60)}
-function closeSheet(){$('sheet').classList.remove('on');$('scrim').classList.remove('on');$('sheet').setAttribute('aria-hidden','true')}
+let SH_RET=null;
+function openSheet(html){const s=$('sheet');const was=s.classList.contains('on');if(!was)SH_RET=document.activeElement;s.innerHTML='<div class="grab" aria-hidden="true"></div>'+html;s.classList.add('on');$('scrim').classList.add('on');s.scrollTop=0;s.setAttribute('aria-hidden','false');document.body.classList.add('shon');setTimeout(()=>{const t=s.querySelector('.shh .tt');if(t){s.setAttribute('aria-label',t.textContent)}const f=s.querySelector('.shh .x.b,.shh .x');if(f&&!s.contains(document.activeElement))f.focus({preventScroll:true})},60)}
+function closeSheet(){const s=$('sheet');s.classList.remove('on');$('scrim').classList.remove('on');s.setAttribute('aria-hidden','true');document.body.classList.remove('shon');if(SH_RET&&document.contains(SH_RET))SH_RET.focus({preventScroll:true});SH_RET=null}
+/* โฟกัสวนอยู่ในหน้าต่างที่เปิด */
+document.addEventListener('keydown',e=>{if(e.key!=='Tab')return;const s=$('sheet');if(!s.classList.contains('on'))return;const F=[...s.querySelectorAll('button,a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(x=>!x.disabled&&x.offsetParent!==null);if(!F.length)return;const a=F[0],z=F[F.length-1];if(!s.contains(document.activeElement)){e.preventDefault();a.focus();return}if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}});
 const shh=(l,t,r)=>`<div class="shh">${l||'<span style="width:60px"></span>'}<span class="tt">${t||''}</span>${r||'<span style="width:60px"></span>'}</div>`;
 const G={},MODS={},HOME=[],DATA={};
 let msal=null,account=null,siteId='',lists={},me='',mode='loading',errMsg='',CAN_EDIT=false,CAN_MANAGE=false,RP_LOGO='',RP_LP=null;
@@ -497,8 +527,8 @@ document.head.insertAdjacentHTML('beforeend',`<style id="apcss">
 html body.apv main,html body.apv .hin{max-width:1200px!important}
 @media(min-width:720px){html body.apv #fab{display:none!important}}
 .aphd{display:flex;gap:var(--s4);align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin:var(--s2) 0 var(--s1)}
-.aphd>div:first-child{flex:1 1 320px;min-width:0}.aphd h1{margin:0!important}.aphd p{margin:2px 0 0;color:var(--c-ink2);font-size:var(--fs-small);max-width:56ch}
-.apact{display:flex;gap:var(--s2);align-items:center}
+.aphd>div:first-child{flex:1 1 320px;min-width:0}.aphd h1{margin:0!important}.aphd p{margin:2px 0 0;color:var(--c-ink2);font-size:var(--fs-small);max-width:72ch}
+.apact{display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
 .lu{flex:none;display:inline-block;vertical-align:middle}
 .apbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:var(--r2);font-size:var(--fs-small);font-weight:600;transition:background .15s,border-color .15s;white-space:nowrap}
 .apbtn:active:not(:disabled){transform:translateY(.5px)}
@@ -533,8 +563,17 @@ html body.apv main,html body.apv .hin{max-width:1200px!important}
 .aplg i{display:inline-block;width:14px;height:8px;border-radius:2px;margin-right:6px;vertical-align:1px}
 .aplg .tdy{width:2px;height:12px;border-radius:1px;background:var(--c-acc)}
 /* ไทม์ไลน์ */
-.apgw{background:var(--c-surface);border:1px solid var(--c-line);border-radius:var(--r3);box-shadow:var(--sh1);overflow:auto;max-height:calc(100vh - 150px);overscroll-behavior:contain}
-.apg{--lc:236px;min-width:calc(var(--lc) + var(--nd) * 24px);position:relative}
+.apgwrap{position:relative;min-width:0}
+.apgw{background:var(--c-surface);border:1px solid var(--c-line);border-radius:var(--r3);box-shadow:var(--sh1);overflow:auto;max-height:calc(100vh - 150px);max-height:max(320px,calc(100dvh - 150px));overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.apgwrap::before,.apgwrap::after{content:"";position:absolute;top:1px;bottom:1px;width:24px;pointer-events:none;opacity:0;transition:opacity .2s;z-index:4}
+.apgwrap::before{left:calc(var(--lcw,236px) + 1px);background:linear-gradient(90deg,rgba(43,40,32,.10),transparent)}
+.apgwrap::after{right:1px;border-radius:0 var(--r3) var(--r3) 0;background:linear-gradient(270deg,rgba(43,40,32,.10),transparent)}
+.apgwrap.sl::before,.apgwrap.sr::after{opacity:1}
+.aphint{display:none;align-items:center;gap:6px;font-size:var(--fs-cap);color:var(--c-ink2);margin:0 2px var(--s2)}
+.apgwrap.scr+.aphint,.aphint.on{display:flex}
+@media(max-height:500px){.apgw{max-height:none}}
+.apg{--lc:236px;--dmin:24px;min-width:calc(var(--lc) + var(--nd) * var(--dmin));position:relative}
+@media(max-width:1023px){.apg{--dmin:22px}}
 .apgh,.apgr{display:grid;grid-template-columns:var(--lc) 1fr}
 .apgh{position:sticky;top:0;z-index:3;background:var(--c-surface);border-bottom:1px solid var(--c-line)}
 .apgh .l{position:sticky;left:0;z-index:2;background:var(--c-surface);padding:8px var(--s4);font-size:var(--fs-cap);color:var(--c-ink2);display:flex;align-items:flex-end;border-right:1px solid var(--c-line)}
@@ -564,7 +603,8 @@ html body.apv main,html body.apv .hin{max-width:1200px!important}
 .apcard:first-child{border-top:0}
 @media(hover:hover){.apcard:hover{background:#faf9f7}}
 .apcard .t{font-weight:600;font-size:var(--fs-body);font-variant-numeric:tabular-nums}
-.apcard .t small{font-weight:400;color:var(--c-ink2);font-size:var(--fs-small);margin-left:6px}
+.apcard .t{display:flex;flex-direction:column;min-width:0}.apcard .t>span{white-space:nowrap}
+.apcard .t small{font-weight:400;color:var(--c-ink2);font-size:var(--fs-small);overflow-wrap:anywhere}
 .apcard .m{grid-column:1/-1;display:flex;justify-content:space-between;gap:var(--s3);font-size:var(--fs-cap);color:var(--c-ink2);align-items:center}
 .apcard .m .due{font-variant-numeric:tabular-nums;white-space:nowrap}
 .apcard .m .due.bad{color:var(--c-bad);font-weight:500}
@@ -581,6 +621,7 @@ html body.apv main,html body.apv .hin{max-width:1200px!important}
 .apempty b{display:block;font-size:var(--fs-sec);font-weight:600;color:var(--c-ink)}
 .apempty p{margin:6px auto 16px;max-width:44ch;color:var(--c-ink2);font-size:var(--fs-small)}
 .apsk{height:46px;border-top:1px solid var(--c-line);background:linear-gradient(90deg,transparent,rgba(43,40,32,.04),transparent) var(--c-surface);background-size:200% 100%;animation:apsk 1.4s ease-in-out infinite}
+@media(max-width:1023px){.apg{--lc:176px}}
 @media(max-width:719px){.apg{--lc:132px}.apgr .l,.apgh .l{padding:8px 10px}.apgr .l small{font-size:12px}}
 @keyframes apsk{to{background-position:-200% 0}}
 /* รายละเอียด */
@@ -636,7 +677,7 @@ const apWide=()=>window.matchMedia('(min-width:720px)').matches;
 
 function planTools(){const it=canEdit('plan');
   return `<div class="aphd"><div><h1>แผนการผลิต</h1><p>ติดตามงานตามใบสั่งขาย (SO) ตั้งแต่เขียนแบบ จัดซื้อ ผลิต จนถึงส่งมอบ</p></div>
-  <div class="apact"><button class="apbtn s" id="ap_rep">${apSvg('doc')}รายงาน / ส่งออก</button>${typeof CAN_MANAGE!=='undefined'&&CAN_MANAGE?`<button class="apbtn t" id="ap_perm">${lu('users',18)}สิทธิ์ผู้ใช้</button>`:''}${it?`<button class="apbtn t" id="ap_cfg" aria-label="ตั้งค่าแผนการผลิต">${apSvg('gear')}ตั้งค่า</button><button class="apbtn p" id="ap_new">${apSvg('plus')}เพิ่มงาน SO</button>`:''}</div></div>`}
+  <div class="apact"><button class="apbtn s" id="ap_rep">${apSvg('doc')}<span>รายงาน<span class="xs"> / ส่งออก</span></span></button>${typeof CAN_MANAGE!=='undefined'&&CAN_MANAGE?`<button class="apbtn t" id="ap_perm">${lu('users',18)}สิทธิ์ผู้ใช้</button>`:''}${it?`<button class="apbtn t" id="ap_cfg" aria-label="ตั้งค่าแผนการผลิต">${apSvg('gear')}ตั้งค่า</button><button class="apbtn p" id="ap_new">${apSvg('plus')}เพิ่มงาน SO</button>`:''}</div></div>`}
 function renderPlan(){const M=$('main');
   if($('ap_rep'))$('ap_rep').onclick=()=>apReport();if($('ap_cfg'))$('ap_cfg').onclick=()=>apSettings();if($('ap_new'))$('ap_new').onclick=()=>apEdit(null);if($('ap_perm'))$('ap_perm').onclick=()=>apPerm();
   if(!DATA.plan){M.innerHTML=`<div class="apstats" aria-hidden="true">${'<button disabled><span>&nbsp;</span><b>–</b></button>'.repeat(4)}</div><div class="apcards" style="margin-top:24px" aria-label="กำลังโหลด">${'<div class="apsk"></div>'.repeat(6)}</div>`;return}
@@ -659,7 +700,8 @@ function renderPlan(){const M=$('main');
 function apBody(){const B=$('ap_body');if(!B)return;const L=apList();if(APS.mode==='tl')B.innerHTML=apTimeline(L);else B.innerHTML=apCards(L);
   B.querySelectorAll('[data-apid]').forEach(e=>{e.onclick=()=>apDetail(e.dataset.apid);e.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();apDetail(e.dataset.apid)}}});
   B.querySelectorAll('[data-apmon]').forEach(b=>b.onclick=()=>{const v=b.dataset.apmon;APS.ym=v==='0'?apToday().slice(0,7):apYmAdd(APS.ym,+v);apBody()});
-  const gw=B.querySelector('.apgw');if(gw&&APS.ym===apToday().slice(0,7)){const td=gw.querySelector('.apdays .now');if(td&&gw.scrollWidth>gw.clientWidth){const x=td.getBoundingClientRect().left-gw.getBoundingClientRect().left;const lc=gw.querySelector('.apgh .l').offsetWidth;gw.scrollLeft=Math.max(0,x-lc-(gw.clientWidth-lc)/2)}}}
+  const gw=B.querySelector('.apgw');if(gw)apEdge(gw);if(gw&&APS.ym===apToday().slice(0,7)){const td=gw.querySelector('.apdays .now');if(td&&gw.scrollWidth>gw.clientWidth){const x=td.getBoundingClientRect().left-gw.getBoundingClientRect().left;const lc=gw.querySelector('.apgh .l').offsetWidth;gw.scrollLeft=Math.max(0,x-lc-(gw.clientWidth-lc)/2)}}}
+function apEdge(gw){const w=gw.parentNode,h=$('ap_hint');const up=()=>{const lc=gw.querySelector('.apgh .l');w.style.setProperty('--lcw',(lc?lc.offsetWidth:0)+'px');const can=gw.scrollWidth>gw.clientWidth+2;w.classList.toggle('sl',can&&gw.scrollLeft>2);w.classList.toggle('sr',can&&gw.scrollLeft<gw.scrollWidth-gw.clientWidth-2);if(h)h.classList.toggle('on',can)};gw.addEventListener('scroll',up,{passive:true});if(window.ResizeObserver)new ResizeObserver(up).observe(gw);requestAnimationFrame(up)}
 const apEmptyRes=()=>`<div class="apempty">${lu('search',24)}<b>ไม่พบงานที่ตรงกับเงื่อนไข</b><p>${APS.q?'ลองค้นหาด้วยเลขที่ SO หรือชื่อลูกค้าแบบสั้นลง':'ลองเลือกสถานะอื่น หรือดูงานทั้งหมด'}</p><button class="apbtn s" onclick="APS.seg='all';APS.q='';renderPlan()">ดูงานทั้งหมด</button></div>`;
 function apTimeline(L){const ym=APS.ym,nd=apDim(ym),a=ym+'-01',z=ym+'-'+String(nd).padStart(2,'0'),t=apToday();
   const R=L.filter(r=>{const s=apSpan(r);return s&&s.s<=z&&s.e>=a}).sort((x,y)=>(+x.seq||1e9)-(+y.seq||1e9)||String(x.no).localeCompare(String(y.no)));
@@ -673,7 +715,7 @@ function apTimeline(L){const ym=APS.ym,nd=apDim(ym),a=ym+'-01',z=ym+'-'+String(n
     return `<div class="apgr ${s.k==='done'?'done':''}" role="button" tabindex="0" data-apid="${esc(r._id)}" aria-label="${esc(aria)}"><div class="l"><b>${esc(r.no||'-')}</b><small><span class="dot" style="background:var(--c-${{ok:'ok',bad:'bad',warn:'warn',info:'info',mute:'line2'}[s.c]})"></span>${esc(r.cust||'')}${r.cust?' · ':''}${esc(s.l)}</small></div><div class="aptr">${bars}${nts}</div></div>`};
   const tdl=t>=a&&t<=z?`<div class="aptd" style="left:calc(var(--lc) + (100% - var(--lc)) * ${(pct(t)+50/nd)/100})"></div>`:'';
   return `<div class="apmon"><button class="apib" data-apmon="-1" aria-label="เดือนก่อน">${apSvg('l')}</button><h2>${apMonTh(ym)}</h2><button class="apib" data-apmon="1" aria-label="เดือนถัดไป">${apSvg('r')}</button>${ym!==t.slice(0,7)?'<button class="apbtn t" data-apmon="0">เดือนนี้</button>':''}<span class="cnt">${R.length} งานในเดือนนี้</span></div>
-  ${R.length?`<div class="apgw"><div class="apg" role="list" aria-label="ไทม์ไลน์แผนการผลิต ${apMonTh(ym)}" style="--nd:${nd};--apbg:${bg}"><div class="apgh" aria-hidden="true"><div class="l">SO · ลูกค้า</div><div class="apdays">${days.map(d=>`<span class="${apOff(d)?'off':''} ${d===t?'now':''}">${AP_WD[apDt(d).getDay()]}<b>${+d.slice(8)}</b></span>`).join('')}</div></div>${R.map(row).join('')}${tdl}</div></div>`:`<div class="apempty"><b>ไม่มีงานใน${apMonTh(ym)}</b><p>เลื่อนไปเดือนอื่น หรือเปลี่ยนตัวกรองสถานะ</p></div>`}
+  ${R.length?`<div class="apgwrap"><div class="apgw" tabindex="0" aria-label="ตารางไทม์ไลน์ เลื่อนซ้ายขวาเพื่อดูวันอื่น"><div class="apg" role="list" aria-label="ไทม์ไลน์แผนการผลิต ${apMonTh(ym)}" style="--nd:${nd};--apbg:${bg}"><div class="apgh" aria-hidden="true"><div class="l">SO · ลูกค้า</div><div class="apdays">${days.map(d=>`<span class="${apOff(d)?'off':''} ${d===t?'now':''}">${AP_WD[apDt(d).getDay()]}<b>${+d.slice(8)}</b></span>`).join('')}</div></div>${R.map(row).join('')}${tdl}</div></div></div><div class="aphint" id="ap_hint">${lu('arrow-left-right',14)}เลื่อนซ้าย–ขวาในตารางเพื่อดูวันอื่น</div>`:`<div class="apempty"><b>ไม่มีงานใน${apMonTh(ym)}</b><p>เลื่อนไปเดือนอื่น หรือเปลี่ยนตัวกรองสถานะ</p></div>`}
   <div class="aplg" aria-label="คำอธิบายสี">${AP_ST.map(x=>`<span><i style="background:${x.one?x.c:`color-mix(in srgb,${x.c} 20%,#fff);box-shadow:inset 0 0 0 1px color-mix(in srgb,${x.c} 45%,transparent)`}"></i>${x.n}</span>`).join('')}<span><i class="tdy"></i>วันนี้</span><span><i style="background:var(--c-sunk);box-shadow:inset 0 0 0 1px var(--c-line)"></i>วันหยุด</span></div>`}
 function apSteps(r){const S=r.stages||{},t=apToday(),done=r.st==='done';const L=AP_ST.filter(x=>x.k!=='conf'||S.conf);
   return `<span class="apsteps" aria-hidden="true">${L.map(x=>{const g=S[x.k];const on=done||(g&&apEnd(g)<t);const cur=!on&&g&&g.s<=t;return `<i class="${on?'on':cur?'cur':''}" style="--sc:${x.c}"></i>`}).join('')}</span>`}
@@ -682,7 +724,7 @@ function apCards(L){if(!L.length)return apEmptyRes();const t=apToday();
   const S=[...L].sort((x,y)=>{const a=key(x),b=key(y);return a[0]-b[0]||(typeof a[1]==='number'?a[1]-b[1]:String(a[1]).localeCompare(String(b[1])))});
   return `<div class="apcards">${S.slice(0,APS.lim||80).map(r=>{const s=apStat(r),sh=apShip(r);const dd=sh?apDiff(t,sh):null;
     const due=sh?(r.st==='done'?`ส่งมอบ ${thDate(sh)}`:dd<0?`เลยกำหนด ${-dd} วัน (${apShort(sh)})`:dd===0?`ส่งมอบ ${apShort(sh)}`:`ส่งมอบ ${apShort(sh)} · อีก ${dd} วัน`):'ยังไม่กำหนดวันส่ง';
-    return `<div class="apcard" role="button" tabindex="0" data-apid="${esc(r._id)}"><span class="t">${esc(r.no||'-')}<small>${esc(r.cust||'')}</small></span>${apBadge(s)}<span class="m">${apSteps(r)}<span class="due ${s.k==='late'?'bad':''}">${esc(due)}</span></span></div>`}).join('')}</div>
+    return `<div class="apcard" role="button" tabindex="0" data-apid="${esc(r._id)}"><span class="t"><span>${esc(r.no||'-')}</span>${r.cust?`<small>${esc(r.cust)}</small>`:''}</span>${apBadge(s)}<span class="m">${apSteps(r)}<span class="due ${s.k==='late'?'bad':''}">${esc(due)}</span></span></div>`}).join('')}</div>
   ${S.length>(APS.lim||80)?`<button class="more" onclick="APS.lim=(APS.lim||80)+100;apBody()">แสดงเพิ่มอีก ${S.length-(APS.lim||80)} งาน</button>`:''}`}
 async function apSave(r,msg){try{await store.save('plan',r);if(msg)toast(msg);render();return true}catch(e){toast(e.status===403?'ไม่มีสิทธิ์บันทึก (เฉพาะฝ่ายวางแผน)':'บันทึกไม่สำเร็จ: '+e.message);return false}}
 function apDetail(id){const r=apJobs().find(x=>x._id===id);if(!r)return;const it=canEdit('plan'),S=r.stages||{},s=apStat(r),t=apToday();
