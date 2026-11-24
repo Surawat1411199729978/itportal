@@ -1278,6 +1278,12 @@ addEventListener('popstate',()=>{const v=skView();if(v===view)return;
   view=v;render();scrollTo(0,0)});
 addEventListener('beforeunload',e=>{if(skDirty&&$('sheet').classList.contains('on')){e.preventDefault();e.returnValue=''}});
 
+/* ===== auto-update: reload once when a newer build is online ===== */
+const SK_BUILD='2026-11-24.8';
+async function skCheckUpdate(){try{if(document.querySelector('#sheet.on,.sheet.on'))return;const r=await fetch(location.pathname.replace(/[^/]*$/,'')+'index.html?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/SK_BUILD='([^']+)'/);
+  if(m&&m[1]!==SK_BUILD){const k='sk-upd-'+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('v',m[1]);location.replace(u.toString())}}catch(_){}}
+skCheckUpdate();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')skCheckUpdate()});
+
 boot();
 </script>
 <script>
