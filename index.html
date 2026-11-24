@@ -359,6 +359,95 @@ html .spin{border-color:var(--c-line)!important;border-top-color:var(--c-acc)!im
  html #tools h1{font-size:32px!important}
 }
 </style>
+<style id="read">
+/* ===== Readability v40: one type scale for the whole portal ===== */
+:root:root{
+ --t-title:28px;--t-sec:20px;--t-sub:17px;--t-body:16px;--t-label:15px;--t-small:14px;--t-cap:13px;
+ --lh-body:1.6;--lh-head:1.35;--lh-tight:1.25;
+ --c-ink2:#555b5e;--c-ink3:#62676a;--sub:var(--c-ink2);--faint:var(--c-ink3);
+ --fs-title:var(--t-title);--fs-sec:var(--t-sec);--fs-body:var(--t-body);--fs-small:var(--t-small);--fs-cap:var(--t-cap)}
+@media(min-width:900px){:root:root{--t-title:32px}}
+html body{font-size:var(--t-body)!important;line-height:var(--lh-body)!important;-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow-wrap:break-word;word-break:normal}
+
+/* headings: one size per level, room for Thai vowels and tone marks */
+html #tools h1{font-size:var(--t-title)!important;line-height:var(--lh-head)!important;font-weight:600!important;padding-top:2px}
+html #tools .sub,html .sub{font-size:var(--t-small)!important;line-height:1.5!important;color:var(--c-ink2)!important;max-width:65ch}
+html .gh{font-size:var(--t-sec)!important;line-height:var(--lh-head)!important;font-weight:600!important}
+html .fgroup h3{font-size:var(--t-label)!important;line-height:var(--lh-head)!important;font-weight:600!important;color:var(--c-ink)!important}
+html .rphead h2,html .sheet h2,html .cc .hd b,html .rpempty b{font-size:var(--t-sec)!important;line-height:var(--lh-head)!important}
+html .shh .tt{font-size:var(--t-sub)!important}
+
+/* lists: title > main fact > supporting line */
+html .it .t{font-size:var(--t-body)!important;line-height:1.45!important;font-weight:500!important}
+html .it .t b{font-weight:600!important}
+html .rpsym{font-size:var(--t-body)!important;line-height:1.5!important;color:var(--c-ink)!important;max-width:70ch}
+html .it .m{font-size:var(--t-small)!important;line-height:1.5!important;color:var(--c-ink2)!important}
+html .it .r,html .it .amt{font-size:var(--t-body)!important;font-variant-numeric:tabular-nums}
+html .it .r small{font-size:var(--t-cap);color:var(--c-ink2);font-weight:400}
+html .kpsub{white-space:nowrap}
+@media(max-width:360px){html .it .bdw{flex-wrap:wrap}html .it .r small{display:inline}}
+html .mono{font-size:var(--t-small)!important;color:var(--c-ink2)}
+html .toolbar .cnt{font-size:var(--t-small)!important}
+
+/* key/value detail rows: label readable, value carries the weight */
+html .kv .k{font-size:var(--t-small)!important;color:var(--c-ink2)!important;line-height:1.5!important}
+html .kv .v{font-size:var(--t-body)!important;line-height:1.5!important;overflow-wrap:anywhere}
+html .kv>div{align-items:flex-start!important}
+html .kv .k{width:32%;min-width:6.5em}
+@media(max-width:430px){html .kv>div{flex-direction:column;gap:2px!important;padding:10px 16px!important}html .kv .k{width:auto;min-width:0}}
+html .cr .k,html .cc .k{font-size:var(--t-cap)!important;color:var(--c-ink2)!important}
+html .cr .v,html .cc .v{overflow-wrap:anywhere}
+
+/* forms: 16px inputs (no iPhone zoom), labels that read as labels */
+html .f label{font-size:var(--t-label)!important;color:var(--c-ink2)!important;line-height:1.4!important}
+html .f input,html .f select,html .f textarea,html .search input,html input,html select,html textarea{font-size:var(--t-body)!important;line-height:1.5}
+html .f textarea{min-height:88px}
+html .gf,html .rphint{font-size:var(--t-small)!important;line-height:1.5!important}
+html .gf{color:var(--c-ink2)!important}
+
+/* status badges: 13px minimum, text dark enough on its tint (>= 4.5:1) */
+html .badge,html .rpit .acts .badge,html .sheet .badge{font-size:var(--t-cap)!important;line-height:1.45!important;padding:2px 9px!important}
+html .badge.sb{color:color-mix(in srgb,var(--b) 50%,#1f2326)!important}
+html .b-warn{color:#7d4a08!important}html .b-ok{color:#246141!important}html .b-bad,html .badge.u{color:#93391f!important}
+
+html .sum b{font-weight:600!important;font-variant-numeric:tabular-nums}
+/* buttons and filters keep the body scale */
+html .cta,html .rpacts .cta{font-size:var(--t-body)!important;line-height:1.4!important}
+html .fbtn,html .chip,html .rpchips .chip,html .seg button,html .cbtn,html .pill,html .rpgo{font-size:var(--t-small)!important;line-height:1.4!important}
+html .chips{row-gap:8px!important}
+
+/* home tiles: no cut-off text, number and its unit read as one line */
+html .wt{font-size:var(--t-body)!important;line-height:var(--lh-head)!important}
+html .wn{line-height:1.2!important}
+html .wn small{font-size:var(--t-small)!important;line-height:1.4!important;display:inline-block}
+html .ws{font-size:var(--t-cap)!important;line-height:1.5!important;color:var(--c-ink2)!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+html .alert b{font-size:var(--t-body)!important;line-height:1.45!important}
+html .alert .ab span{font-size:var(--t-small)!important;line-height:1.5!important}
+html .hero small{font-size:var(--t-small)!important}
+
+/* KPI: month grid and targets were 11–12.5px */
+html .kpm button{font-size:var(--t-cap)!important;line-height:1.4!important}
+html .kpm button b{font-size:var(--t-label)!important;font-weight:600!important}
+html .kpsub,html .kpcard small,html .kpcard .m{font-size:var(--t-cap)!important;color:var(--c-ink2)!important}
+html .kpcard,html .kpchk,html .kpjob{font-size:var(--t-small)}
+html .mttbl{font-size:var(--t-small)!important}html .mttbl td,html .mttbl th{padding:8px 10px!important;font-variant-numeric:tabular-nums}
+
+/* file-type tag inside the file icon */
+html .ic[style*="font-size:9.5px"]{font-size:11px!important;font-weight:700!important}
+html .rpth button,html .rpadd{font-size:var(--t-small)!important}
+html .toast{font-size:var(--t-small)!important;line-height:1.45!important;max-width:min(92vw,520px)}
+
+/* room under the last row so the floating add button never covers it */
+html main{padding-bottom:calc(var(--safe-b,0px) + 104px)!important}
+/* small screens: toolbar wraps neatly, nothing pushes the page sideways */
+html .sbar{flex-wrap:wrap;row-gap:8px}
+html .qa{flex-wrap:wrap}html .qa .cta{flex:1 1 150px;min-width:0}
+html .toolbar,html .toolbar .tl{flex-wrap:wrap;row-gap:8px}
+html .kpm{grid-template-columns:repeat(auto-fill,minmax(48px,1fr))!important}
+@media(max-width:360px){html .cr{grid-template-columns:1fr 1fr!important}html .cr>.cbtn{grid-column:auto;min-width:0}html .cr>:first-child{grid-column:1/-1}}
+html .sbar .search{flex:1 1 200px;min-width:0}
+html main,html #tools{overflow-wrap:break-word}
+</style>
 </head>
 <body>
 <header id="hdr"><div class="hin">
@@ -372,7 +461,7 @@ html .spin{border-color:var(--c-line)!important;border-top-color:var(--c-acc)!im
 <script>
 if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
 /* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
-const APP_VERSION='2026-11-24.39';
+const APP_VERSION='2026-11-24.40';
 async function checkUpdate(){
   try{
     if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
@@ -447,7 +536,7 @@ const MODS={
   sorts:[['date-','ซื้อล่าสุด'],['date','ซื้อเก่าสุด'],['cost-','ราคาสูง→ต่ำ'],['code','รหัส']],
   search:['code','name','type','dept','loc','doc','note'],
   summary:L=>[[L.length.toLocaleString(),'รายการ'],[money(L.reduce((a,r)=>a+(+r.cost||0),0)),'มูลค่ารวม (บาท)']],
-  card:r=>`${aIco(r)}<div class="bd"><div class="t">${esc(r.name)}</div><div class="m"><span class="mono">${esc(r.code)}</span> · ${esc(r.dept||'-')} · ${thDate(r.date)}</div><div class="m">${esc(r.type||'')}</div></div><div class="r num">${r.cost?money(r.cost):''}</div>`},
+  card:r=>`${aIco(r)}<div class="bd"><div class="t">${esc(r.name)}</div><div class="m"><span class="mono">${esc(r.code)}</span> · ${esc(r.dept||'-')} · ${thDate(r.date)}</div><div class="m">${esc(r.type||'')}</div></div><div class="r num">${r.cost?money(r.cost)+' <small>บาท</small>':''}</div>`},
  contacts:{layout:'cards',list:'IT Contacts',title:'เบอร์ติดต่อ IT',icon:['phone','#6c9a52'],desc:'ผู้ให้บริการและผู้ติดต่อ',pub:1,
   titleOf:r=>r.company,
   fields:[{k:'company',l:'บริษัท / ผู้ให้บริการ',full:1,t:'list'},{k:'contact',l:'ผู้ติดต่อ'},{k:'topic',l:'เรื่อง / บริการ'},{k:'phone',l:'เบอร์โทร (หลายเบอร์คั่นด้วย /)',full:1,t:'tel'},{k:'email',l:'E-Mail (หลายอันคั่นด้วย /)',full:1,t:'email'},{k:'line',l:'LINE ID (เช่น @amcplus)',full:1},{k:'note',l:'หมายเหตุ',t:'area',full:1}],
@@ -617,7 +706,7 @@ function render(){
 function renderHome(){
   const UNIT={kpi:'ปิดงานซ่อมทันเวลา',repair:isIT?'งานค้าง':'งานของฉัน',vpn:'คำขอ',assets:'รายการ',contacts:'รายชื่อ',software:'ไลเซนส์',copier:'ผู้ใช้',wifi:'เครือข่าย',forms:'ไฟล์',docs:'ไฟล์'};
   const cnt=k=>k==='kpi'?kpHome(2):k==='repair'?(DATA.repair?(isIT?rpList().filter(r=>RP_OPEN.includes(r.status)).length:rpList().length):'–'):DATA[k]?DATA[k].length.toLocaleString():'–';
-  const sub={vpn:()=>DATA.vpn?(()=>{const L=vpList(),n=L.filter(r=>vpSt(r)==='new').length,a=L.filter(r=>vpSt(r)==='active').length,e=L.filter(r=>vpSt(r)==='exp').length;return [n?`<span style="color:var(--bad)">รอ IT ${n}</span>`:'',a?`เปิดอยู่ ${a}`:'',e?`<span style="color:var(--bad)">หมดอายุ ${e}</span>`:''].filter(Boolean).join(' · ')||'ขอสิทธิ์ VPN ออนไลน์'})():'',repair:()=>DATA.repair?(isIT?(()=>{const n=rpList().filter(r=>r.status==='new').length,l=rpList().filter(rpLate).length;return [n?`ใหม่ ${n}`:'',l?`<span style="color:var(--bad)">ค้างเกิน 7 วัน ${l}</span>`:''].filter(Boolean).join(' · ')||'ไม่มีงานค้าง'})():(()=>{const w=rpList().filter(r=>RP_WAIT.includes(r.status)).length;return w?`<span style="color:var(--bad)">รอคุณยืนยัน ${w}</span>`:'แจ้งซ่อม · ติดตามสถานะ'})()):'',assets:()=>DATA.assets?'มูลค่า '+money(DATA.assets.reduce((a,r)=>a+(+r.cost||0),0))+' ฿':'',
+  const sub={vpn:()=>DATA.vpn?(()=>{const L=vpList(),n=L.filter(r=>vpSt(r)==='new').length,a=L.filter(r=>vpSt(r)==='active').length,e=L.filter(r=>vpSt(r)==='exp').length;return [n?`<span style="color:var(--bad)">รอ IT ${n}</span>`:'',a?`เปิดอยู่ ${a}`:'',e?`<span style="color:var(--bad)">หมดอายุ ${e}</span>`:''].filter(Boolean).join(' · ')||'ขอสิทธิ์ VPN ออนไลน์'})():'',repair:()=>DATA.repair?(isIT?(()=>{const n=rpList().filter(r=>r.status==='new').length,l=rpList().filter(rpLate).length;return [n?`ใหม่ ${n}`:'',l?`<span style="color:var(--bad)">ค้างเกิน 7 วัน ${l}</span>`:''].filter(Boolean).join(' · ')||'ไม่มีงานค้าง'})():(()=>{const w=rpList().filter(r=>RP_WAIT.includes(r.status)).length;return w?`<span style="color:var(--bad)">รอคุณยืนยัน ${w}</span>`:'แจ้งซ่อม · ติดตามสถานะ'})()):'',assets:()=>DATA.assets?'มูลค่า '+money(DATA.assets.reduce((a,r)=>a+(+r.cost||0),0))+' บาท':'',
     copier:()=>DATA.contracts?(()=>{const n=DATA.contracts.filter(r=>{const d=daysTo(r.end);return d!=null&&d<=60}).length;return n?`<span style="color:var(--bad)">สัญญาต้องต่อ ${n}</span>`:'สัญญาปกติ'})():'',
     wifi:()=>DATA.wifi?`ใช้งาน ${DATA.wifi.filter(r=>r.status!=='old').length} เครือข่าย`:'',
     software:()=>DATA.software?`${new Set(DATA.software.map(r=>r.product)).size} ผลิตภัณฑ์`:'',
