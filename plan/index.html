@@ -369,21 +369,25 @@ html .spin{border-color:var(--c-line)!important;border-top-color:var(--c-acc)!im
 .btnlist .btnl+button::before{content:"";position:absolute;top:0;left:0;right:0;border-top:1px solid var(--c-line)}
 header .back{text-decoration:none}
 .who span{max-width:30vw;overflow:hidden;text-overflow:ellipsis}
+.back .lu{margin-left:-4px}header .back{min-height:44px;align-items:center}.who.on{min-height:44px}.shh .x{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center}.who{gap:8px!important;align-items:center}#fab.add{gap:8px!important}#fab .lu{width:20px;height:20px}.btnlist .btnl,.btnlist button{display:flex!important;align-items:center;justify-content:center;gap:8px}
 .brand{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:var(--c-ink)}
 </style>
 </head>
 <body class="apv">
 <a href="#main" class="sr" style="position:absolute;left:-9999px">ข้ามไปเนื้อหา</a>
 <header id="hdr"><div class="hin">
-  <div class="nav"><a class="back on" href="https://surawat1411199729978.github.io/itportal/"><svg width="12" height="20" viewBox="0 0 12 20" aria-hidden="true"><path d="M10 2 2 10l8 8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>IT Portal</a><div class="ntitle" id="ntitle">แผนการผลิต</div><div class="navr"><button class="who" id="who" aria-label="บัญชีผู้ใช้"></button></div></div>
+  <div class="nav"><a class="back on" href="https://surawat1411199729978.github.io/itportal/"><svg class="lu" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6" /></svg>IT Portal</a><div class="ntitle" id="ntitle">แผนการผลิต</div><div class="navr"><button class="who" id="who" aria-label="บัญชีผู้ใช้"></button></div></div>
   <div id="tools"></div>
 </div></header>
 <main id="main" tabindex="-1"><div class="center"><div class="spin"></div></div></main>
-<button class="add" id="fab" data-l="เพิ่มงาน SO" aria-label="เพิ่มงาน SO"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 3v16M3 11h16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+<button class="add" id="fab" data-l="เพิ่มงาน SO" aria-label="เพิ่มงาน SO"><svg class="lu" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14" /><path d="M12 5v14" /></svg></button>
 <div class="scrim" id="scrim"></div><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-hidden="true"></div><div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
+/* Lucide icons v1.79.0 (ISC License) · เฉพาะไอคอนที่ใช้ในหน้านี้ */
+const LU={"chevron-left":"<path d=\"m15 18-6-6 6-6\" />","chevron-right":"<path d=\"m9 18 6-6-6-6\" />","circle-user-round":"<path d=\"M17.925 20.056a6 6 0 0 0-11.851.001\" /><circle cx=\"12\" cy=\"11\" r=\"4\" /><circle cx=\"12\" cy=\"12\" r=\"10\" />","file-text":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" /><path d=\"M14 2v5a1 1 0 0 0 1 1h5\" /><path d=\"M10 9H8\" /><path d=\"M16 13H8\" /><path d=\"M16 17H8\" />","settings":"<path d=\"M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915\" /><circle cx=\"12\" cy=\"12\" r=\"3\" />","plus":"<path d=\"M5 12h14\" /><path d=\"M12 5v14\" />","search":"<path d=\"m21 21-4.34-4.34\" /><circle cx=\"11\" cy=\"11\" r=\"8\" />","chart-gantt":"<path d=\"M10 6h8\" /><path d=\"M12 16h6\" /><path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /><path d=\"M8 11h7\" />","list":"<path d=\"M3 5h.01\" /><path d=\"M3 12h.01\" /><path d=\"M3 19h.01\" /><path d=\"M8 5h13\" /><path d=\"M8 12h13\" /><path d=\"M8 19h13\" />","circle-check":"<circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"m16 9-5.5 5.5L8 12\" />","circle-alert":"<circle cx=\"12\" cy=\"12\" r=\"10\" /><line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\" /><line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\" />","check":"<path d=\"M20 6 9 17l-5-5\" />","pencil":"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /><path d=\"m15 5 4 4\" />","trash-2":"<path d=\"M10 11v6\" /><path d=\"M14 11v6\" /><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\" /><path d=\"M3 6h18\" /><path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />","x":"<path d=\"M18 6 6 18\" /><path d=\"m6 6 12 12\" />","undo-2":"<path d=\"M9 14 4 9l5-5\" /><path d=\"M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11\" />","sticky-note":"<path d=\"M21 9a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z\" /><path d=\"M15 3v5a1 1 0 0 0 1 1h5\" />","file-spreadsheet":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" /><path d=\"M14 2v5a1 1 0 0 0 1 1h5\" /><path d=\"M8 13h2\" /><path d=\"M14 13h2\" /><path d=\"M8 17h2\" /><path d=\"M14 17h2\" />","image":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\" /><circle cx=\"9\" cy=\"9\" r=\"2\" /><path d=\"m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\" />","printer":"<path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\" /><path d=\"M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6\" /><rect x=\"6\" y=\"14\" width=\"12\" height=\"8\" rx=\"1\" />","file-up":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" /><path d=\"M14 2v5a1 1 0 0 0 1 1h5\" /><path d=\"M12 12v6\" /><path d=\"m15 15-3-3-3 3\" />","clipboard-list":"<rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\" ry=\"1\" /><path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\" /><path d=\"M12 11h4\" /><path d=\"M12 16h4\" /><path d=\"M8 11h.01\" /><path d=\"M8 16h.01\" />","package-check":"<path d=\"M12 22V12\" /><path d=\"m16 17 2 2 4-4\" /><path d=\"M21 11.127V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.729l7 4a2 2 0 0 0 2 .001l1.32-.753\" /><path d=\"M3.29 7 12 12l8.71-5\" /><path d=\"m7.5 4.27 8.997 5.148\" />","arrow-left-right":"<path d=\"M8 3 4 7l4 4\" /><path d=\"M4 7h16\" /><path d=\"m16 21 4-4-4-4\" /><path d=\"M20 17H4\" />","log-out":"<path d=\"m16 17 5-5-5-5\" /><path d=\"M21 12H9\" /><path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\" />","external-link":"<path d=\"M15 3h6v6\" /><path d=\"M10 14 21 3\" /><path d=\"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6\" />"};
+const lu=(n,s=18,c='')=>`<svg class="lu ${c}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${LU[n]}</svg>`;
 /* ===== แผนการผลิต · เว็บแยก (ใช้ข้อมูลลิสต์ SharePoint "Production Plan") ===== */
-const APP_VERSION='2026-11-24.1';
+const APP_VERSION='2026-11-24.2';
 const CFG={clientId:"73241ae0-9aa1-49fe-b2c7-caa2449a0091",tenantId:"410b700e-bb2a-46d2-b4c0-449aec007d0e",siteUrl:"https://unboffice.sharepoint.com/sites/ITPortal",portal:"https://surawat1411199729978.github.io/itportal/"};
 const SCOPES=['User.Read','Sites.ReadWrite.All'];
 const SP_ORIGIN=new URL(CFG.siteUrl).origin;
@@ -431,11 +435,10 @@ function rpTpl(){if(RP_LOGO||DEMO)return Promise.resolve();if(RP_LP)return RP_LP
 function render(){const M=$('main');$('who').classList.toggle('on',mode==='ready');
   $('fab').classList.toggle('on',mode==='ready'&&CAN_EDIT&&!!DATA.plan&&DATA.plan.some(r=>r.type!=='cfg'));
   if(mode==='loading'){$('tools').innerHTML='';M.innerHTML='<div class="center" role="status"><div class="spin"></div><div style="margin-top:12px">กำลังเชื่อมต่อ…</div></div>';return}
-  if(mode==='signin'){$('tools').innerHTML='';M.innerHTML=`<div class="center"><div class="big"><svg viewBox="0 0 24 24">${G.gantt}</svg></div><h2>แผนการผลิต · Action Plan</h2><div>เข้าสู่ระบบด้วยบัญชี Microsoft 365 ของบริษัท (อีเมล Outlook / Teams)</div><button class="cta" id="login">เข้าสู่ระบบ Microsoft 365</button></div>`;
+  if(mode==='signin'){$('tools').innerHTML='';M.innerHTML=`<div class="center"><div class="big">${lu('chart-gantt',36)}</div><h2>แผนการผลิต · Action Plan</h2><div>เข้าสู่ระบบด้วยบัญชี Microsoft 365 ของบริษัท (อีเมล Outlook / Teams)</div><button class="cta" id="login">เข้าสู่ระบบ Microsoft 365</button></div>`;
     $('login').onclick=()=>msal.loginRedirect({scopes:SCOPES,prompt:'select_account',redirectStartPage:location.href});return}
-  if(mode==='err'){$('tools').innerHTML='';M.innerHTML=`<div class="center"><div class="big" style="color:var(--c-bad);background:var(--c-bad-soft)"><svg viewBox="0 0 24 24">${G.alert}</svg></div><h2>เชื่อมต่อไม่สำเร็จ</h2><div style="max-width:46ch;margin:0 auto">${esc(errMsg)}</div><button class="cta" id="retry">ลองใหม่</button></div>`;$('retry').onclick=()=>location.reload();return}
+  if(mode==='err'){$('tools').innerHTML='';M.innerHTML=`<div class="center"><div class="big" style="color:var(--c-bad);background:var(--c-bad-soft)">${lu('circle-alert',36)}</div><h2>เชื่อมต่อไม่สำเร็จ</h2><div style="max-width:46ch;margin:0 auto">${esc(errMsg)}</div><button class="cta" id="retry">ลองใหม่อีกครั้ง</button></div>`;$('retry').onclick=()=>location.reload();return}
   $('tools').innerHTML=planTools();renderPlan()}
-G.alert='<path d="M12 3.8 21 19.5H3z" fill="currentColor" fill-opacity=".22"/><path d="M12 3.8 21 19.5H3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/>';
 
 /* ===== แผนการผลิต · Action Plan (FM-PLN-01-01) ===== */
 G.gantt='<rect x="3.5" y="4" width="17" height="16" rx="2.5" fill="currentColor" fill-opacity=".22"/><rect x="3.5" y="4" width="17" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7 9h6M10 12.5h6M8.5 16h5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>';
@@ -494,10 +497,12 @@ document.head.insertAdjacentHTML('beforeend',`<style id="apcss">
 html body.apv main,html body.apv .hin{max-width:1200px!important}
 @media(min-width:720px){html body.apv #fab{display:none!important}}
 .aphd{display:flex;gap:var(--s4);align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin:var(--s2) 0 var(--s1)}
-.aphd h1{margin:0!important}.aphd p{margin:2px 0 0;color:var(--c-ink2);font-size:var(--fs-small);max-width:56ch}
+.aphd>div:first-child{flex:1 1 320px;min-width:0}.aphd h1{margin:0!important}.aphd p{margin:2px 0 0;color:var(--c-ink2);font-size:var(--fs-small);max-width:56ch}
 .apact{display:flex;gap:var(--s2);align-items:center}
-.apbtn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 16px;border-radius:var(--r2);font-size:var(--fs-small);font-weight:600;transition:background .15s,border-color .15s;white-space:nowrap}
-.apbtn svg{width:16px;height:16px}
+.lu{flex:none;display:inline-block;vertical-align:middle}
+.apbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:var(--r2);font-size:var(--fs-small);font-weight:600;transition:background .15s,border-color .15s;white-space:nowrap}
+.apbtn:active:not(:disabled){transform:translateY(.5px)}
+.apbtn.s .lu{color:var(--c-ink2)}
 .apbtn.p{background:var(--c-acc);color:#fff}@media(hover:hover){.apbtn.p:hover{background:var(--c-acc-h)}}
 .apbtn.s{background:var(--c-surface);color:var(--c-ink);border:1px solid var(--c-line2);font-weight:500}@media(hover:hover){.apbtn.s:hover{border-color:var(--c-ink3)}}
 .apbtn.t{color:var(--c-acc-ink);font-weight:500;padding:0 8px}@media(hover:hover){.apbtn.t:hover{background:var(--c-acc-soft)}}
@@ -518,11 +523,11 @@ html body.apv main,html body.apv .hin{max-width:1200px!important}
 .apbar{display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap;margin:var(--s5) 0 var(--s3)}
 .apbar .search{flex:1;min-width:200px}
 .apbar .seg{margin:0!important;flex:none}
-.apbar .seg button{padding:7px 14px!important}
+.apbar .seg button{padding:7px 14px!important;display:inline-flex;align-items:center;gap:8px}.apbar .seg button .lu{color:var(--c-ink3)}.apbar .seg button.on .lu{color:var(--c-acc)}
 .apmon{display:flex;align-items:center;gap:var(--s2);margin:0 0 var(--s3)}
 .apmon h2{font-size:var(--fs-sec);font-weight:600;margin:0 var(--s2);min-width:150px;text-align:center}
 .apib{width:36px;height:36px;display:grid;place-items:center;border-radius:var(--r2);border:1px solid var(--c-line2);background:var(--c-surface);color:var(--c-ink)}
-.apib svg{width:16px;height:16px}
+@media(hover:hover){.apib:hover{border-color:var(--c-ink3)}}.apib:active{background:var(--c-sunk)}
 .apmon .cnt{margin-left:auto;font-size:var(--fs-cap);color:var(--c-ink2)}
 .aplg{display:flex;flex-wrap:wrap;gap:6px 16px;margin:var(--s3) 2px 0;font-size:var(--fs-cap);color:var(--c-ink2)}
 .aplg i{display:inline-block;width:14px;height:8px;border-radius:2px;margin-right:6px;vertical-align:1px}
@@ -569,9 +574,10 @@ html body.apv main,html body.apv .hin{max-width:1200px!important}
 .apsteps i.cur{background:color-mix(in srgb,var(--sc) 35%,#fff);box-shadow:inset 0 0 0 1.5px var(--sc)}
 .apbadge{display:inline-flex;align-items:center;gap:5px;border-radius:var(--r1);padding:2px 9px;font-size:12.5px;font-weight:500;line-height:1.5;white-space:nowrap;align-self:start}
 .apbadge.ok{background:var(--c-ok-soft);color:var(--c-ok)}.apbadge.bad{background:var(--c-bad-soft);color:var(--c-bad)}.apbadge.warn{background:var(--c-warn-soft);color:var(--c-warn)}.apbadge.info{background:var(--c-info-soft);color:var(--c-info)}.apbadge.mute{background:var(--c-sunk);color:var(--c-ink2)}
-.apbadge.bad::before{content:"!";font-weight:700}.apbadge.ok::before{content:"✓";font-weight:700}
+.apbadge .lu{margin-left:-2px}
 /* สถานะว่าง / โหลด */
 .apempty{text-align:center;padding:48px 20px;background:var(--c-surface);border:1px dashed var(--c-line2);border-radius:var(--r3)}
+.apempty>.lu{color:var(--c-ink3);margin-bottom:10px}
 .apempty b{display:block;font-size:var(--fs-sec);font-weight:600;color:var(--c-ink)}
 .apempty p{margin:6px auto 16px;max-width:44ch;color:var(--c-ink2);font-size:var(--fs-small)}
 .apsk{height:46px;border-top:1px solid var(--c-line);background:linear-gradient(90deg,transparent,rgba(43,40,32,.04),transparent) var(--c-surface);background-size:200% 100%;animation:apsk 1.4s ease-in-out infinite}
@@ -584,7 +590,8 @@ html body.apv main,html body.apv .hin{max-width:1200px!important}
 .aptl{background:var(--c-surface);border:1px solid var(--c-line);border-radius:var(--r3);margin-top:var(--s4);padding:var(--s2) 0}
 .aptl>div{display:grid;grid-template-columns:28px 1fr auto;gap:var(--s3);padding:var(--s2) var(--s4);align-items:start;position:relative}
 .aptl>div:not(:last-child)::after{content:"";position:absolute;left:calc(var(--s4) + 13px);top:30px;bottom:-8px;width:1.5px;background:var(--c-line)}
-.aptl .mk{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;margin:1px 3px 0;background:var(--c-surface);box-shadow:inset 0 0 0 1.5px var(--c-line2);position:relative;z-index:1;font-size:11px;font-weight:700;color:#fff}
+.aptl .mk .lu{stroke-width:2.4}
+.aptl .mk{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;margin:1px 3px 0;background:var(--c-surface);box-shadow:inset 0 0 0 1.5px var(--c-line2);position:relative;z-index:1;color:#fff}
 .aptl .mk.on{background:var(--sc);box-shadow:none}
 .aptl .mk.cur{box-shadow:inset 0 0 0 2px var(--sc),0 0 0 3px color-mix(in srgb,var(--sc) 18%,transparent);background:var(--c-surface)}
 .aptl .n{font-size:var(--fs-body);font-weight:500}
@@ -594,6 +601,7 @@ html body.apv main,html body.apv .hin{max-width:1200px!important}
 .aptl .no{color:var(--c-ink3)}
 .apnotes{margin-top:var(--s4)}
 .apnotes div{display:flex;gap:var(--s3);padding:10px var(--s4);background:var(--c-surface);border:1px solid var(--c-line);border-radius:var(--r2);margin-top:6px;font-size:var(--fs-small)}
+.apnotes div .lu{color:var(--c-ink3);margin-top:2px}
 .apnotes div span{color:var(--c-ink2);flex:none;font-variant-numeric:tabular-nums;min-width:64px}
 .apfoot{display:flex;gap:var(--s2);flex-wrap:wrap;margin-top:var(--s5);align-items:center}
 .apfoot .sp{flex:1}
@@ -607,7 +615,7 @@ html body.apv main,html body.apv .hin{max-width:1200px!important}
 .apfr input{width:100%;border:1px solid var(--c-line2);border-radius:var(--r1);padding:8px 10px;font-size:var(--fs-small);background:var(--c-surface);min-width:0;transition:border-color .15s,box-shadow .15s}
 .apfr input:focus{outline:none;border-color:var(--c-acc);box-shadow:0 0 0 3px var(--c-acc-soft)}
 .apfr.err input{border-color:var(--c-bad)}
-.apfr .hint{grid-column:2/-1;font-size:var(--fs-cap);color:var(--c-bad)}
+.apfr .hint{grid-column:2/-1;font-size:var(--fs-cap);color:var(--c-bad);display:flex;align-items:center;gap:6px}
 .apfh{display:grid;grid-template-columns:150px 1fr 1fr;gap:var(--s2);padding:8px var(--s4) 0;font-size:var(--fs-cap);color:var(--c-ink2)}
 @media(max-width:560px){.apfr,.apfh{grid-template-columns:1fr 1fr}.apfr label{grid-column:1/-1}.apfh span:first-child{display:none}.apfr .hint{grid-column:1/-1}}
 .apshift{display:flex;gap:var(--s2);align-items:center;margin:var(--s2) 2px 0;font-size:var(--fs-cap);color:var(--c-ink2);flex-wrap:wrap}
@@ -615,14 +623,15 @@ html body.apv main,html body.apv .hin{max-width:1200px!important}
 .apnl{display:flex;gap:var(--s2);align-items:center;padding:8px var(--s4);border-top:1px solid var(--c-line);font-size:var(--fs-small)}
 .apnl:first-child{border-top:0}
 .apnl span{color:var(--c-ink2);min-width:64px;font-variant-numeric:tabular-nums}.apnl p{flex:1;margin:0}
-.apnl button{color:var(--c-ink3);width:28px;height:28px;border-radius:var(--r1)}
+.apnl button{color:var(--c-ink3);width:36px;height:36px;display:grid;place-items:center;border-radius:var(--r1);flex:none}.apnl button.apbtn{display:inline-flex;width:auto;height:auto;min-height:36px}@media(hover:hover){.apnl button:hover{background:var(--c-sunk);color:var(--c-ink)}}
 .apnl input{border:1px solid var(--c-line2);border-radius:var(--r1);padding:7px 9px;font-size:var(--fs-small);min-width:0}
 .apnl input[type=text]{flex:1}
+.rpex b .lu{color:var(--c-ink2)}.mtdrop>.lu{color:var(--c-ink3);margin-bottom:4px}.opt i .lu{display:block}
 .approg{height:6px;border-radius:3px;background:var(--c-sunk);overflow:hidden;margin-top:var(--s3)}.approg i{display:block;height:100%;background:var(--c-acc);width:0;transition:width .2s}
 </style>`);
-const AP_I={plus:'<path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',doc:'<path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5zM14 3.5v4h4M9.5 12.5h5M9.5 16h3.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>',gear:'<circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M6 6l1.6 1.6M16.4 16.4 18 18M6 18l1.6-1.6M16.4 7.6 18 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>',l:'<path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',r:'<path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',x:'<path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'};
-const apSvg=(k,s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true">${AP_I[k]}</svg>`;
-const apBadge=s=>`<span class="apbadge ${s.c}">${esc(s.l)}</span>`;
+const AP_IM={plus:'plus',doc:'file-text',gear:'settings',l:'chevron-left',r:'chevron-right',x:'x'};
+const apSvg=(k,sz=18)=>lu(AP_IM[k]||k,sz);
+const apBadge=s=>`<span class="apbadge ${s.c}">${s.c==='ok'?lu('circle-check',14):s.c==='bad'?lu('circle-alert',14):''}${esc(s.l)}</span>`;
 const apWide=()=>window.matchMedia('(min-width:720px)').matches;
 
 function planTools(){const it=canEdit('plan');
@@ -633,14 +642,14 @@ function renderPlan(){const M=$('main');
   if(!DATA.plan){M.innerHTML=`<div class="apstats" aria-hidden="true">${'<button disabled><span>&nbsp;</span><b>–</b></button>'.repeat(4)}</div><div class="apcards" style="margin-top:24px" aria-label="กำลังโหลด">${'<div class="apsk"></div>'.repeat(6)}</div>`;return}
   if(!APS.mode)APS.mode=apWide()?'tl':'list';if(!APS.ym)APS.ym=apToday().slice(0,7);
   const J=apJobs(),it=canEdit('plan');
-  if(!J.length){M.innerHTML=`<div class="apempty" style="margin-top:16px"><b>ยังไม่มีงานในแผนการผลิต</b><p>${it?'เริ่มจากนำเข้าแผนเดิมจากไฟล์ Excel FM-PLN-01-01 หรือเพิ่มงาน SO ทีละรายการ':'เมื่อฝ่ายวางแผนบันทึกแผนแล้ว งานจะแสดงที่นี่'}</p>${it?`<div class="apact" style="justify-content:center"><button class="apbtn s" id="ap_imp0">นำเข้าจาก Excel</button><button class="apbtn p" id="ap_new0">${apSvg('plus')}เพิ่มงาน SO</button></div>`:''}</div>`;
+  if(!J.length){M.innerHTML=`<div class="apempty" style="margin-top:16px">${lu('clipboard-list',24)}<b>ยังไม่มีงานในแผนการผลิต</b><p>${it?'เริ่มจากนำเข้าแผนเดิมจากไฟล์ Excel FM-PLN-01-01 หรือเพิ่มงาน SO ทีละรายการ':'เมื่อฝ่ายวางแผนบันทึกแผนแล้ว งานจะแสดงที่นี่'}</p>${it?`<div class="apact" style="justify-content:center"><button class="apbtn s" id="ap_imp0">${lu('file-up',18)}นำเข้าจาก Excel</button><button class="apbtn p" id="ap_new0">${apSvg('plus')}เพิ่มงาน SO</button></div>`:''}</div>`;
     if($('ap_imp0'))$('ap_imp0').onclick=()=>apImport();if($('ap_new0'))$('ap_new0').onclick=()=>apEdit(null);return}
   const n=k=>J.filter(AP_SEGS.find(x=>x[0]===k)[2]).length;const nl=n('late');
   const stat=(k,l,cls)=>`<button aria-pressed="${APS.seg===k}" data-aps="${k}"><span>${l}</span><b class="${cls||''}">${n(k).toLocaleString()}</b></button>`;
   const L=apList();
   M.innerHTML=`<div class="apstats" role="group" aria-label="กรองตามสถานะ">${stat('active','กำลังดำเนินการ')}${stat('week','กำหนดส่งใน 7 วัน')}${stat('late','เลยกำหนดส่ง',nl?'bad':'')}${stat('done','ส่งมอบแล้ว')}</div>
-  <div class="apbar"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="ap_q" type="search" placeholder="ค้นหาเลขที่ SO หรือชื่อลูกค้า" aria-label="ค้นหางาน" value="${esc(APS.q)}" autocomplete="off"></label>
-  <div class="seg" role="group" aria-label="มุมมอง"><button data-apm="tl" class="${APS.mode==='tl'?'on':''}" aria-pressed="${APS.mode==='tl'}">ไทม์ไลน์</button><button data-apm="list" class="${APS.mode==='list'?'on':''}" aria-pressed="${APS.mode==='list'}">รายการ</button></div>
+  <div class="apbar"><label class="search">${lu('search',18)}<input id="ap_q" type="search" placeholder="ค้นหาเลขที่ SO หรือชื่อลูกค้า" aria-label="ค้นหางาน" value="${esc(APS.q)}" autocomplete="off"></label>
+  <div class="seg" role="group" aria-label="มุมมอง"><button data-apm="tl" class="${APS.mode==='tl'?'on':''}" aria-pressed="${APS.mode==='tl'}">${lu('chart-gantt',16)}ไทม์ไลน์</button><button data-apm="list" class="${APS.mode==='list'?'on':''}" aria-pressed="${APS.mode==='list'}">${lu('list',16)}รายการ</button></div>
   ${APS.seg!=='all'?`<button class="apbtn t" data-aps="all">ดูทั้งหมด ${J.length}</button>`:''}</div>
   <div id="ap_body"></div>`;
   M.querySelectorAll('[data-aps]').forEach(b=>b.onclick=()=>{APS.seg=APS.seg===b.dataset.aps&&b.dataset.aps!=='all'?'all':b.dataset.aps;renderPlan()});
@@ -651,7 +660,7 @@ function apBody(){const B=$('ap_body');if(!B)return;const L=apList();if(APS.mode
   B.querySelectorAll('[data-apid]').forEach(e=>{e.onclick=()=>apDetail(e.dataset.apid);e.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();apDetail(e.dataset.apid)}}});
   B.querySelectorAll('[data-apmon]').forEach(b=>b.onclick=()=>{const v=b.dataset.apmon;APS.ym=v==='0'?apToday().slice(0,7):apYmAdd(APS.ym,+v);apBody()});
   const gw=B.querySelector('.apgw');if(gw&&APS.ym===apToday().slice(0,7)){const td=gw.querySelector('.apdays .now');if(td&&gw.scrollWidth>gw.clientWidth){const x=td.getBoundingClientRect().left-gw.getBoundingClientRect().left;const lc=gw.querySelector('.apgh .l').offsetWidth;gw.scrollLeft=Math.max(0,x-lc-(gw.clientWidth-lc)/2)}}}
-const apEmptyRes=()=>`<div class="apempty"><b>ไม่พบงานที่ตรงกับเงื่อนไข</b><p>${APS.q?'ลองค้นหาด้วยเลขที่ SO หรือชื่อลูกค้าแบบสั้นลง':'ลองเลือกสถานะอื่น หรือดูงานทั้งหมด'}</p><button class="apbtn s" onclick="APS.seg='all';APS.q='';renderPlan()">ดูงานทั้งหมด</button></div>`;
+const apEmptyRes=()=>`<div class="apempty">${lu('search',24)}<b>ไม่พบงานที่ตรงกับเงื่อนไข</b><p>${APS.q?'ลองค้นหาด้วยเลขที่ SO หรือชื่อลูกค้าแบบสั้นลง':'ลองเลือกสถานะอื่น หรือดูงานทั้งหมด'}</p><button class="apbtn s" onclick="APS.seg='all';APS.q='';renderPlan()">ดูงานทั้งหมด</button></div>`;
 function apTimeline(L){const ym=APS.ym,nd=apDim(ym),a=ym+'-01',z=ym+'-'+String(nd).padStart(2,'0'),t=apToday();
   const R=L.filter(r=>{const s=apSpan(r);return s&&s.s<=z&&s.e>=a}).sort((x,y)=>(+x.seq||1e9)-(+y.seq||1e9)||String(x.no).localeCompare(String(y.no)));
   const days=Array.from({length:nd},(_,i)=>apAdd(a,i));
@@ -680,13 +689,13 @@ function apDetail(id){const r=apJobs().find(x=>x._id===id);if(!r)return;const it
   const L=AP_ST.filter(x=>S[x.k]&&S[x.k].s);const miss=AP_ST.filter(x=>!(S[x.k]&&S[x.k].s)&&x.k!=='conf');
   const nOf=x=>(r.notes||[]).filter(n=>n.d>=S[x.k].s&&n.d<=apEnd(S[x.k]));const used=new Set();
   const tl=L.map(x=>{const g=S[x.k],e=apEnd(g);const on=r.st==='done'||e<t,cur=!on&&g.s<=t;const nd=apDiff(g.s,e)+1;const ns=nOf(x);ns.forEach(n=>used.add(n));
-    return `<div><span class="mk ${on?'on':cur?'cur':''}" style="--sc:${x.c}">${on?'✓':''}</span><span class="n">${x.n}${cur?`<small>${x.k==='ship'?'ถึงกำหนดส่ง':'กำลังอยู่ในขั้นตอนนี้'}</small>`:''}${ns.map(n=>`<small>📝 ${esc(n.t)}</small>`).join('')}</span><span class="d">${apRange(g)}${nd>1?`<small>${nd} วัน</small>`:''}</span></div>`}).join('')+miss.map(x=>`<div><span class="mk" style="--sc:${x.c}"></span><span class="n no">${x.n}</span><span class="d no">ยังไม่กำหนด</span></div>`).join('');
+    return `<div><span class="mk ${on?'on':cur?'cur':''}" style="--sc:${x.c}">${on?lu('check',13):''}</span><span class="n">${x.n}${cur?`<small>${x.k==='ship'?'ถึงกำหนดส่ง':'กำลังอยู่ในขั้นตอนนี้'}</small>`:''}${ns.map(n=>`<small style="display:flex;gap:6px;align-items:flex-start">${lu('sticky-note',14)}<span>${esc(n.t)}</span></small>`).join('')}</span><span class="d">${apRange(g)}${nd>1?`<small>${nd} วัน</small>`:''}</span></div>`}).join('')+miss.map(x=>`<div><span class="mk" style="--sc:${x.c}"></span><span class="n no">${x.n}</span><span class="d no">ยังไม่กำหนด</span></div>`).join('');
   const other=(r.notes||[]).filter(n=>!used.has(n)).sort((a,b)=>a.d.localeCompare(b.d));
   openSheet(`${shh('','รายละเอียดงาน','<button class="x b" id="a_x">เสร็จ</button>')}
   <div class="apdh"><div><h2>${esc(r.no||'-')}</h2><p>${esc(r.cust||'ไม่ระบุลูกค้า')}${r.seq?' · ลำดับที่ '+esc(r.seq):''}</p></div>${apBadge(s)}</div>
   <div class="aptl">${tl}</div>
-  ${other.length?`<div class="fgroup"><h3>หมายเหตุ</h3></div><div class="apnotes">${other.map(n=>`<div><span>${apShort(n.d)}</span>${esc(n.t)}</div>`).join('')}</div>`:''}
-  ${it?`<div class="apfoot">${r.st==='done'?'<button class="apbtn s" id="a_undo">ยกเลิกสถานะส่งมอบ</button>':`<button class="apbtn p" id="a_done">บันทึกว่าส่งมอบแล้ว</button>`}<button class="apbtn s" id="a_edit">แก้ไขแผน</button></div>`:''}
+  ${other.length?`<div class="fgroup"><h3>หมายเหตุ</h3></div><div class="apnotes">${other.map(n=>`<div>${lu('sticky-note',16)}<span>${apShort(n.d)}</span>${esc(n.t)}</div>`).join('')}</div>`:''}
+  ${it?`<div class="apfoot">${r.st==='done'?`<button class="apbtn s" id="a_undo">${lu('undo-2',18)}ยกเลิกสถานะส่งมอบ</button>`:`<button class="apbtn p" id="a_done">${lu('package-check',18)}บันทึกว่าส่งมอบแล้ว</button>`}<button class="apbtn s" id="a_edit">${lu('pencil',18)}แก้ไขแผน</button></div>`:''}
   <div class="apmeta">${r.by?`แก้ไขล่าสุดโดย ${esc(r.by)}${r.at?' · '+new Date(r.at).toLocaleString('th-TH',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'}):''}`:''}</div>`);
   $('a_x').onclick=closeSheet;if($('a_edit'))$('a_edit').onclick=()=>apEdit(r);
   if($('a_done'))$('a_done').onclick=async()=>{$('a_done').disabled=true;const x={...r,st:'done',doneAt:t,by:me,at:nowIso()};if(await apSave(x,`บันทึก ${r.no} ส่งมอบแล้ว`))apDetail(r._id);else $('a_done').disabled=false};
@@ -699,10 +708,10 @@ function apEdit(r){const n=!r;const J=apJobs();r=r?JSON.parse(JSON.stringify(r))
   <div class="f"><label for="e_st">สถานะ</label><select id="e_st">${[['','ตามแผน (คำนวณจากวันที่)'],['hold','พักงาน'],['done','ส่งมอบแล้ว'],['cancel','ยกเลิก']].map(([v,l])=>`<option value="${v}" ${(r.st||'')===v?'selected':''}>${l}</option>`).join('')}</select></div></div>
   <div class="fgroup"><h3>ขั้นตอนและวันที่ตามแผน</h3></div>
   <div class="apfs"><div class="apfh"><span>ขั้นตอน</span><span>เริ่ม</span><span>สิ้นสุด</span></div>${AP_ST.map(x=>`<div class="apfr" id="e_r_${x.k}"><label for="e_${x.k}_s"><i style="background:${x.c}"></i>${x.n}</label><input type="date" id="e_${x.k}_s" value="${esc(S[x.k]&&S[x.k].s||'')}" aria-label="${x.n} วันเริ่ม"><input type="date" id="e_${x.k}_e" value="${esc(S[x.k]&&S[x.k].e&&S[x.k].e!==S[x.k].s?S[x.k].e:'')}" aria-label="${x.n} วันสิ้นสุด" placeholder="วันเดียว"></div>`).join('')}</div>
-  <div class="apshift"><span>เลื่อนทุกขั้นตอน</span><input id="e_sh" inputmode="numeric" type="number" value="0" aria-label="จำนวนวันที่เลื่อน"><span>วัน</span><button class="apbtn s" id="e_shb" style="min-height:32px">เลื่อนวันที่</button><span>· เว้นวันสิ้นสุดว่างไว้ได้ถ้าเป็นงานวันเดียว</span></div>
+  <div class="apshift"><span>เลื่อนทุกขั้นตอน</span><input id="e_sh" inputmode="numeric" type="number" value="0" aria-label="จำนวนวันที่เลื่อน"><span>วัน</span><button class="apbtn s" id="e_shb" style="min-height:36px">${lu('arrow-left-right',16)}เลื่อนวันที่</button><span>· เว้นวันสิ้นสุดว่างไว้ได้ถ้าเป็นงานวันเดียว</span></div>
   <div class="fgroup"><h3>หมายเหตุ</h3></div><div class="apfs" id="e_nl"></div>
-  ${n?'':'<div class="apfoot"><span class="sp"></span><button class="apbtn d" id="e_del">ลบงานนี้ออกจากแผน</button></div>'}`);
-  const drawN=()=>{$('e_nl').innerHTML=notes.map((x,i)=>`<div class="apnl"><span>${apShort(x.d)}</span><p>${esc(x.t)}</p><button data-nd="${i}" aria-label="ลบหมายเหตุ">${apSvg('x')}</button></div>`).join('')+`<div class="apnl"><input type="date" id="e_nd" value="${apToday()}" aria-label="วันที่ของหมายเหตุ"><input type="text" id="e_nt" placeholder="เช่น ลูกค้าเลื่อนรับของ" aria-label="ข้อความหมายเหตุ"><button class="apbtn t" id="e_na" style="width:auto">เพิ่ม</button></div>`;
+  ${n?'':`<div class="apfoot"><span class="sp"></span><button class="apbtn d" id="e_del">${lu('trash-2',18)}ลบงานนี้ออกจากแผน</button></div>`}`);
+  const drawN=()=>{$('e_nl').innerHTML=notes.map((x,i)=>`<div class="apnl"><span>${apShort(x.d)}</span><p>${esc(x.t)}</p><button data-nd="${i}" aria-label="ลบหมายเหตุ">${apSvg('x',16)}</button></div>`).join('')+`<div class="apnl"><input type="date" id="e_nd" value="${apToday()}" aria-label="วันที่ของหมายเหตุ"><input type="text" id="e_nt" placeholder="เช่น ลูกค้าเลื่อนรับของ" aria-label="ข้อความหมายเหตุ"><button class="apbtn t" id="e_na" style="width:auto;color:var(--c-acc-ink)">${lu('plus',16)}เพิ่ม</button></div>`;
     $('e_nl').querySelectorAll('[data-nd]').forEach(b=>b.onclick=()=>{notes.splice(+b.dataset.nd,1);drawN()});
     const add=()=>{const t=$('e_nt').value.trim();if(!t){$('e_nt').focus();return}notes.push({d:$('e_nd').value||apToday(),t});notes.sort((a,b)=>a.d.localeCompare(b.d));drawN()};$('e_na').onclick=add;$('e_nt').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();add()}}};drawN();
   $('e_x').onclick=()=>n?closeSheet():apDetail(r._id);
@@ -715,13 +724,13 @@ function apEdit(r){const n=!r;const J=apJobs();r=r?JSON.parse(JSON.stringify(r))
     const x={...r,type:'so',no,cust:$('e_cu').value.trim(),seq:$('e_sq').value.trim()===''?'':+$('e_sq').value||$('e_sq').value.trim(),st:$('e_st').value,stages:st,notes,by:me,at:nowIso()};if(x.st!=='done')delete x.doneAt;
     $('e_s').disabled=true;if(await apSave(x,n?`เพิ่ม ${no} ในแผนแล้ว`:'บันทึกแผนแล้ว')){const id=x._id||(DATA.plan.find(o=>o.no===no&&o.at===x.at)||{})._id;id?apDetail(id):closeSheet()}else $('e_s').disabled=false};
   if($('e_del'))$('e_del').onclick=async()=>{if(!confirm(`ลบ ${r.no} ออกจากแผนการผลิต? การลบนี้ย้อนกลับไม่ได้`))return;try{await store.del('plan',r._id);toast('ลบงานแล้ว');closeSheet();render()}catch(e){toast(e.status===403?'ไม่มีสิทธิ์ลบ':'ลบไม่สำเร็จ: '+e.message)}}}
-function apErr(k,m){const el=$('e_r_'+k);el.classList.add('err');el.insertAdjacentHTML('beforeend',`<span class="hint" role="alert">${esc(m)}</span>`);return true}
+function apErr(k,m){const el=$('e_r_'+k);el.classList.add('err');el.insertAdjacentHTML('beforeend',`<span class="hint" role="alert">${lu('circle-alert',14)}${esc(m)}</span>`);return true}
 function apSettings(){const C=apCfg(),c0=(DATA.plan||[]).find(r=>r.type==='cfg')||{type:'cfg'};
   openSheet(`${shh('<button class="x" id="s_x">ยกเลิก</button>','ตั้งค่าแผนการผลิต','<button class="x b" id="s_s">บันทึก</button>')}
   <div class="fgroup"><h3>ข้อมูลเอกสาร</h3></div><div class="formg"><div class="f"><label for="s_doc">รหัสเอกสาร</label><input id="s_doc" value="${esc(C.doc)}"></div><div class="f"><label for="s_rev">แก้ไขครั้งที่</label><input id="s_rev" value="${esc(C.rev)}"></div><div class="f"><label for="s_eff">วันที่บังคับใช้</label><input type="date" id="s_eff" value="${esc(C.eff)}"></div></div>
   <div class="fgroup"><h3>ผู้ลงนามในรายงาน</h3></div><div class="formg"><div class="f"><label for="s_pp">ผู้จัดทำ (ชื่อ)</label><input id="s_pp" value="${esc(C.prep)}"></div><div class="f"><label for="s_pt">ผู้จัดทำ (ตำแหน่ง)</label><input id="s_pt" value="${esc(C.prepT)}"></div><div class="f"><label for="s_rt">ผู้ตรวจสอบ (ตำแหน่ง)</label><input id="s_rt" value="${esc(C.revT)}"></div><div class="f"><label for="s_at">ผู้อนุมัติ (ตำแหน่ง)</label><input id="s_at" value="${esc(C.appT)}"></div></div>
   <div class="fgroup"><h3>วันหยุดบริษัท (นอกจากเสาร์–อาทิตย์) · บรรทัดละวัน รูปแบบ ปี-เดือน-วัน ค.ศ.</h3></div><div class="formg"><div class="f area"><textarea id="s_hol" style="min-height:96px" placeholder="2026-12-31">${esc(C.hol.join('\n'))}</textarea></div></div>
-  <div class="apfoot"><button class="apbtn s" id="s_imp">นำเข้าแผนจากไฟล์ Excel FM-PLN-01-01</button></div>`);
+  <div class="apfoot"><button class="apbtn s" id="s_imp">${lu('file-up',18)}นำเข้าแผนจากไฟล์ Excel FM-PLN-01-01</button></div>`);
   $('s_x').onclick=closeSheet;$('s_imp').onclick=()=>apImport();
   $('s_s').onclick=async()=>{const hol=$('s_hol').value.split(/[\s,]+/).map(s=>s.trim()).filter(s=>/^\d{4}-\d{2}-\d{2}$/.test(s)).sort();const x={...c0,type:'cfg',doc:$('s_doc').value.trim()||AP_DEF.doc,rev:$('s_rev').value.trim(),eff:$('s_eff').value,prep:$('s_pp').value.trim(),prepT:$('s_pt').value.trim(),revT:$('s_rt').value.trim(),appT:$('s_at').value.trim(),hol};if(await apSave(x,'บันทึกการตั้งค่าแล้ว'))closeSheet()}}
 /* ---- นำเข้าแผนจาก Excel เดิม (อ่านสีช่องในตาราง Gantt) ---- */
@@ -750,13 +759,13 @@ async function apParse(buf,Yin){await loadLib('https://cdn.jsdelivr.net/npm/exce
   return {Y,jobs,hol,sig,from:cols[0][1],to:cols[cols.length-1][1]}}
 function apImport(){openSheet(`${shh('<button class="x" id="i_b">กลับ</button>','นำเข้าแผนจาก Excel','')}
   <div class="sub" style="margin:4px 2px 0">เลือกไฟล์ FM-PLN-01-01 แผนการผลิต Action Plan ระบบจะอ่านสีในตารางเป็นขั้นตอนของแต่ละ SO (ส้ม = เขียนแบบ, แดง = จัดซื้อ, เหลือง = ผลิต, เขียว = ผลิตเสร็จ, น้ำเงิน = ส่งมอบ, ฟ้าอ่อน = ยืนยันแบบ) พร้อมหมายเหตุในช่อง</div>
-  <label class="mtdrop"><input type="file" id="i_f" accept=".xlsx" hidden><b>เลือกไฟล์ Excel</b><span>.xlsx</span></label><div id="i_r" aria-live="polite"></div>`);
+  <label class="mtdrop"><input type="file" id="i_f" accept=".xlsx" hidden>${lu('file-up',24)}<b>เลือกไฟล์ Excel</b><span>.xlsx</span></label><div id="i_r" aria-live="polite"></div>`);
   $('i_b').onclick=()=>apSettings();
   $('i_f').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('i_r').innerHTML='<div class="center" style="padding:30px"><div class="spin"></div><div style="margin-top:10px">กำลังอ่านไฟล์…</div></div>';
     try{const buf=await f.arrayBuffer();let P=await apParse(buf);const J=apJobs();const keyOf=x=>x.no+'|'+x.seq;const ex=new Map(J.map(x=>[keyOf(x),x]));
       const show=()=>{const nNew=P.jobs.filter(x=>!ex.has(keyOf(x))).length,t=apToday();const past=P.jobs.filter(x=>x.stages.ship&&apEnd(x.stages.ship)<t).length;
         $('i_r').innerHTML=`<div class="kv"><div><span class="k">ช่วงของแผน</span><span class="v">${thDate(P.from)} – ${thDate(P.to)}</span></div><div><span class="k">งาน SO</span><span class="v">${P.jobs.length} งาน · ใหม่ ${nNew} · อัปเดต ${P.jobs.length-nNew}</span></div><div><span class="k">วันหยุดที่พบ</span><span class="v">${P.hol.length?P.hol.map(apShort).join(', '):'-'}</span></div><div><span class="k">ปีของข้อมูล</span><span class="v"><select id="i_y" style="border:0;background:none;font:inherit">${[P.Y-1,P.Y,P.Y+1].map(y=>`<option value="${y}" ${y===P.Y?'selected':''}>${y+543}</option>`).join('')}</select></span></div></div>
-        <label class="opt" style="background:var(--c-surface);border:1px solid var(--c-line);border-radius:var(--r2);margin-top:12px"><input type="checkbox" id="i_dn" checked><span>ถือว่างานที่ถึงกำหนดส่งก่อนวันนี้ (${past} งาน) ส่งมอบแล้ว</span><i>✓</i></label>
+        <label class="opt" style="background:var(--c-surface);border:1px solid var(--c-line);border-radius:var(--r2);margin-top:12px"><input type="checkbox" id="i_dn" checked><span>ถือว่างานที่ถึงกำหนดส่งก่อนวันนี้ (${past} งาน) ส่งมอบแล้ว</span><i>${lu('check',18)}</i></label>
         <div class="vpnote">ถ้าไม่เลือก งานเหล่านั้นจะแสดงเป็น “เลยกำหนดส่ง” จนกว่าจะกดบันทึกส่งมอบ · งานที่มีอยู่แล้ว (เลขที่ SO และลำดับเดียวกัน) จะถูกแทนที่ด้วยแผนจากไฟล์</div>
         <button class="cta" id="i_go" style="display:block;width:100%;margin-top:18px">นำเข้า ${P.jobs.length} งาน</button><div class="approg" hidden id="i_pg"><i></i></div>`;
         $('i_y').onchange=async()=>{P=await apParse(buf,+$('i_y').value);show()};
@@ -797,7 +806,7 @@ function apReport(){if(!APS.ym)APS.ym=apToday().slice(0,7);const y=+APS.ym.slice
   <div class="sub" style="margin:2px 2px 0">แบบฟอร์ม ${esc(apCfg().doc)} แผนการผลิต Action Plan · A4 แนวนอน สีตามแบบฟอร์มเดิม</div>
   <div class="seg" style="margin-top:12px" role="group" aria-label="ช่วงเวลา"><button data-rp="m" class="${AP_RP.per==='m'?'on':''}">เดือน${esc(apMonTh(APS.ym))}</button><button data-rp="y" class="${AP_RP.per==='y'?'on':''}">ทั้งปี ${y+543}</button></div>
   <div class="fgroup"><h3 id="r_info">ตัวอย่างหน้าแรก</h3></div><div class="fmprev" id="r_prev"></div>
-  <div class="fgroup"><h3>ดาวน์โหลด</h3></div><div class="rpex"><button data-ax="xlsx"><b style="background:#1d6f42">XLS</b>Excel</button><button data-ax="pdf"><b>PDF</b>PDF</button><button data-ax="png"><b style="background:#bf5af2">IMG</b>รูปภาพ</button><button data-ax="print"><b style="background:#636366;font-size:20px">⎙</b>พิมพ์</button></div>
+  <div class="fgroup"><h3>ดาวน์โหลด</h3></div><div class="rpex"><button data-ax="xlsx"><b>${lu('file-spreadsheet',22)}</b>Excel</button><button data-ax="pdf"><b>${lu('file-text',22)}</b>PDF</button><button data-ax="png"><b>${lu('image',22)}</b>รูปภาพ</button><button data-ax="print"><b>${lu('printer',22)}</b>พิมพ์</button></div>
   <div class="vpnote">Excel = ตาราง Gantt รายวันแบบเดียวกับไฟล์เดิม (แก้ไขต่อได้) · PDF / พิมพ์ = ทุกหน้าในช่วงที่เลือก · รูปภาพ = หน้าแรก</div>`);
   const prev=()=>{const P=$('r_prev');if(!P)return;const pages=apPages(apYms());$('r_info').textContent=`ตัวอย่างหน้าแรก · ทั้งหมด ${pages.length} หน้า`;P.innerHTML=`<div class="fmwrap" style="width:1123px">${apFormHTML(pages[0],1,pages.length)}</div>`;requestAnimationFrame(()=>{const w=P.querySelector('.fmwrap');if(!w)return;const s=P.clientWidth/1123;w.style.transform=`scale(${s})`;w.style.transformOrigin='0 0';P.style.height=Math.ceil(794*s)+'px'})};
   prev();if(!RP_LOGO&&!DEMO)rpTpl().then(()=>{if($('r_prev')&&RP_LOGO)prev()}).catch(()=>{});
@@ -836,7 +845,7 @@ async function apXlsx(yms){await loadLib('https://cdn.jsdelivr.net/npm/exceljs@4
 $('scrim').onclick=closeSheet;document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('sheet').classList.contains('on'))closeSheet()});
 window.addEventListener('scroll',()=>{$('hdr').classList.toggle('sc',scrollY>4);$('ntitle').classList.toggle('on',scrollY>60)},{passive:true});
 $('fab').onclick=()=>apEdit(null);
-$('who').onclick=()=>{openSheet(`${shh('','บัญชี','<button class="x b" id="w_x">เสร็จ</button>')}<div class="kv"><div><span class="k">ชื่อ</span><span class="v">${esc(me)}</span></div><div><span class="k">สิทธิ์</span><span class="v">${CAN_EDIT?'ฝ่ายวางแผน · เพิ่ม / แก้ไขแผนได้':'ดูได้อย่างเดียว'}</span></div><div><span class="k">เวอร์ชัน</span><span class="v">${APP_VERSION}</span></div></div><div class="btnlist"><a class="btnl" href="${CFG.portal}">ไปที่ IT Portal</a><button class="d" id="w_out">ออกจากระบบ</button></div>`);$('w_x').onclick=closeSheet;$('w_out').onclick=()=>{if(DEMO)location.href=location.pathname;else msal.logoutRedirect({account,postLogoutRedirectUri:location.origin+location.pathname})}};
+$('who').onclick=()=>{openSheet(`${shh('','บัญชี','<button class="x b" id="w_x">เสร็จ</button>')}<div class="kv"><div><span class="k">ชื่อ</span><span class="v">${esc(me)}</span></div><div><span class="k">สิทธิ์</span><span class="v">${CAN_EDIT?'ฝ่ายวางแผน · เพิ่ม / แก้ไขแผนได้':'ดูได้อย่างเดียว'}</span></div><div><span class="k">เวอร์ชัน</span><span class="v">${APP_VERSION}</span></div></div><div class="btnlist"><a class="btnl" href="${CFG.portal}">${lu('external-link',18)}ไปที่ IT Portal</a><button class="d" id="w_out">${lu('log-out',18)}ออกจากระบบ</button></div>`);$('w_x').onclick=closeSheet;$('w_out').onclick=()=>{if(DEMO)location.href=location.pathname;else msal.logoutRedirect({account,postLogoutRedirectUri:location.origin+location.pathname})}};
 let _ld=false;
 async function reload(){try{DATA.plan=await store.load();render()}catch(e){toast('โหลดข้อมูลไม่สำเร็จ: '+e.message)}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&mode==='ready'&&!DEMO&&!$('sheet').classList.contains('on'))reload()});
@@ -852,7 +861,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     const u=new URL(CFG.siteUrl);siteId=(await g(`/sites/${u.hostname}:${u.pathname}`)).id;
     let next=`/sites/${siteId}/lists?$select=id,displayName&$top=200`;while(next){const r=await g(next);r.value.forEach(l=>lists[l.displayName]=l.id);next=r['@odata.nextLink']}
     if(!lists[LIST])throw new Error('บัญชีนี้ยังไม่มีสิทธิ์ดูลิสต์ “Production Plan” ใน SharePoint ไซต์ ITPortal · ติดต่อฝ่าย IT')}
-  $('who').innerHTML=`<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9.5" r="3.4" fill="currentColor"/><path d="M5.5 18.5a7.5 7.5 0 0 1 13 0" fill="currentColor"/></svg><span>${esc(String(me).split(' ')[0])}</span>`;
+  $('who').innerHTML=`${lu('circle-user-round',20)}<span>${esc(String(me).split(' ')[0])}</span>`;
   mode='ready';render();await permInit();DATA.plan=await store.load();render();rpTpl()}
 catch(e){mode='err';errMsg=(e.status?('('+e.status+') '):'')+(e.message||e);render()}})();
 
