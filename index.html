@@ -372,7 +372,7 @@ html .spin{border-color:var(--c-line)!important;border-top-color:var(--c-acc)!im
 <script>
 if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
 /* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
-const APP_VERSION='2026-11-24.37';
+const APP_VERSION='2026-11-24.38';
 async function checkUpdate(){
   try{
     if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
@@ -625,7 +625,7 @@ function renderHome(){
     kpi:()=>DATA.kpi?'PM / Update / Backup เดือนนี้ '+kpHome(1):'',contacts:()=>DATA.contacts?`${new Set(DATA.contacts.map(r=>r.company)).size} บริษัท`:''};
   const card=k=>{const m=MODS[k];const ok=!!lists[m.list];if(!ok&&!(isIT||canSee))return '';
     return `<button class="wd ${ok?'':'lock'}" data-open="${k}"><span class="wtop">${ico(m.icon[0],m.icon[1])}${CHEV}</span><span class="wt">${m.title}</span><span class="wn num">${ok?cnt(k):'—'}<small>${ok?UNIT[k]:'ไม่มีสิทธิ์'}</small></span><span class="ws">${ok&&sub[k]?sub[k]():(ok?m.desc:'')}</span></button>`};
-  const sys=HOME.map(card).join('')+apLinkCard()+`<a class="wd" href="${esc(CFG.cctvUrl)}" style="text-decoration:none;color:inherit"><span class="wtop">${ico('cam','#d4634f')}${CHEV}</span><span class="wt">สำรวจกล้องวงจรปิด (CCTV)</span><span class="wn" style="font-size:20px">FM-ITM-01-13</span><span class="ws">บันทึกตรวจรายเดือน · Export รายงาน</span></a>`;
+  const sys=HOME.map(card).join('')+`<a class="wd" href="${esc(CFG.cctvUrl)}" style="text-decoration:none;color:inherit"><span class="wtop">${ico('cam','#d4634f')}${CHEV}</span><span class="wt">สำรวจกล้องวงจรปิด (CCTV)</span><span class="wn" style="font-size:20px">FM-ITM-01-13</span><span class="ws">บันทึกตรวจรายเดือน · Export รายงาน</span></a>`;
   const docs=DOCS.map(card).join('');
   // recent docs
   const recent=DOCS.flatMap(k=>(DATA[k]||[]).map(r=>({...r,_k:k}))).sort((a,b)=>String(b.mod).localeCompare(String(a.mod))).slice(0,5);
