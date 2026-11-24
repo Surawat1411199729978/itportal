@@ -372,7 +372,7 @@ html .spin{border-color:var(--c-line)!important;border-top-color:var(--c-acc)!im
 <script>
 if(location.protocol==='file:'){location.replace('https://surawat1411199729978.github.io/itportal/');}
 /* ===== อัปเดตอัตโนมัติ: เช็กไฟล์บนเว็บว่ามีเวอร์ชันใหม่ไหม ===== */
-const APP_VERSION='2026-11-24.33';
+const APP_VERSION='2026-11-24.34';
 async function checkUpdate(){
   try{
     if(location.protocol!=='https:'||/[?&]demo/.test(location.search))return;
@@ -2189,6 +2189,133 @@ renderVpn=function(){const M=$('main');if(!DATA.vpn){M.innerHTML='<div class="ce
   const card=r=>`<div class="it rpit" role="button" data-vid="${esc(r._id)}">${ico('shield','#5b6bbf')}<div class="bdw"><div class="bd"><div class="t"><b>${esc(r.no||'กำลังออกเลข…')}</b> · ${esc(r.name||'')}</div><div class="m rpsym">${esc(vpSysTxt(r))}${r.purpose?' — '+esc(r.purpose):''}</div><div class="m">${esc([VP_UT.find(u=>u[0]===r.utype)?.[1],r.company||r.dept].filter(Boolean).join(' · '))} · ${thDate(r.start)}${r.end?' – '+thDate(r.end):''}${r.uname?` · <span class="mono">${esc(r.uname)}</span>`:''}</div><div class="acts">${vpBadge(r)}</div></div><span class="r" style="padding-top:3px">${CHEV}</span></div></div>`;
   M.innerHTML=`${!it&&!all.length?`<div class="rpempty"><div class="big">${ico('shield','#5b6bbf')}</div><b>ยังไม่มีคำขอใช้ VPN</b><span>กดปุ่ม “ขอใช้ VPN” ด้านล่าง<br>กรอกแบบฟอร์ม FM-ITM-01-10 ออนไลน์ได้เลย</span></div>`:''}
   ${all.length?`<div class="toolbar"><span class="cnt">${L.length} รายการ</span></div>${L.length?`<div class="list">${L.map(card).join('')}</div>`:'<div class="empty">ไม่มีรายการในหมวดนี้</div>'}`:''}`};
+
+/* ===== บิล KYOCERA จากอีเมล → ค่ามิเตอร์ + PDF + ส่ง Teams ===== */
+const PB_FROM='bill@dc.kyods.com';
+const PB_CHAT={id:'19:a80a1c09-9a0b-4c58-8787-f0a9e2e590b3_f115c4a5-aa7d-4857-a422-12a42e14a45f@unq.gbl.spaces',name:'คุณ Nattida (IT)'};
+let PB_AUTO=false;if(location.hash==='#kyocera'){PB_AUTO=true;history.replaceState(null,'',location.pathname+location.search+'#meters')}
+async function pbFetch(path,sc,opt={}){const t=DEMO?'':await token(sc);const headers={Authorization:'Bearer '+t,...(opt.headers||{})};let body=opt.body;
+  if(opt.json){headers['Content-Type']='application/json';body=JSON.stringify(opt.json)}
+  const r=await fetch(path.startsWith('http')?path:'https://graph.microsoft.com/v1.0'+path,{method:opt.method||'GET',headers,body});
+  if(!r.ok){let m='';try{m=JSON.parse(await r.text()).error.message}catch(_){};const e=new Error((m||('Graph '+r.status)));e.status=r.status;throw e}
+  return opt.raw?r:r.status===204?null:r.json()}
+const pbMail=(p,o)=>pbFetch(p,['Mail.Read'],o);
+const pbNoOf=s=>(String(s||'').match(/Billing No\.?\s*(\d+)/i)||[])[1]||'';
+const pbDmy=s=>{const m=String(s).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);return m?`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`:''};
+const pbMoney=n=>n==null||isNaN(n)?'–':Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pbDays=(a,b)=>a&&b?Math.round((new Date(b)-new Date(a))/864e5):null;
+/* bills already saved = meter entries that carry a bill number */
+function pbSaved(){const B={};for(const r of DATA.contracts||[])for(const x of r.meters||[]){if(!x.bill)continue;const b=B[x.bill]||(B[x.bill]={no:x.bill,billDate:x.billDate,due:x.due,rows:[],files:x.billFiles||[],sentAt:x.sentAt||''});
+  b.rows.push({r,x});if(x.sentAt&&x.sentAt>b.sentAt)b.sentAt=x.sentAt;if(!b.files.length&&x.billFiles)b.files=x.billFiles}
+  return Object.values(B).sort((a,b)=>String(b.billDate).localeCompare(String(a.billDate)))}
+
+/* ---- parse one invoice page (pdf.js text). Thai text in these PDFs is garbled, so only ASCII parts are used ---- */
+function pbParsePage(raw,billDate){const s=raw.replace(/\|/g,'').replace(/[\u0E00-\u0E7F]+/g,' ').replace(/\s+/g,' ');const o={};
+  let m=s.match(/:\s*((?:ECOSYS|TASKalfa|FS-)[^:]*?)\s*\d{3}-\d{3}V/i);if(m)o.model=m[1].trim();
+  m=s.match(/HZ\s*:?\s*([A-Z0-9]{6,12})\b/i)||s.match(/\d{3}-\d{3}V\S*\s+:?\s*([A-Z0-9]{6,12})\b/);if(m)o.serial=m[1];
+  o.tokens=[...new Set(s.toUpperCase().match(/\b[A-Z0-9]{7,12}\b/g)||[])].filter(x=>/\d{3}/.test(x)&&/[A-Z]/.test(x));
+  const D=[...new Set([...s.matchAll(/\b(\d{1,2}\/\d{1,2}\/20\d\d)\b/g)].map(x=>pbDmy(x[1])))].sort();
+  const reads=D.filter(d=>d<billDate);o.cur=reads[reads.length-1]||'';o.prev=reads.length>1?reads[0]:'';o.due=D.filter(d=>d>billDate).pop()||'';
+  const V=[...s.matchAll(/A4\)\s*:\s*([\d,]+)/g)].map(x=>+x[1].replace(/,/g,''));o.vals=V;
+  const tryMono=a=>{const L=[['prev','cur','net'],['prev','cur','waste','net'],['min','prev','cur','net'],['min','prev','cur','waste','net']];
+    for(const k of L){if(k.length!==a.length)continue;const z={};k.forEach((n,i)=>z[n]=a[i]);if(z.cur<z.prev)continue;const used=z.cur-z.prev-(z.waste||0);
+      if(z.net===used||(z.min!=null&&z.net===Math.max(z.min,used)))return {prevV:z.prev,curV:z.cur,waste:z.waste||0,min:z.min,net:z.net,used:z.cur-z.prev}}return null};
+  let r=tryMono(V);
+  if(!r&&V.length>=6){const c=V.slice(-3);const mono=tryMono(V.slice(0,-3));if(mono&&c[1]>=c[0]&&c[1]-c[0]===c[2])r={...mono,cprev:c[0],ccur:c[1],cnet:c[2]}}
+  if(r)Object.assign(o,r);else o.err='อ่านตัวเลขมิเตอร์ไม่ครบ';
+  const N=raw.split('|').map(x=>x.trim()).filter(x=>/^\d{1,3}(?:,\d{3})*\.\d\d$/.test(x)).map(x=>+x.replace(/,/g,''));
+  outer:for(const a of N)for(const b of N){if(Math.abs(b-a*.07)>.02)continue;for(const c of N)if(Math.abs(a+b-c)<.015&&c>a){o.sub=a;o.vat=b;o.baht=c;break outer}}
+  if(o.baht==null)o.err=(o.err?o.err+' · ':'')+'ไม่พบยอดเงิน';
+  return o}
+function pbMatch(o){let best=null;for(const r of DATA.contracts||[]){const sn=mtNorm(r.serial);if(sn.length<6)continue;
+  for(const k of [o.serial,...o.tokens].filter(Boolean)){const d=mtLev(sn,mtNorm(k));if(d<=2&&(!best||d<best.d))best={d,r}}}return best&&best.r}
+async function pbPdfText(buf){const P=await mtPdf();const doc=await P.getDocument({data:new Uint8Array(buf)}).promise;const out=[];
+  for(let i=1;i<=doc.numPages;i++){const tc=await (await doc.getPage(i)).getTextContent();out.push(tc.items.map(x=>x.str).join('|'))}return out}
+
+/* ---- screens ---- */
+function pbSection(){const B=pbSaved();if(!canEdit('meters')&&!B.length)return '';
+  return `<div class="fgroup"><h3>บิล KYOCERA</h3></div>
+  ${B.length?`<div class="list">${B.slice(0,6).map(b=>{const tot=b.rows.reduce((a,{x})=>a+(+x.baht||0),0);return `<div class="it rpit" role="button" data-pb="${esc(b.no)}">${ico('doc','#5f7690')}<div class="bdw"><div class="bd"><div class="t"><b>บิล ${esc(b.no)}</b> · ${thDate(b.billDate)}</div><div class="m">${b.rows.length} เครื่อง · รวม ${pbMoney(tot)} บาท${b.due?' · ครบกำหนด '+thDate(b.due):''}</div></div><span class="badge ${b.sentAt?'b-ok':'b-mute'}">${b.sentAt?'ส่ง IT แล้ว':'ยังไม่ส่ง IT'}</span></div></div>`}).join('')}</div>`:''}
+  ${canEdit('meters')?`<div class="btnlist" style="margin-top:10px"><button id="pb_go">ดึงบิล KYOCERA จากอีเมล</button></div><div class="vpnote">ดึงบิลจากอีเมล ${PB_FROM} ในกล่องจดหมายของคุณ · บันทึกค่ามิเตอร์ ยอดเงิน และไฟล์ PDF แล้วส่งให้ ${esc(PB_CHAT.name)} ทาง Teams</div>`:''}`}
+const _pbRm=renderMeter;renderMeter=function(){_pbRm();const M=$('main');if(!DATA.contracts||!M)return;const tb=M.querySelector('.toolbar');if(!tb)return;
+  tb.insertAdjacentHTML('beforebegin',pbSection());if($('pb_go'))$('pb_go').onclick=()=>pbOpen();
+  M.querySelectorAll('[data-pb]').forEach(e=>e.onclick=()=>pbBill(e.dataset.pb));
+  if(PB_AUTO&&canEdit('meters')){PB_AUTO=false;setTimeout(()=>pbOpen(true),50)}};
+
+async function pbOpen(auto){openSheet(`${shh('<button class="x" id="pb_x">ปิด</button>','บิล KYOCERA จากอีเมล','')}<div class="center"><div class="spin"></div><div style="margin-top:10px">กำลังค้นอีเมลบิล…</div></div>`);$('pb_x').onclick=closeSheet;
+  let L;try{L=DEMO?[]:(await pbMail(`/me/messages?$filter=from/emailAddress/address eq '${PB_FROM}'&$select=id,subject,receivedDateTime,webLink&$top=24`)).value}
+  catch(e){openSheet(`${shh('<button class="x" id="pb_x">ปิด</button>','บิล KYOCERA','')}<div class="empty">ค้นอีเมลไม่สำเร็จ: ${esc(e.message)}</div>`);$('pb_x').onclick=closeSheet;return}
+  L=L.filter(m=>pbNoOf(m.subject)).sort((a,b)=>b.receivedDateTime.localeCompare(a.receivedDateTime));const S=new Set(pbSaved().map(b=>b.no));
+  const fresh=L.filter(m=>!S.has(pbNoOf(m.subject)));
+  if(auto&&fresh.length===1){pbPreview(fresh[0]);return}
+  openSheet(`${shh('<button class="x" id="pb_x">ปิด</button>','บิล KYOCERA จากอีเมล','')}
+  <div class="vpnote">อีเมลจาก ${PB_FROM} ในกล่องจดหมายของคุณ · เลือกบิลที่จะบันทึก</div>
+  ${L.length?`<div class="list" style="margin-top:12px">${L.map(m=>{const no=pbNoOf(m.subject),done=S.has(no);return `<div class="it rpit" role="button" data-pm="${esc(m.id)}">${ico('doc','#5f7690')}<div class="bdw"><div class="bd"><div class="t"><b>บิล ${esc(no)}</b></div><div class="m">ได้รับ ${thDate(m.receivedDateTime.slice(0,10))}</div></div><span class="badge ${done?'b-ok':'b-warn'}">${done?'บันทึกแล้ว':'ใหม่'}</span></div></div>`}).join('')}</div>`:'<div class="empty">ไม่พบอีเมลบิล KYOCERA ในกล่องจดหมายของคุณ</div>'}`);
+  $('pb_x').onclick=closeSheet;document.querySelectorAll('[data-pm]').forEach(e=>e.onclick=()=>pbPreview(L.find(m=>m.id===e.dataset.pm)))}
+
+async function pbPreview(m){const no=pbNoOf(m.subject);const billDate=pbDmy(m.subject)||m.receivedDateTime.slice(0,10);
+  openSheet(`${shh('<button class="x" id="pb_b">กลับ</button>','บิล '+esc(no),'')}<div class="center"><div class="spin"></div><div style="margin-top:10px">กำลังอ่านใบแจ้งหนี้…</div></div>`);$('pb_b').onclick=()=>pbOpen();
+  let A,F={},P=[];
+  try{A=(await pbMail(`/me/messages/${m.id}/attachments?$select=id,name,size,contentType`)).value.filter(a=>/\.pdf$/i.test(a.name));
+    for(const a of A){const r=await pbMail(`/me/messages/${m.id}/attachments/${a.id}/$value`,{raw:true});F[a.name]=new File([await r.blob()],a.name,{type:'application/pdf'})}
+    const inv=A.find(a=>/invoice/i.test(a.name));if(!inv)throw new Error('ไม่พบไฟล์ KYOCERA_Invoice ในอีเมล');
+    const pages=await pbPdfText(await F[inv.name].arrayBuffer());P=pages.map((t,i)=>{const o=pbParsePage(t,billDate);o.page=i+1;o.c=pbMatch(o);return o})}
+  catch(e){openSheet(`${shh('<button class="x" id="pb_b">กลับ</button>','บิล '+esc(no),'')}<div class="empty">อ่านบิลไม่สำเร็จ: ${esc(e.message)}</div>`);$('pb_b').onclick=()=>pbOpen();return}
+  const ok=P.filter(o=>o.c&&!o.err&&o.cur&&o.curV!=null);const tot=P.reduce((a,o)=>a+(o.baht||0),0);const due=P.map(o=>o.due).find(Boolean)||'';
+  const already=pbSaved().find(b=>b.no===no);
+  const tr=o=>{const prob=!o.c?'ไม่พบเครื่องนี้ในสัญญาเช่า':o.err||(!o.cur?'ไม่พบวันที่จดมิเตอร์':'');const d=pbDays(o.prev,o.cur);
+    return `<tr><td><b>${esc(o.c?o.c.place:(o.model||'?'))}</b><div style="color:var(--sub);font-size:12.5px">${esc(o.model||'')} · ${esc(o.serial||'')}</div>${prob?`<div class="rqreq" style="font-size:12.5px">⚠ ${esc(prob)}</div>`:''}</td>
+    <td>${mtN(o.curV)}${o.ccur!=null?`<div style="color:var(--sub);font-size:12.5px">สี ${mtN(o.ccur)}</div>`:''}</td>
+    <td><b>${mtN(o.used)}</b>${o.min&&o.used<o.min?`<div style="color:var(--sub);font-size:12.5px">คิดขั้นต่ำ ${mtN(o.min)}</div>`:''}${d&&o.used!=null?`<div style="color:var(--sub);font-size:12.5px">${Math.round(o.used/d)}/วัน</div>`:''}</td><td><b>${pbMoney(o.baht)}</b></td></tr>`};
+  openSheet(`${shh('<button class="x" id="pb_b">กลับ</button>','บิล '+esc(no),`<button class="x b" id="pb_s" ${ok.length?'':'disabled'}>บันทึก</button>`)}
+  <div class="formg"><div class="f"><label>วันที่บิล</label><div class="rqv">${thDate(billDate)}</div></div><div class="f"><label>รอบจดมิเตอร์</label><div class="rqv">${P[0]&&P[0].prev?thDate(P[0].prev)+' – ':''}${P[0]?thDate(P[0].cur):'-'}${P[0]&&pbDays(P[0].prev,P[0].cur)?` (${pbDays(P[0].prev,P[0].cur)} วัน)`:''}</div></div>
+  <div class="f"><label>ยอดรวม (รวม VAT)</label><div class="rqv"><b>${pbMoney(tot)} บาท</b></div></div>${due?`<div class="f"><label>ครบกำหนดชำระ</label><div class="rqv">${thDate(due)}</div></div>`:''}</div>
+  ${already?`<div class="vpnote">⚠ บิลนี้บันทึกไว้แล้ว · บันทึกซ้ำจะเขียนทับค่าเดิมของวันที่เดียวกัน</div>`:''}
+  <div class="fgroup"><h3>ค่ามิเตอร์จากใบแจ้งหนี้ (${ok.length}/${P.length} เครื่องอ่านได้)</h3></div>
+  <div class="mttbl"><table><thead><tr><th>เครื่อง</th><th>มิเตอร์ล่าสุด</th><th>ใช้รอบนี้</th><th>บาท</th></tr></thead><tbody>${P.map(tr).join('')}</tbody></table></div>
+  <label class="mtok" style="margin:16px 4px 0"><input type="checkbox" id="pb_t" ${already&&already.sentAt?'':'checked'}>ส่งสรุปพร้อมไฟล์ PDF ให้ ${esc(PB_CHAT.name)} ทาง Teams</label>
+  <div class="vpnote">ไฟล์ PDF ${A.length} ไฟล์ จะเก็บใน SharePoint (Copier Meters) และแนบไว้กับค่ามิเตอร์ของแต่ละเครื่อง</div>`);
+  $('pb_b').onclick=()=>pbOpen();
+  $('pb_s').onclick=async()=>{const b=$('pb_s');b.disabled=true;b.textContent='กำลังบันทึก…';
+    try{const up={};for(const a of A){up[a.name]=await mtUp(F[a.name],ok[0].cur);if(!DEMO){const d=await rpDriveId();up[a.name].url=(await g(`/drives/${d}/items/${up[a.name].id}?$select=webUrl`)).webUrl}}
+      const inv=A.find(a=>/invoice/i.test(a.name)).name;const billFiles=A.map(a=>({id:up[a.name].id,name:a.name,url:up[a.name].url||''}));
+      const send=$('pb_t').checked;const at=nowIso();
+      for(const o of ok){const r=DATA.contracts.find(x=>x._id===o.c._id);const col=o.ccur!=null;
+        const x={date:o.cur,total:0,copy:'',print:'',fax:'',src:'bill',bill:no,billDate,due,net:o.net,used:o.used,waste:o.waste||0,min:o.min||'',baht:o.baht,file:{id:up[inv].id,name:inv,page:o.page},billFiles,by:me,at};
+        x.total=o.curV+(col?o.ccur:0);if(col){x.bw=o.curV;x.color=o.ccur}
+        let M=[...(r.meters||[]).filter(y=>y.date!==o.cur)];
+        if(o.prev&&!M.some(y=>y.date===o.prev))M.push({date:o.prev,total:o.prevV+(col?o.cprev:0),...(col?{bw:o.prevV,color:o.cprev}:{}),copy:'',print:'',fax:'',src:'bill',billPrev:no,by:me,at});
+        M.push(x);const usage={...(r.usage||{}),[o.cur.slice(0,7)]:{pages:(o.net||0)+(col?o.cnet||0:0),baht:o.baht,bill:no}};
+        await store.save('contracts',{...r,model:r.model||o.model||'',meters:M,usage})}
+      if(send){b.textContent='กำลังส่ง Teams…';await pbSend(no)}
+      toast(send?'บันทึกแล้ว และส่งให้ IT ทาง Teams แล้ว':'บันทึกบิลแล้ว');render();pbBill(no)}
+    catch(e){b.disabled=false;b.textContent='บันทึก';toast((e.status===403?'ไม่มีสิทธิ์: ':'ไม่สำเร็จ: ')+e.message)}}}
+
+function pbMsg(b){const R=b.rows.slice().sort((p,q)=>(+q.x.baht||0)-(+p.x.baht||0));const tot=R.reduce((a,{x})=>a+(+x.baht||0),0);
+  const prevOf=(r,x)=>mtM(r).filter(y=>y.date<x.date).pop();const cur=R[0]&&R[0].x;const pd=cur?prevOf(R[0].r,cur):null;const days=pd?pbDays(pd.date,cur.date):null;
+  const rows=R.map(({r,x})=>{const p=prevOf(r,x);const d=p?pbDays(p.date,x.date):null;return `<tr><td>${esc(r.place||'')}<br>${esc(r.model||'')} (${esc(r.serial||'')})</td><td>${mtN(x.bw!=null?x.bw:x.total)}${x.color!=null?' · สี '+mtN(x.color):''}</td><td>${mtN(x.used)}${x.min&&x.used<x.min?' (คิดขั้นต่ำ '+mtN(x.min)+')':''}${d&&x.used!=null?' · '+Math.round(x.used/d)+'/วัน':''}</td><td>${pbMoney(x.baht)}</td></tr>`}).join('');
+  return `<h3>🖨️ ค่ามิเตอร์เครื่องปริ้น KYOCERA — บิล ${esc(b.no)} (${esc(dmyTH(b.billDate))})</h3>
+<p>${pd?`รอบจดมิเตอร์ ${esc(dmyTH(pd.date))} – ${esc(dmyTH(cur.date))} (${days} วัน) · `:''}${b.due?'ครบกำหนดชำระ '+esc(dmyTH(b.due)):''}</p>
+<table><tr><th>เครื่อง</th><th>มิเตอร์ล่าสุด</th><th>ใช้รอบนี้</th><th>บาท (รวม VAT)</th></tr>${rows}</table>
+<p><b>รวมทั้งบิล ${pbMoney(tot)} บาท</b></p><p>ไฟล์ใบแจ้งหนี้และใบวางบิลแนบด้านล่าง · ดูประวัติใน IT Portal › ค่ามิเตอร์เครื่อง</p>`}
+const dmyTH=s=>{const m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})/);return m?`${m[3]}/${m[2]}/${m[1]}`:''};
+async function pbSend(no){const b=pbSaved().find(x=>x.no===no);if(!b)throw new Error('ไม่พบบิล');
+  const files=(b.files||[]).filter(f=>f.url);const att=files.map((f,i)=>({id:'pb'+no+'f'+i,contentType:'reference',contentUrl:f.url,name:f.name}));
+  const html=pbMsg(b)+att.map(a=>`<attachment id="${a.id}"></attachment>`).join('');
+  if(!DEMO)await pbFetch(`/chats/${encodeURIComponent(PB_CHAT.id)}/messages`,['ChatMessage.Send'],{method:'POST',json:{body:{contentType:'html',content:html},attachments:att}});
+  const at=nowIso();for(const {r,x} of b.rows){const cur=DATA.contracts.find(y=>y._id===r._id);await store.save('contracts',{...cur,meters:(cur.meters||[]).map(y=>y.bill===no&&y.date===x.date&&y.baht!=null?{...y,sentAt:at,sentTo:PB_CHAT.name}:y)})}}
+
+function pbBill(no){const b=pbSaved().find(x=>x.no===no);if(!b)return;const tot=b.rows.reduce((a,{x})=>a+(+x.baht||0),0);const R=b.rows.filter(({x})=>x.baht!=null);
+  openSheet(`${shh('',`บิล ${esc(no)}`,'<button class="x" id="pb_x">เสร็จ</button>')}
+  <div class="formg"><div class="f"><label>วันที่บิล</label><div class="rqv">${thDate(b.billDate)}</div></div><div class="f"><label>ยอดรวม</label><div class="rqv"><b>${pbMoney(tot)} บาท</b></div></div>${b.due?`<div class="f"><label>ครบกำหนดชำระ</label><div class="rqv">${thDate(b.due)}</div></div>`:''}
+  <div class="f"><label>ส่งให้ IT</label><div class="rqv">${b.sentAt?`<span class="badge b-ok">ส่งแล้ว</span> ${thDate(b.sentAt.slice(0,10))}`:'<span class="badge b-mute">ยังไม่ส่ง</span>'}</div></div></div>
+  <div class="mttbl" style="margin-top:14px"><table><thead><tr><th>เครื่อง</th><th>มิเตอร์</th><th>ใช้</th><th>บาท</th></tr></thead><tbody>${R.map(({r,x})=>`<tr><td>${esc(r.place||'')}<div style="color:var(--sub);font-size:12.5px">${esc(r.serial||'')}</div></td><td>${mtN(x.bw!=null?x.bw:x.total)}${x.color!=null?`<div style="color:var(--sub);font-size:12.5px">สี ${mtN(x.color)}</div>`:''}</td><td>${mtN(x.used)}</td><td><b>${pbMoney(x.baht)}</b></td></tr>`).join('')}</tbody></table></div>
+  <div class="fgroup"><h3>ไฟล์</h3></div><div class="btnlist">${(b.files||[]).map((f,i)=>`<button data-pf="${i}">${esc(/invoice/i.test(f.name)?'ใบแจ้งหนี้ (Invoice)':'ใบวางบิล')} · ${esc(f.name)}</button>`).join('')}</div>
+  ${canEdit('meters')?`<div class="btnlist" style="margin-top:10px"><button id="pb_send">${b.sentAt?'ส่งให้ '+esc(PB_CHAT.name)+' อีกครั้ง':'ส่งให้ '+esc(PB_CHAT.name)+' ทาง Teams'}</button></div>`:''}`);
+  $('pb_x').onclick=closeSheet;
+  document.querySelectorAll('[data-pf]').forEach(e=>e.onclick=()=>{const f=b.files[+e.dataset.pf];f.url?window.open(f.url,'_blank'):mtView(f,()=>pbBill(no))});
+  if($('pb_send'))$('pb_send').onclick=async()=>{const t=$('pb_send');if(b.sentAt&&!confirm('ส่งสรุปบิลนี้ให้ '+PB_CHAT.name+' อีกครั้ง?'))return;t.disabled=true;t.textContent='กำลังส่ง…';
+    try{await pbSend(no);toast('ส่งให้ IT ทาง Teams แล้ว');render();pbBill(no)}catch(e){t.disabled=false;t.textContent='ส่งให้ IT ทาง Teams';toast('ส่งไม่สำเร็จ: '+e.message)}}}
 
 /* ===== Start ===== */
 (async()=>{
