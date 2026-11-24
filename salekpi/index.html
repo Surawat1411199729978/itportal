@@ -302,6 +302,15 @@ html .sheet{background:var(--sheet)!important;border-radius:16px 16px 0 0!import
 .kpm button:hover{border-color:var(--line2)!important}
 @media(max-width:480px){.kpcard .h{flex-direction:column}.kpcard .h>div:last-child{display:flex;align-items:baseline;gap:10px}.kpbig{text-align:left}.kpsub{text-align:left!important}}
 .kpst{border-radius:var(--r1)!important;font-weight:600!important}
+/* ===== refinements v2 ===== */
+.shh .x:last-child:not(.b){color:var(--acc-ink)!important;font-weight:600!important}
+.kpna{display:block;font-size:15px;font-weight:500;color:var(--faint);letter-spacing:0;line-height:1.4}
+.kpm button b.na{color:var(--line2)!important;font-weight:400!important}
+@media(min-width:720px){.kpm{grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:4px!important}.kpm button{padding:6px 0 5px!important}}
+.kpca .badge{flex:none}.kpca p .badge{margin-left:6px;vertical-align:2px}
+#tools .sub{max-width:62ch}
+.formg .f label{line-height:1.4}
+@media(max-width:480px){.formg .f:not(.area):not(:has(.rqv)){flex-wrap:wrap;row-gap:0}.formg .f:not(.area):not(:has(.rqv))>label{flex:0 0 100%!important;width:auto!important;padding:10px 0 0!important;font-size:13.5px!important}.formg .f:not(.area):not(:has(.rqv))>input,.formg .f:not(.area):not(:has(.rqv))>select,.formg .f:not(.area):not(:has(.rqv))>.rqv{flex:1 1 100%!important;padding-top:2px!important;text-align:left!important}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -431,8 +440,8 @@ function renderSale(){const M=$('main');
   if($('sy_p')){$('sy_p').onclick=()=>{SL_Y--;setHeader();render()};$('sy_n').onclick=()=>{SL_Y++;setHeader();render()}}
   const cur=today().slice(0,7);
   const card=k=>{const d=SL_DEF[k-1];const {v,avg,sum}=slYear(k,SL_Y);
-    return `<div class="kpcard" data-kp="${k}"><div class="h"><div><b>KPI ${k} · ${d.name}</b><small>เป้าหมาย ≤ ${d.target} ครั้ง/เดือน</small></div><div><div class="kpbig ${avg==null?'':avg<=d.target?'ok':'ng'}">${avg==null?'–':avg.toFixed(1)}</div><div class="kpsub">${avg==null?'':`<span class="st ${avg<=d.target?'ok':'ng'}">${avg<=d.target?'ผ่านเป้า':'เกินเป้า'}</span>`}เฉลี่ยครั้ง/เดือน · รวม ${sum}</div></div></div>
-    <div class="kpchart">${slSvg(v,d.target,...slDim())}</div><div class="kpm">${v.map((x,i)=>`<button data-sm="${k}:${i}" class="${x==null?'':x<=d.target?'ok':'ng'} ${kpYm(SL_Y,i)===cur?'cur':''}"><small>${KP_MON[i]}</small><b>${x==null?'–':x}</b></button>`).join('')}</div></div>`};
+    return `<div class="kpcard" data-kp="${k}"><div class="h"><div><b>KPI ${k} · ${d.name}</b><small>เป้าหมาย ≤ ${d.target} ครั้ง/เดือน</small></div><div><div class="kpbig ${avg==null?'':avg<=d.target?'ok':'ng'}">${avg==null?'<span class="kpna">ยังไม่มีผล</span>':avg.toFixed(1)}</div><div class="kpsub">${avg==null?'':`<span class="st ${avg<=d.target?'ok':'ng'}">${avg<=d.target?'ผ่านเป้า':'เกินเป้า'}</span>`}เฉลี่ยครั้ง/เดือน · รวม ${sum}</div></div></div>
+    <div class="kpchart">${slSvg(v,d.target,...slDim())}</div><div class="kpm">${v.map((x,i)=>`<button data-sm="${k}:${i}" class="${x==null?'':x<=d.target?'ok':'ng'} ${kpYm(SL_Y,i)===cur?'cur':''}"><small>${KP_MON[i]}</small><b${x==null?' class="na"':''}>${x==null?'–':x}</b></button>`).join('')}</div></div>`};
   M.innerHTML=`${isIT?`<button class="mtcta" id="sl_now">${ico('chart','#ff9f0a')}<span><b>บันทึกผล KPI เดือน${TH_FULL[+cur.slice(5)-1]}</b><small>กรอกจำนวนครั้งที่ผิดพลาดของทั้ง 2 KPI</small></span>${CHEV}</button>`:''}
   ${card(1)}${card(2)}<div class="toolbar" style="margin-top:16px"><span class="cnt">FM-QMS-01-03 · Sale Center</span><span class="tl"><button class="sortsel" id="sl_rep">รายงาน</button>${isIT?'<button class="sortsel" id="sl_imp">นำเข้า Excel</button>':''}</span></div>`;
   if($('sl_now'))$('sl_now').onclick=()=>saleMonth(cur);
@@ -462,9 +471,9 @@ function saleMonth(ym){const m=slM(ym)||{type:'m',ym};const mn=TH_FULL[+ym.slice
     if(await saleSave({...m,c1,c2,note:$('sm_n').value.trim(),by:me,at:nowIso()},'บันทึก KPI '+mn+' แล้ว'))closeSheet()}}
 /* ---- รายละเอียด KPI + การวิเคราะห์ผล ---- */
 function saleDetail(k){const d=SL_DEF[k-1];const {v,avg,sum}=slYear(k,SL_Y);const CA=slCA(k,SL_Y);
-  openSheet(`${shh('',`KPI ${k}`,'<button class="x b" id="sd_x">เสร็จ</button>')}
+  openSheet(`${shh('',`KPI ${k}`,'<button class="x" id="sd_x">เสร็จ</button>')}
   <div class="sub" style="margin:2px 4px 0">${esc(d.full)}</div>
-  <div class="kpsum"><div><b>≤ ${d.target}</b><span>เป้าหมาย ครั้ง/เดือน</span></div><div><b style="color:${avg==null?'inherit':avg<=d.target?'#16a34a':'#ef4444'}">${avg==null?'–':avg.toFixed(1)}</b><span>เฉลี่ยปี ${SL_Y+543}</span></div><div><b>${v.filter(x=>x!=null&&x<=d.target).length}/${v.filter(x=>x!=null).length}</b><span>เดือนที่ผ่าน (รวม ${sum} ครั้ง)</span></div></div>
+  <div class="kpsum"><div><b>≤ ${d.target}</b><span>เป้าหมาย ครั้ง/เดือน</span></div><div><b style="color:${avg==null?'inherit':avg<=d.target?'#16a34a':'#ef4444'}">${avg==null?'<span class="kpna">ยังไม่มีผล</span>':avg.toFixed(1)}</b><span>เฉลี่ยปี ${SL_Y+543}</span></div><div><b>${v.filter(x=>x!=null&&x<=d.target).length}/${v.filter(x=>x!=null).length}</b><span>เดือนที่ผ่าน (รวม ${sum} ครั้ง)</span></div></div>
   <div class="kpcard" style="cursor:default">${slSvg(v,d.target,...slDim())}</div>
   <div class="fgroup"><h3>การวิเคราะห์ผล และการแก้ไขป้องกัน / พัฒนาอย่างต่อเนื่อง</h3></div>
   ${CA.map(c=>`<div class="kpca" data-sca="${esc(c._id)}"><div class="d">${thDate(c.date)}${c.due?' · กำหนดเสร็จ '+esc(c.due):''}${c.done?' · เสร็จจริง '+esc(c.done):''}</div><p>${esc(c.problem||'')}</p>${c.fix?`<p class="f">→ ${esc(c.fix)}</p>`:''}</div>`).join('')||'<div class="empty">ยังไม่มีบันทึก</div>'}
@@ -509,7 +518,7 @@ function saleFormHTML(k,y){const d=SL_DEF[k-1],t=d.target;const {v,avg}=slYear(k
   <tr><th>ลำดับ</th><th>วันที่</th><th>รายละเอียดของปัญหา</th><th>แนวทางการแก้ไข / พัฒนา</th><th>กำหนดวัน<br>แล้วเสร็จ</th><th>วันที่<br>เสร็จจริง</th><th>หมายเหตุ</th></tr>
   ${CA.map((c,i)=>c?`<tr><td class="c">${i+1}</td><td class="c">${thDate(c.date)}</td><td>${esc(c.problem||'')}</td><td>${esc(c.fix||'')}</td><td class="c">${esc(isoOnly(c.due)?thDate(c.due):c.due||'')}</td><td class="c">${esc(isoOnly(c.done)?thDate(c.done):c.done||'')}</td><td>${esc(c.note||'')}</td></tr>`:'<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>').join('')}</table>
   <div class="bt2"><div class="nt2"><b>หมายเหตุ :</b><br>..................................................................<br>..................................................................</div><table class="sgt"><colgroup><col style="width:33.33%"><col style="width:33.33%"><col style="width:33.34%"></colgroup><tr><th>ผู้จัดทำ (Prepared by)</th><th>ผู้ทบทวน (Reviewed by)</th><th>ผู้อนุมัติ (Approved by)</th></tr><tr><td class="sg"></td><td class="sg"></td><td class="sg"></td></tr><tr><td class="nm">QMR</td><td class="nm">นางสาวทิพย์รัตน์ ธราพร<br>ผู้จัดการทั่วไป</td><td class="nm">นางเชาวนี ธราพร<br>กรรมการผู้จัดการ</td></tr><tr><td class="dt">วันที่ : ............/............/............</td><td class="dt">วันที่ : ............/............/............</td><td class="dt">วันที่ : ............/............/............</td></tr></table></div></div>`}
-function saleReport(){openSheet(`${shh('','รายงาน KPI Sale Center','<button class="x b" id="r_x">เสร็จ</button>')}
+function saleReport(){openSheet(`${shh('','รายงาน KPI Sale Center','<button class="x" id="r_x">เสร็จ</button>')}
   <div class="sub" style="margin:2px 4px 0">FM-QMS-01-03 · KPI MONITORING ปี ${SL_Y+543} · Sale Center (A4 แนวนอน)</div>
   <div class="seg" style="margin-top:12px"><button data-rk="1" class="${SL_RK===1?'on':''}">KPI 1 · ราคาขาย</button><button data-rk="2" class="${SL_RK===2?'on':''}">KPI 2 · ตรวจสอบข้อมูล</button></div>
   <div class="fgroup"><h3>ตัวอย่างรายงาน</h3></div><div class="fmprev" id="r_prev"></div>
@@ -629,7 +638,7 @@ function meetEdit(r,draft){const isNew=!r||!r._id;const m=draft||JSON.parse(JSON
     if(await saleSave(x,'บันทึกนัดหมายแล้ว')){const saved=x._id?mtAll().find(o=>o._id===x._id):mtAll().find(o=>!old.has(o._id));meetView(saved||x)}};
   if($('me_del'))$('me_del').onclick=async()=>{if(!confirm('ลบนัดหมายนี้?'))return;try{await store.del('salekpi',r._id);toast('ลบแล้ว');closeSheet();render()}catch(e){toast('ลบไม่สำเร็จ: '+e.message)}}}
 function meetView(r){if(!r){closeSheet();return}
-  openSheet(`${shh('<button class="x" id="mv_e">แก้ไข</button>','นัดหมายการประชุม','<button class="x b" id="mv_x">เสร็จ</button>')}
+  openSheet(`${shh('<button class="x" id="mv_e">แก้ไข</button>','นัดหมายการประชุม','<button class="x" id="mv_x">เสร็จ</button>')}
   <div class="sub" style="margin:2px 4px 0">FM-QMS-06-04 · ${mtDow(r.date)?'วัน'+mtDow(r.date)+' ':''}${mtDate(r.date)}${r.time?' · '+esc(r.time):''}</div>
   <div class="fgroup"><h3>ตัวอย่างแบบฟอร์ม (A4)</h3></div><div class="fmprev" id="mv_prev"></div>
   <div class="fgroup"><h3>ดาวน์โหลด</h3></div><div class="rpex"><button data-mx="xlsx"><b style="background:#1d6f42">XLS</b>Excel</button><button data-mx="pdf"><b>PDF</b>PDF</button><button data-mx="png"><b style="background:#bf5af2">IMG</b>รูปภาพ</button><button data-mx="print"><b style="background:#636366;font-size:20px">⎙</b>พิมพ์</button></div>
@@ -695,11 +704,11 @@ function renderJD(){const M=$('main');
   if(!lists[MODS.salekpi.list]){M.innerHTML='<div class="empty">ยังไม่มี list "Sale KPI" ใน SharePoint</div>';return}
   if(!DATA.salekpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   const L=jdAll();
-  M.innerHTML=`<button class="mtcta" id="jd_new"><span style="font-size:24px">📝</span><span><b>เพิ่ม JD ตำแหน่งใหม่</b><small>กรอกหน้าที่ ผลที่คาดหวัง หน่วยงานที่เกี่ยวข้อง อำนาจอนุมัติ และคุณสมบัติ</small></span>${CHEV}</button>`+(L.length?L.map(r=>`<div class="kpca" data-jd="${esc(r._id)}"><div class="d">${esc(r.code||'FM-HRM-01-02')} · แผนก${esc(r.dept||'')} · ระดับ${esc(r.level||'')}</div><p style="font-weight:700;font-size:17px">${esc(r.title||'')}</p><p style="color:var(--sub);font-size:13.5px">ผู้บังคับบัญชา: ${esc(r.boss||'')}</p><p style="color:var(--sub);font-size:13px">หน้าที่หลัก ${(r.duties||[]).length} หมวด · ${(r.duties||[]).reduce((a,d)=>a+(d.items||[]).length,0)} ข้อ</p></div>`).join(''):'<div class="empty">ยังไม่มี JD ในระบบ</div>');
+  M.innerHTML=`<button class="mtcta" id="jd_new"><span style="font-size:24px">📝</span><span><b>เพิ่ม JD ตำแหน่งใหม่</b><small>กรอกหน้าที่ ผลที่คาดหวัง หน่วยงานที่เกี่ยวข้อง อำนาจอนุมัติ และคุณสมบัติ</small></span>${CHEV}</button>`+(L.length?L.map(r=>`<div class="kpca" data-jd="${esc(r._id)}"><div class="d">${esc(r.code||'FM-HRM-01-02')} · แผนก${esc(r.dept||'')} · ระดับ${esc(r.level||'')}</div><p style="font-weight:700;font-size:17px">${esc(r.title||'')}</p><p style="color:var(--sub);font-size:13.5px">ผู้บังคับบัญชา: ${esc(r.boss||'')}</p><p style="color:var(--sub);font-size:13px">หน้าที่หลัก ${(r.duties||[]).length} หมวด · ${(r.duties||[]).reduce((a,d)=>a+(d.items||[]).length,0)} ข้อ</p></div>`).join(''):'<div class="empty">ยังไม่มี JD · กด “เพิ่ม JD ตำแหน่งใหม่” เพื่อเริ่ม</div>');
   $('jd_new').onclick=()=>jdEdit(null);
   M.querySelectorAll('[data-jd]').forEach(c=>c.onclick=()=>jdView(jdAll().find(x=>x._id===c.dataset.jd)))}
 function jdView(r){if(!r)return;
-  openSheet(`${shh('<button class="x" id="jv_e">แก้ไข</button>','JD · '+esc(r.title||''),'<button class="x b" id="jv_x">เสร็จ</button>')}
+  openSheet(`${shh('<button class="x" id="jv_e">แก้ไข</button>','JD · '+esc(r.title||''),'<button class="x" id="jv_x">เสร็จ</button>')}
   <div class="rpex" style="margin-top:6px"><button data-jx="docx"><b style="background:#2b579a">DOC</b>Word</button><button data-jx="print"><b style="background:#636366;font-size:20px">⎙</b>พิมพ์ / PDF</button></div>
   <div class="vpnote">${r.edited||!r.file?'Word = สร้างจากข้อมูลล่าสุดในระบบ':'Word = ไฟล์ FM-HRM-01-02 ตัวจริงใน SharePoint'} · พิมพ์ / PDF = เลือก "บันทึกเป็น PDF" ในหน้าต่างพิมพ์ได้${r.at?' · แก้ไขล่าสุด '+esc(String(r.at).slice(0,10))+(r.by?' โดย '+esc(r.by):''):''}</div>
   <div class="jdwrap" id="jv_doc">${jdHTML(r)}</div>
@@ -921,12 +930,12 @@ function renderReq(){const M=$('main');
   if(!DATA.salekpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   const L=rqAll();
   M.innerHTML=`<button class="mtcta" id="rq_new"><span style="font-size:24px">📝</span><span><b>เขียนใบคำขอพัฒนาระบบ</b><small>กรอกในเว็บ แล้วบันทึกหรือพิมพ์เป็น PDF ตามแบบฟอร์ม</small></span>${CHEV}</button>`+
-  (L.length?L.map(r=>{const st=rqStatus(r);return `<div class="kpca" data-rq="${esc(r._id)}"><div class="d" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>${esc(r.no||'')} · ${esc(dmy(r.date))}${rqUrg(r.urg)}</span><span class="badge ${rqBadge(st)}">${esc(st)}</span></div><p style="font-weight:700;font-size:16px${r.job?'':';color:var(--sub)'}">${esc(r.job||'ยังไม่ระบุชื่องาน')}</p><p style="color:var(--sub);font-size:13px">${esc(r.name||'')}${r.dept?' · '+esc(r.dept):''}${r.need?' · ต้องการใช้ '+esc(dmy(r.need)):''}</p></div>`}).join(''):'<div class="empty">ยังไม่มีใบคำขอ · กด “เขียนใบคำขอพัฒนาระบบ”</div>');
+  (L.length?L.map(r=>{const st=rqStatus(r);return `<div class="kpca" data-rq="${esc(r._id)}"><div class="d" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>${esc(r.no||'')} · ${esc(dmy(r.date))}</span><span class="badge ${rqBadge(st)}">${esc(st)}</span></div><p style="font-weight:700;font-size:16px${r.job?'':';color:var(--sub)'}">${esc(r.job||'ยังไม่ระบุชื่องาน')}${rqUrg(r.urg)}</p><p style="color:var(--sub);font-size:13px">${esc(r.name||'')}${r.dept?' · '+esc(r.dept):''}${r.need?' · ต้องการใช้ '+esc(dmy(r.need)):''}</p></div>`}).join(''):'<div class="empty">ยังไม่มีใบคำขอ · กด “เขียนใบคำขอพัฒนาระบบ”</div>');
   $('rq_new').onclick=()=>rqEdit(null);
   M.querySelectorAll('[data-rq]').forEach(c=>c.onclick=()=>rqView(rqList().find(x=>x._id===c.dataset.rq)))}
 function rqView(r){if(!r)return;const st=rqStatus(r),F=(r.feats||[]).filter(x=>x.f),left=rqLeft(r);
   const row=(l,v)=>`<div class="f"><label>${l}</label><div class="rqv">${v}</div></div>`;
-  openSheet(`${shh('<button class="x" id="rv_e">แก้ไข</button>',esc(r.no||'ใบคำขอ'),'<button class="x b" id="rv_x">เสร็จ</button>')}
+  openSheet(`${shh('<button class="x" id="rv_e">แก้ไข</button>',esc(r.no||'ใบคำขอ'),'<button class="x" id="rv_x">เสร็จ</button>')}
   <div class="formg">${row('สถานะ',`<span class="badge ${rqBadge(st)}">${esc(st)}</span>`)}
   ${row('ชื่องาน',r.job?`<b>${esc(r.job)}</b>`:'<span class="rqreq">ยังไม่ได้กรอก — กด “แก้ไข” เพื่อเติม</span>')}
   ${row('ผู้ขอ',esc(r.name||'-')+(r.dept?`<br><span style="color:var(--sub);font-size:14px">${esc(r.dept)}</span>`:''))}
