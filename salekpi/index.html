@@ -621,7 +621,7 @@ async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิ�
     <div class="vpnote" style="margin:4px 2px 0">ตรวจเมลและข้อความ Teams ด้านล่าง ถ้าถูกต้องกด “ยืนยันส่ง” · ถ้าต้องแก้ กด “แก้ไข”</div>
     <div class="fgroup"><h3>📧 Mail ที่จะส่ง</h3></div><div class="formg">${row('จาก',esc(me))}${row('ถึง (To)',esc(st.to.join(', ')))}${st.cc.length?row('สำเนา (cc)',esc(st.cc.join(', '))):''}${row('หัวเรื่อง','<b>'+esc(subj)+'</b>')}${row('ไฟล์แนบ',P.length?P.map(f=>'📄 '+esc(f.name)+' <span style="color:var(--sub);font-size:13px">· '+cmKB(f.size)+'</span>').join('<br>')+(inl?'':'<div style="color:var(--sub);font-size:13px;margin-top:4px">ไฟล์รวมเกิน 3 MB จะใส่เป็นลิงก์ในเนื้อเมลแทนการแนบ</div>'):'ไม่มี')}</div>
     <div class="cmmail">${cmHtml(st,inl||!P.length?true:'links')}</div>
-    <div class="fgroup"><h3>💬 ข้อความ Teams${G.length?` (${G.length} แชท)`:''}</h3></div>${G.length?`<div class="formg">${row('ส่งเข้า',G.map(g=>(g.t==='p'?'👤 ':'👥 ')+esc(g.name)).join('<br>'))}</div><div class="cmmail">${cmHtml(st,false)}<p>ส่ง Mail ถึง ${esc(st.to.join(', '))}${st.cc.length?' · cc '+esc(st.cc.join(', ')):''} · โดย ${esc(me)}</p>${P.length?`<p style="color:#555">📎 ${P.map(f=>esc(f.name)).join('<br>📎 ')}</p>`:''}</div>`:'<div class="vpnote">ไม่ได้เลือกแชท Teams · จะส่ง Mail อย่างเดียว</div>'}
+    <div class="fgroup"><h3>💬 ข้อความ Teams${G.length?` (${G.length} แชท)`:''}</h3></div>${G.length?`<div class="formg">${row('ส่งเข้า',G.map(g=>(g.t==='p'?'👤 ':'👥 ')+esc(g.name)).join('<br>'))}</div><div class="cmmail">${cmHtml(st,false)}${P.length?`<p style="color:#555">📎 ${P.map(f=>esc(f.name)).join('<br>📎 ')}</p>`:''}</div>`:'<div class="vpnote">ไม่ได้เลือกแชท Teams · จะส่ง Mail อย่างเดียว</div>'}
     <button class="cta" id="pv_go2" style="display:block;width:100%;margin-top:18px">ยืนยันส่ง Mail${G.length?` + แจ้ง Teams (${G.length})`:''}</button>
     <div class="btnlist" style="margin-top:10px"><button id="pv_b2">กลับไปแก้ไข</button></div>`);
     const back=()=>{draw();const b=$('cm_send');if(b)b.scrollIntoView({block:'center'})};$('pv_b').onclick=back;$('pv_b2').onclick=back;
@@ -666,7 +666,7 @@ async function cmSendMail(st,files){const tot=(files||[]).reduce((a,f)=>a+f.size
   if(DEMO)return;await cmFetch('/me/sendMail',['Mail.Send'],{method:'POST',json:{message:msg,saveToSentItems:true}})}
 const cmSendF=st=>(st.files||[]).filter(f=>!st.sendNames||st.sendNames.includes(f.name));
 async function cmPost(st,gr){const F=cmSendF(st).filter(f=>f.url&&f.etag);const att=F.map(f=>({id:f.etag,contentType:'reference',contentUrl:f.url,name:f.name}));
-  const html=cmHtml(st,false)+`<p>ส่ง Mail ถึง ${esc(st.to.join(', '))}${st.cc.length?' · cc '+esc(st.cc.join(', ')):''} · โดย ${esc(me)}</p>`+att.map(a=>`<attachment id="${a.id}"></attachment>`).join('');
+  const html=cmHtml(st,false)+att.map(a=>`<attachment id="${a.id}"></attachment>`).join('');
   if(DEMO)return;await cmFetch(`/chats/${encodeURIComponent(gr.id)}/messages`,['ChatMessage.Send'],{method:'POST',json:{body:{contentType:'html',content:html},attachments:att}})}
 
 /* ===== KPI แผนก Sale Center (FM-QMS-01-03 · list 'Sale KPI' · นับจำนวนครั้ง ผ่านเมื่อ ≤ เป้า) ===== */
@@ -1279,7 +1279,7 @@ addEventListener('popstate',()=>{const v=skView();if(v===view)return;
 addEventListener('beforeunload',e=>{if(skDirty&&$('sheet').classList.contains('on')){e.preventDefault();e.returnValue=''}});
 
 /* ===== auto-update: reload once when a newer build is online ===== */
-const SK_BUILD='2026-11-24.9';
+const SK_BUILD='2026-11-24.10';
 async function skCheckUpdate(){try{if(document.querySelector('#sheet.on,.sheet.on'))return;const r=await fetch(location.pathname.replace(/[^/]*$/,'')+'index.html?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/SK_BUILD='([^']+)'/);
   if(m&&m[1]!==SK_BUILD){const k='sk-upd-'+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('v',m[1]);location.replace(u.toString())}}catch(_){}}
 skCheckUpdate();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')skCheckUpdate()});
