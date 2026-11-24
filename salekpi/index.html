@@ -570,7 +570,7 @@ async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิ�
   const C=cmCfg(),m=X&&X.m,from=m?m.from.emailAddress:{name:R.fromName,address:R.from};
   const st=R?JSON.parse(JSON.stringify(R)):{type:'cm',msgId:id,subject:m.subject||'',from:from.address,fromName:from.name||'',received:m.receivedDateTime,webLink:m.webLink||'',status:'new',files:[],
     sum:{cust:from.name||from.address,title:m.subject||'',need:cmGuessDate((m.subject||'')+'\n'+(m.body&&m.body.content||'')),detail:'',items:[]}};
-  if(!st.to)st.to=C.to.slice();if(!st.cc)st.cc=C.cc.slice();if(!st.groupIds)st.groupIds=C.groups.length===1?[C.groups[0].id]:[];if(st.groupIds.length>1)st.groupIds=st.groupIds.slice(0,1);
+  if(!st.to)st.to=C.to.slice();if(!st.cc)st.cc=C.cc.slice();if(!st.groupIds)st.groupIds=C.groups.length===1?[C.groups[0].id]:[];
   const book=()=>{const B=(C.book||[]).slice();for(const e of [...C.to,...C.cc,...st.to,...st.cc])if(!B.some(x=>x.e===e))B.push({n:'',e});return B};
   const files=X?X.files:[];const body=m&&m.body?String(m.body.content||'').trim():'';
   if(!st.off)st.off=[];if(!st.del)st.del=[];const live=()=>files.filter(f=>!st.del.includes(f.name));const pick=()=>live().filter(f=>!st.off.includes(f.name));
@@ -589,13 +589,13 @@ async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิ�
     <div class="fgroup"><h3>ส่งต่อทาง Mail · เลือกจากฐาน Mail</h3></div><div class="formg">${book().map(x=>{const t=st.to.includes(x.e),c=st.cc.includes(x.e);return `<div class="cmrow"><span style="flex:1;min-width:0;overflow-wrap:anywhere;line-height:1.35">${x.n?`<span style="font-weight:600">${esc(x.n)}</span><br>`:''}<span style="color:var(--sub);font-size:14px">${esc(x.e)}</span></span><button class="cmtg${t?' on':''}" data-rt="${esc(x.e)}" aria-pressed="${t}">To</button><button class="cmtg${c?' on':''}" data-rc="${esc(x.e)}" aria-pressed="${c}">CC</button></div>`}).join('')||'<div class="f" style="color:var(--sub)">ยังไม่มีฐาน Mail · เพิ่มได้ที่ ⚙️ ตั้งค่า</div>'}</div>
     <div class="formg" style="margin-top:10px"><div class="f area"><label>ส่งถึง (To) · พิมพ์เพิ่มได้ คั่นด้วย ,</label><textarea id="cm_to" rows="2">${esc(st.to.join(', '))}</textarea></div><div class="f area"><label>สำเนา (cc)</label><textarea id="cm_cc" rows="2">${esc(st.cc.join(', '))}</textarea></div></div>
     <div class="vpnote">อีเมลที่พิมพ์เพิ่มจะถูกเก็บเข้าฐาน Mail ให้อัตโนมัติเมื่อกดส่ง</div>
-    <div class="fgroup"><h3>แจ้งแชท Teams (เลือก 1 แชท)</h3></div><div class="formg">${[{id:'',name:'ไม่แจ้ง Teams'},...C.groups].map(g=>`<label class="cmrow" style="cursor:pointer;font-size:16px"><input type="radio" name="cm_gr" data-gr="${esc(g.id)}" ${(st.groupIds[0]||'')===g.id?'checked':''} style="width:20px;height:20px;flex:none;accent-color:var(--acc)"><span>${g.id?(g.t==='p'?'👤 ':'👥 '):''}${esc(g.name)}</span></label>`).join('')}</div>
-    <button class="cta" id="cm_send" style="display:block;width:100%;margin-top:18px">${sent?'ส่งอีกครั้ง':'ส่ง Mail'}${st.groupIds.length?' + แจ้ง Teams':''}</button>
+    <div class="fgroup"><h3>แจ้งแชท Teams (เลือกได้หลายแชท · ไม่เลือก = ไม่แจ้ง)</h3></div><div class="formg">${C.groups.map(g=>`<label class="cmrow" style="cursor:pointer;font-size:16px"><input type="checkbox" data-gr="${esc(g.id)}" ${st.groupIds.includes(g.id)?'checked':''} style="width:20px;height:20px;flex:none;accent-color:var(--acc)"><span>${g.t==='p'?'👤 ':'👥 '}${esc(g.name)}</span></label>`).join('')||'<div class="f" style="color:var(--sub)">ยังไม่มีแชท · เพิ่มได้ที่ ⚙️ ตั้งค่า</div>'}</div>
+    <button class="cta" id="cm_send" style="display:block;width:100%;margin-top:18px">${sent?'ส่งอีกครั้ง':'ส่ง Mail'}${st.groupIds.length?` + แจ้ง Teams (${st.groupIds.length})`:''}</button>
     <div class="btnlist" style="margin-top:10px">${st.webLink?'<button id="cm_ol">เปิดเมลต้นฉบับใน Outlook</button>':''}${sent?'':`<button id="cm_skip">${st.status==='skip'?'ยกเลิก “ไม่ต้องส่ง”':'ทำเครื่องหมาย “ไม่ต้องส่ง”'}</button>`}</div>
     <div class="vpnote">ไฟล์แนบจะเก็บใน SharePoint (${CM_DIR}) · ไฟล์รวมไม่เกิน 3 MB แนบไปกับเมล ถ้าใหญ่กว่านั้นจะใส่เป็นลิงก์</div>`);
     const sync=()=>{S.cust=$('cm_cust').value.trim();S.title=$('cm_title').value.trim();S.need=$('cm_need').value;S.detail=$('cm_det').value;
       S.items=[...document.querySelectorAll('[data-it]')].map(el=>({d:el.querySelector('[data-k="d"]').value,q:el.querySelector('[data-k="q"]').value,u:el.querySelector('[data-k="u"]').value}));
-      st.to=cmAddrs($('cm_to').value);st.cc=cmAddrs($('cm_cc').value);const gs=document.querySelector('[data-gr]:checked');st.groupIds=gs&&gs.dataset.gr?[gs.dataset.gr]:[]};
+      st.to=cmAddrs($('cm_to').value);st.cc=cmAddrs($('cm_cc').value);st.groupIds=[...document.querySelectorAll('[data-gr]:checked')].map(x=>x.dataset.gr)};
     const redo=()=>{const y=$('sheet').scrollTop;draw();$('sheet').scrollTop=y};
     $('cm_x').onclick=closeSheet;
     document.querySelectorAll('[data-cf]').forEach(b=>b.onclick=()=>{sync();const y=$('sheet').scrollTop;cmView(files[+b.dataset.cf],()=>{draw();$('sheet').scrollTop=y})});
@@ -622,7 +622,7 @@ async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิ�
         for(const gr of G){try{await cmPost(st,gr)}catch(e){bad.push(gr.name+': '+e.message)}}
         st.status='sent';st.sentAt=nowIso();st.sentBy=me;st.groups=G.map(x=>x.name);await cmSave(st,null);
         const nb=[...st.to,...st.cc].filter(e=>!(C.book||[]).some(x=>x.e===e));if(nb.length){C.book=[...(C.book||[]),...nb.map(e=>({n:'',e}))];try{await store.save('salekpi',C)}catch(_){}}
-        toast(bad.length?'ส่ง Mail แล้ว · แจ้ง Teams ไม่สำเร็จ':G.length?'ส่ง Mail และแจ้ง Teams แล้ว':'ส่ง Mail แล้ว');if(bad.length)alertBad(bad);render();redo()}
+        toast(bad.length?`ส่ง Mail แล้ว · แจ้ง Teams ไม่สำเร็จ ${bad.length} แชท`:G.length?`ส่ง Mail และแจ้ง Teams ${G.length} แชทแล้ว`:'ส่ง Mail แล้ว');if(bad.length)alertBad(bad);render();redo()}
       catch(e){b.disabled=false;b.textContent='ส่ง Mail'+(st.groupIds.length?' + แจ้ง Teams':'');toast((e.status===403?'ไม่มีสิทธิ์: ':'ส่งไม่สำเร็จ: ')+e.message)}}};
   const alertBad=L=>{const v=$('cm_send');if(v)v.insertAdjacentHTML('afterend',`<div class="vpnote" style="color:var(--bad)">${L.map(esc).join('<br>')}</div>`)};
   draw()}
