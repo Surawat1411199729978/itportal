@@ -386,7 +386,7 @@ const store={
 };
 async function ensureSale(){if(!DATA.salekpi)DATA.salekpi=(await store.load('salekpi'))||null;return DATA.salekpi}
 function setHeader(){
-  const mt=view==='meet',jd=view==='jd',rq=view==='req',cm=view==='cm';$('title').textContent=mt?'นัดหมายการประชุม':jd?'ใบกำหนดหน้าที่งาน':rq?'ใบคำขอพัฒนาระบบ':cm?'เมลลูกค้า':'KPI Sale Center';$('sub').textContent=mt?'FM-QMS-06-04 · แผนก Sale Center':jd?'FM-HRM-01-02 · แผนก Sale Center':rq?'FM-ITM-01-16 · ใบคำขอพัฒนาระบบ':cm?'เมลความต้องการลูกค้า · แผนก Sale Center':'FM-QMS-01-03 · แผนก Sale Center';document.title=(mt?'นัดหมายการประชุม':jd?'JD Sale Center':rq?'ใบคำขอพัฒนาระบบ':cm?'เมลลูกค้า':'KPI Sale Center')+' · UNB';
+  const mt=view==='meet',jd=view==='jd',rq=view==='req',cm=view==='cm';$('title').textContent=mt?'นัดหมายการประชุม':jd?'ใบกำหนดหน้าที่งาน':rq?'ใบคำขอพัฒนาระบบ':cm?'เมล':'KPI Sale Center';$('sub').textContent=mt?'FM-QMS-06-04 · แผนก Sale Center':jd?'FM-HRM-01-02 · แผนก Sale Center':rq?'FM-ITM-01-16 · ใบคำขอพัฒนาระบบ':cm?'เมลความต้องการ · แผนก Sale Center':'FM-QMS-01-03 · แผนก Sale Center';document.title=(mt?'นัดหมายการประชุม':jd?'JD Sale Center':rq?'ใบคำขอพัฒนาระบบ':cm?'เมล':'KPI Sale Center')+' · UNB';
   $('back').style.display='none';$('tools').innerHTML=(mode==='ready'?`<div class="seg" style="margin:0 0 12px"><button data-vw="salekpi" class="${mt||jd||rq||cm?'':'on'}">KPI</button><button data-vw="meet" class="${mt?'on':''}">นัดประชุม</button><button data-vw="jd" class="${jd?'on':''}">JD</button><button data-vw="req" class="${rq?'on':''}">ใบคำขอ</button><button data-vw="cm" class="${cm?'on':''}">เมล</button><button data-vw="so">Check list SO</button></div>`:'')+(mt?meetTools():jd?jdTools():rq?rqTools():cm?cmTools():saleTools());
   document.querySelectorAll('[data-vw]').forEach(b=>b.onclick=()=>{if(b.dataset.vw==='so'){location.href='so.html';return}if(view===b.dataset.vw)return;view=b.dataset.vw;history.replaceState(null,'',view==='meet'?'#meet':view==='jd'?'#jd':view==='req'?'#req':view==='cm'?'#cmail':location.pathname+location.search);render();scrollTo(0,0)});
 }
@@ -436,7 +436,7 @@ async function cmFetch(path,sc,opt={}){const t=await token(sc);const headers={Au
   if(!r.ok){let m='';try{m=JSON.parse(await r.text()).error.message}catch(_){};const e=new Error(m||('Graph '+r.status));e.status=r.status;throw e}
   return opt.raw?r:(r.status===202||r.status===204)?null:r.json()}
 const cmMail=(p,o)=>cmFetch(p,['Mail.Read'],o);
-function cmTools(){return `<h1 style="font-size:30px;margin-top:0">เมลความต้องการลูกค้า</h1><div class="sub">ตรวจเมลจากลูกค้าที่กำหนด อ่านไฟล์แนบ แล้วส่งต่อทาง Mail และแจ้งกลุ่ม Teams</div>`}
+function cmTools(){return `<h1 style="font-size:30px;margin-top:0">เมลความต้องการ</h1><div class="sub">ตรวจเมลจากผู้ส่งที่กำหนด อ่านไฟล์แนบ แล้วส่งต่อทาง Mail และแจ้งกลุ่ม Teams</div>`}
 
 /* ---- inbox ---- */
 async function cmLoad(){const C=cmCfg();if(!C.senders.length){CM_IN=[];return}CM_BUSY=true;CM_ERR='';
@@ -449,7 +449,7 @@ function renderCm(){const M=$('main');
   if(!lists[MODS.salekpi.list]){M.innerHTML='<div class="empty">ยังไม่มี list "Sale KPI" ใน SharePoint</div>';return}
   if(!DATA.salekpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   const C=cmCfg();
-  if(!C.senders.length){M.innerHTML=`<div class="empty" style="padding:30px 10px 10px">ยังไม่ได้กำหนดอีเมลลูกค้าที่จะตรวจ</div><button class="mtcta" id="cm_set"><span style="font-size:24px">⚙️</span><span><b>ตั้งค่าอีเมลลูกค้า</b><small>ใส่อีเมลหรือโดเมนลูกค้า ผู้รับ Mail, cc และกลุ่ม Teams</small></span>${CHEV}</button>`;$('cm_set').onclick=cmSettings;return}
+  if(!C.senders.length){M.innerHTML=`<div class="empty" style="padding:30px 10px 10px">ยังไม่ได้กำหนดอีเมลที่จะตรวจ</div><button class="mtcta" id="cm_set"><span style="font-size:24px">⚙️</span><span><b>ตั้งค่าอีเมลที่จะตรวจ</b><small>ใส่อีเมลหรือโดเมน ผู้รับ Mail, cc และกลุ่ม Teams</small></span>${CHEV}</button>`;$('cm_set').onclick=cmSettings;return}
   if(CM_IN===null){M.innerHTML='<div class="center"><div class="spin"></div><div style="margin-top:10px">กำลังตรวจเมล…</div></div>';if(!CM_BUSY)cmLoad().then(()=>{if(view==='cm')renderCm()});return}
   const ids=new Set(CM_IN.map(m=>m.id));
   const rows=CM_IN.map(m=>({id:m.id,subject:m.subject,from:m.from.emailAddress,at:m.receivedDateTime,att:m.hasAttachments,pre:m.bodyPreview,r:cmRec(m.id)}))
@@ -459,14 +459,14 @@ function renderCm(){const M=$('main');
   M.innerHTML=`<button class="mtcta" id="cm_ref" style="margin:14px 0 8px!important"><span style="font-size:24px">📥</span><span><b>ตรวจเมลใหม่</b></span></button>
   <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 2px 4px;font-size:13.5px;color:var(--sub)"><span>${nNew?'<b style="color:var(--ink)">'+nNew+' เมลใหม่</b> ยังไม่ได้บันทึก':'ไม่มีเมลใหม่'} · ย้อนหลัง ${C.days||30} วัน · ${C.senders.length} ผู้ส่ง</span><button id="cm_set" style="color:var(--acc);font-size:14px;font-weight:600;white-space:nowrap">⚙️ ตั้งค่า</button></div>
   ${CM_ERR?`<div class="vpnote" style="color:var(--bad)">ตรวจเมลไม่สำเร็จ: ${esc(CM_ERR)}</div>`:''}
-  ${rows.length?rows.map(x=>{const [t,c]=cmSt(x.r);return `<div class="kpca" data-cm="${esc(x.id)}"><div class="d" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>${esc(x.from.name||x.from.address||'')} · ${esc(cmDT(x.at))}</span><span class="badge ${c}">${t}</span></div><p style="font-weight:700;font-size:16px">${esc(x.r&&x.r.sum&&x.r.sum.title||x.subject||'(ไม่มีหัวเรื่อง)')}</p><p style="color:var(--sub);font-size:13px">${x.att?'📎 มีไฟล์แนบ · ':''}${esc(x.r&&x.r.sum&&x.r.sum.cust||x.from.address||'')}${x.r&&x.r.sentAt?' · ส่งถึง '+esc((x.r.to||[]).join(', ')):''}</p></div>`}).join(''):'<div class="empty">ไม่พบเมลจากลูกค้าที่กำหนดในช่วงนี้</div>'}`;
+  ${rows.length?rows.map(x=>{const [t,c]=cmSt(x.r);return `<div class="kpca" data-cm="${esc(x.id)}"><div class="d" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>${esc(x.from.name||x.from.address||'')} · ${esc(cmDT(x.at))}</span><span class="badge ${c}">${t}</span></div><p style="font-weight:700;font-size:16px">${esc(x.r&&x.r.sum&&x.r.sum.title||x.subject||'(ไม่มีหัวเรื่อง)')}</p><p style="color:var(--sub);font-size:13px">${x.att?'📎 มีไฟล์แนบ · ':''}${esc(x.r&&x.r.sum&&x.r.sum.cust||x.from.address||'')}${x.r&&x.r.sentAt?' · ส่งถึง '+esc((x.r.to||[]).join(', ')):''}</p></div>`}).join(''):'<div class="empty">ไม่พบเมลจากผู้ส่งที่กำหนดในช่วงนี้</div>'}`;
   $('cm_ref').onclick=()=>{CM_IN=null;renderCm()};$('cm_set').onclick=cmSettings;
   M.querySelectorAll('[data-cm]').forEach(c=>c.onclick=()=>cmOpen(c.dataset.cm))}
 
 /* ---- settings ---- */
 function cmSettings(){const C=JSON.parse(JSON.stringify(cmCfg()));
-  const draw=()=>{openSheet(`${shh('<button class="x" id="cs_x">ยกเลิก</button>','ตั้งค่าเมลลูกค้า','<button class="x b" id="cs_s">บันทึก</button>')}
-  <div class="fgroup"><h3>อีเมลลูกค้าที่จะตรวจ</h3></div><div class="formg"><div class="f area"><label>ใส่ทีละบรรทัด · ใส่ทั้งโดเมนได้ เช่น @abc.co.th</label><textarea id="cs_snd" rows="5" placeholder="buyer@abc.co.th&#10;@xyz.com">${esc(C.senders.join('\n'))}</textarea></div>
+  const draw=()=>{openSheet(`${shh('<button class="x" id="cs_x">ยกเลิก</button>','ตั้งค่าเมล','<button class="x b" id="cs_s">บันทึก</button>')}
+  <div class="fgroup"><h3>อีเมลที่จะตรวจ</h3></div><div class="formg"><div class="f area"><label>ใส่ทีละบรรทัด · ใส่ทั้งโดเมนได้ เช่น @abc.co.th</label><textarea id="cs_snd" rows="5" placeholder="buyer@abc.co.th&#10;@xyz.com">${esc(C.senders.join('\n'))}</textarea></div>
   <div class="f"><label>ตรวจย้อนหลัง (วัน)</label><input id="cs_days" type="number" min="1" max="120" value="${C.days||30}"></div></div>
   <div class="fgroup"><h3>ผู้รับเริ่มต้นตอนกดส่ง (แก้ได้ทุกครั้ง)</h3></div><div class="formg"><div class="f area"><label>ส่งถึง (To)</label><textarea id="cs_to" rows="2" placeholder="name@unboffice.onmicrosoft.com">${esc(C.to.join(', '))}</textarea></div><div class="f area"><label>สำเนา (cc)</label><textarea id="cs_cc" rows="2">${esc(C.cc.join(', '))}</textarea></div></div>
   <div class="fgroup"><h3>กลุ่ม Teams ที่เลือกแจ้งได้</h3></div><div class="formg">${C.groups.map((g,i)=>`<div class="f" style="justify-content:space-between"><span style="flex:1">${esc(g.name)}</span><button class="x" data-gdel="${i}" style="color:var(--bad)">ลบ</button></div>`).join('')||'<div class="f">ยังไม่มีกลุ่ม</div>'}</div>
@@ -480,7 +480,7 @@ function cmSettings(){const C=JSON.parse(JSON.stringify(cmCfg()));
         box.innerHTML=L.length?`<div class="formg" style="margin-top:10px">${L.map(c=>`<div class="f" style="justify-content:space-between"><span style="flex:1">${esc(c.topic)}</span><button class="x b" data-gadd="${esc(c.id)}">เพิ่ม</button></div>`).join('')}</div>`:'<div class="vpnote">ไม่มีกลุ่มอื่นให้เพิ่ม</div>';
         box.querySelectorAll('[data-gadd]').forEach(b=>b.onclick=()=>{keep();const c=L.find(x=>x.id===b.dataset.gadd);C.groups.push({id:c.id,name:c.topic});draw()})}
       catch(e){box.innerHTML=`<div class="vpnote" style="color:var(--bad)">โหลดกลุ่มไม่สำเร็จ: ${esc(e.message)}</div>`}};
-    $('cs_s').onclick=async()=>{keep();if(!C.senders.length){toast('ใส่อีเมลลูกค้าอย่างน้อย 1 รายการ');return}const b=$('cs_s');b.disabled=true;
+    $('cs_s').onclick=async()=>{keep();if(!C.senders.length){toast('ใส่อีเมลอย่างน้อย 1 รายการ');return}const b=$('cs_s');b.disabled=true;
       try{await store.save('salekpi',C);cmSaveTxt(C).catch(()=>{});CM_IN=null;closeSheet();toast('บันทึกการตั้งค่าแล้ว');render()}catch(e){b.disabled=false;toast('บันทึกไม่สำเร็จ: '+e.message)}}};
   draw()}
 /* copy of the sender list as a text file, so the daily alert can read it */
@@ -515,16 +515,16 @@ async function cmView(f,back){openSheet(`${shh('<button class="x" id="cv_b">ก�
   catch(e){box.innerHTML=`<div class="empty">เปิดไฟล์ไม่สำเร็จ: ${esc(e.message)}</div>`}}
 function cmGuessDate(t){let best='';const now=today();for(const x of String(t).matchAll(/\b(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4}|\d{2})\b/g)){let y=+x[3];if(y<100)y+=y>60?2500:2000;if(y>2400)y-=543;const d=`${y}-${String(+x[2]).padStart(2,'0')}-${String(+x[1]).padStart(2,'0')}`;if(+x[2]<=12&&+x[1]<=31&&d>=now&&(!best||d<best))best=d}return best}
 
-async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมลลูกค้า','')}<div class="center"><div class="spin"></div><div style="margin-top:10px">กำลังโหลดเมลและไฟล์แนบ…</div></div>`);$('cm_x').onclick=closeSheet;
+async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมล','')}<div class="center"><div class="spin"></div><div style="margin-top:10px">กำลังโหลดเมลและไฟล์แนบ…</div></div>`);$('cm_x').onclick=closeSheet;
   const R=cmRec(id);let X=null;
-  try{X=await cmFiles(id)}catch(e){if(!R){openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมลลูกค้า','')}<div class="empty">โหลดเมลไม่สำเร็จ: ${esc(e.message)}</div>`);$('cm_x').onclick=closeSheet;return}}
+  try{X=await cmFiles(id)}catch(e){if(!R){openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมล','')}<div class="empty">โหลดเมลไม่สำเร็จ: ${esc(e.message)}</div>`);$('cm_x').onclick=closeSheet;return}}
   const C=cmCfg(),m=X&&X.m,from=m?m.from.emailAddress:{name:R.fromName,address:R.from};
   const st=R?JSON.parse(JSON.stringify(R)):{type:'cm',msgId:id,subject:m.subject||'',from:from.address,fromName:from.name||'',received:m.receivedDateTime,webLink:m.webLink||'',status:'new',files:[],
     sum:{cust:from.name||from.address,title:m.subject||'',need:cmGuessDate((m.subject||'')+'\n'+(m.body&&m.body.content||'')),detail:'',items:[]}};
   if(!st.to)st.to=C.to.slice();if(!st.cc)st.cc=C.cc.slice();if(!st.groupIds)st.groupIds=[];
   const files=X?X.files:[];const body=m&&m.body?String(m.body.content||'').trim():'';
   const draw=()=>{const S=st.sum,sent=st.status==='sent';
-    openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมลลูกค้า','<button class="x b" id="cm_sv">บันทึก</button>')}
+    openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมล','<button class="x b" id="cm_sv">บันทึก</button>')}
     <h2 style="margin-top:6px">${esc(st.subject||'(ไม่มีหัวเรื่อง)')}</h2><div class="vpnote" style="margin:4px 2px 0">จาก ${esc(st.fromName||'')} &lt;${esc(st.from)}&gt; · ${esc(cmDT(st.received))}${sent?` · <span class="badge b-ok">ส่งแล้ว ${esc(cmDT(st.sentAt))}</span>`:''}</div>
     ${body?`<details class="rqd" style="margin-top:12px"><summary>ข้อความในเมล<small>กดเพื่ออ่าน</small></summary><pre class="cmpre">${esc(body.slice(0,6000))}</pre></details>`:''}
     <div class="fgroup"><h3>ไฟล์แนบ (${files.length||(st.files||[]).length})</h3></div>
@@ -532,7 +532,7 @@ async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิ�
     <div class="fgroup" style="display:flex;justify-content:space-between;align-items:baseline"><h3>สรุปความต้องการ</h3>${files.length||body?'<button class="x" id="cm_pull" style="font-size:14px;margin-right:16px">ดึงข้อความจากไฟล์/เมล</button>':''}</div>
     <div class="formg"><div class="f"><label>ลูกค้า</label><input id="cm_cust" value="${esc(S.cust)}"></div><div class="f"><label>เรื่อง</label><input id="cm_title" value="${esc(S.title)}"></div>
     <div class="f"><label>วันที่ต้องการ</label><input id="cm_need" type="date" value="${esc(S.need||'')}"></div>
-    <div class="f area"><label>รายละเอียด / สเปก</label><textarea id="cm_det" rows="6" placeholder="สรุปสิ่งที่ลูกค้าต้องการ">${esc(S.detail||'')}</textarea></div></div>
+    <div class="f area"><label>รายละเอียด / สเปก</label><textarea id="cm_det" rows="6" placeholder="สรุปความต้องการ">${esc(S.detail||'')}</textarea></div></div>
     <div class="fgroup"><h3>รายการ</h3></div><div class="formg">${S.items.map((it,i)=>`<div class="f" data-it="${i}" style="gap:8px"><input data-k="d" value="${esc(it.d)}" placeholder="รายการ / สเปก" style="flex:3"><input data-k="q" value="${esc(it.q)}" placeholder="จำนวน" inputmode="decimal" style="flex:1;max-width:80px"><input data-k="u" value="${esc(it.u)}" placeholder="หน่วย" style="flex:1;max-width:70px"><button class="x" data-idel="${i}" style="color:var(--bad)">ลบ</button></div>`).join('')}<div class="f"><button class="x" id="cm_add">+ เพิ่มรายการ</button></div></div>
     <div class="fgroup"><h3>ส่งต่อทาง Mail</h3></div><div class="formg"><div class="f area"><label>ส่งถึง (To) · คั่นด้วย , </label><textarea id="cm_to" rows="2">${esc(st.to.join(', '))}</textarea></div><div class="f area"><label>สำเนา (cc)</label><textarea id="cm_cc" rows="2">${esc(st.cc.join(', '))}</textarea></div></div>
     <div class="fgroup"><h3>แจ้งกลุ่ม Teams</h3></div><div class="formg">${C.groups.map(g=>`<label class="f" style="gap:10px;cursor:pointer"><input type="checkbox" data-gr="${esc(g.id)}" ${st.groupIds.includes(g.id)?'checked':''} style="width:20px;height:20px;flex:none;accent-color:var(--acc)"><span>${esc(g.name)}</span></label>`).join('')||'<div class="f">ยังไม่มีกลุ่ม · ไปที่ตั้งค่า</div>'}</div>
@@ -580,16 +580,16 @@ async function cmSave(st,files){
   const nr=cmRec(st.msgId);if(nr)st._id=nr._id}
 function cmHtml(st,forMail){const S=st.sum;const row=(k,v)=>v?`<tr><td style="padding:4px 12px 4px 0;color:#666;vertical-align:top;white-space:nowrap">${k}</td><td style="padding:4px 0">${v}</td></tr>`:'';
   const items=(S.items||[]).filter(x=>x.d||x.q);
-  return `<div style="font-family:Tahoma,'Segoe UI',sans-serif;font-size:14px;line-height:1.5">${forMail?'<p>เรียนทุกท่าน</p><p>แจ้งความต้องการจากลูกค้าตามรายละเอียดด้านล่าง</p>':'<p><b>📩 ความต้องการจากลูกค้า</b></p>'}
+  return `<div style="font-family:Tahoma,'Segoe UI',sans-serif;font-size:14px;line-height:1.5">${forMail?'<p>เรียนทุกท่าน</p><p>แจ้งความต้องการตามรายละเอียดด้านล่าง</p>':'<p><b>📩 แจ้งความต้องการ</b></p>'}
   <table style="border-collapse:collapse">${row('ลูกค้า',esc(S.cust))}${row('เรื่อง','<b>'+esc(S.title)+'</b>')}${row('วันที่ต้องการ',S.need?esc(thDate(S.need)):'')}${row('ได้รับเมล',esc(cmDT(st.received))+' จาก '+esc(st.from))}</table>
   ${items.length?`<table style="border-collapse:collapse;margin-top:8px"><tr><th style="border:1px solid #ccc;padding:4px 8px;background:#f3f3f3">#</th><th style="border:1px solid #ccc;padding:4px 8px;background:#f3f3f3;text-align:left">รายการ / สเปก</th><th style="border:1px solid #ccc;padding:4px 8px;background:#f3f3f3">จำนวน</th><th style="border:1px solid #ccc;padding:4px 8px;background:#f3f3f3">หน่วย</th></tr>${items.map((x,i)=>`<tr><td style="border:1px solid #ccc;padding:4px 8px;text-align:center">${i+1}</td><td style="border:1px solid #ccc;padding:4px 8px">${esc(x.d)}</td><td style="border:1px solid #ccc;padding:4px 8px;text-align:right">${esc(x.q)}</td><td style="border:1px solid #ccc;padding:4px 8px">${esc(x.u)}</td></tr>`).join('')}</table>`:''}
   ${S.detail?`<p style="margin-top:10px"><b>รายละเอียด</b><br>${esc(S.detail.slice(0,forMail?20000:1500)).replace(/\n/g,'<br>')}</p>`:''}
-  ${forMail==='links'&&(st.files||[]).length?`<p><b>ไฟล์จากลูกค้า</b><br>${st.files.map(f=>`<a href="${esc(f.url)}">${esc(f.name)}</a>`).join('<br>')}</p>`:''}
+  ${forMail==='links'&&(st.files||[]).length?`<p><b>ไฟล์แนบ</b><br>${st.files.map(f=>`<a href="${esc(f.url)}">${esc(f.name)}</a>`).join('<br>')}</p>`:''}
   ${forMail?`<p>ขอบคุณครับ<br>${esc(me)}</p>`:''}</div>`}
 const cmB64=b=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(b)});
 async function cmSendMail(st,files){const tot=(files||[]).reduce((a,f)=>a+f.size,0);const att=[];const inl=files&&files.length&&tot<=3e6;
   if(inl)for(const f of files)att.push({'@odata.type':'#microsoft.graph.fileAttachment',name:f.name,contentType:f.type||'application/octet-stream',contentBytes:await cmB64(f.blob)});
-  const msg={subject:`ความต้องการลูกค้า: ${st.sum.cust} – ${st.sum.title}`,body:{contentType:'HTML',content:cmHtml(st,inl||!(st.files||[]).length?true:'links')},
+  const msg={subject:`ความต้องการ: ${st.sum.cust} – ${st.sum.title}`,body:{contentType:'HTML',content:cmHtml(st,inl||!(st.files||[]).length?true:'links')},
     toRecipients:st.to.map(a=>({emailAddress:{address:a}})),ccRecipients:st.cc.map(a=>({emailAddress:{address:a}})),attachments:att};
   if(DEMO)return;await cmFetch('/me/sendMail',['Mail.Send'],{method:'POST',json:{message:msg,saveToSentItems:true}})}
 async function cmPost(st,gr){const F=(st.files||[]).filter(f=>f.url&&f.etag);const att=F.map(f=>({id:f.etag,contentType:'reference',contentUrl:f.url,name:f.name}));
