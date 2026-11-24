@@ -271,11 +271,53 @@ header{background:var(--bg)!important;backdrop-filter:none!important;-webkit-bac
 .spin{border-top-color:var(--accent)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
+<style id="nav">
+/* ===== Sale Center navigation ===== */
+:root{--nvacc:var(--acc,var(--ink));--nvsoft:var(--acc-soft,color-mix(in srgb,var(--ink) 9%,transparent));--nvsub:var(--sub,var(--muted,#6b6b6b));--nvw:232px}
+.nvside,.nvbar,.nvdrawer,.nvscrim{font-family:inherit}
+.nvside ul,.nvdrawer ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.nvit{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:10px;color:var(--ink);text-decoration:none;font-size:15px;font-weight:500;line-height:1.3}
+.nvit .nvi{color:var(--nvsub);flex:none}
+.nvit:hover{background:color-mix(in srgb,var(--ink) 5%,transparent)}
+.nvit[aria-current=page]{background:var(--nvsoft);color:var(--nvacc);font-weight:700}
+.nvit[aria-current=page] .nvi{color:currentColor;stroke-width:2.25}
+.nvgh{font-size:12.5px;font-weight:600;color:var(--nvsub);margin:20px 12px 6px}
+.nvit:focus-visible,.nvtab:focus-visible,.nvx:focus-visible{outline:2px solid var(--nvacc);outline-offset:2px}
+/* narrow: bottom bar */
+.nvside{display:none}
+.nvbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:2px;padding:4px 6px calc(var(--safe-b,0px) + 4px);background:color-mix(in srgb,var(--bg) 92%,transparent);-webkit-backdrop-filter:saturate(180%) blur(16px);backdrop-filter:saturate(180%) blur(16px);border-top:1px solid var(--line)}
+.nvtab{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:54px;padding:4px 2px;border:0;border-radius:10px;background:none;color:var(--nvsub);font:inherit;font-size:12.5px;font-weight:500;line-height:1.2;text-decoration:none;cursor:pointer;-webkit-appearance:none;appearance:none}
+.nvtab span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nvtab .nvi{box-sizing:content-box;padding:3px 14px;border-radius:999px}
+.nvtab[aria-current=page],.nvtab.on{color:var(--nvacc);font-weight:700}
+.nvtab[aria-current=page] .nvi,.nvtab.on .nvi{background:var(--nvsoft);stroke-width:2.25}
+body.hasnav main{padding-bottom:calc(var(--safe-b,0px) + 112px)!important}
+.nvscrim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.32)}
+.nvdrawer{position:fixed;left:0;right:0;bottom:0;z-index:41;max-height:80vh;overflow:auto;background:var(--bg);border-radius:16px 16px 0 0;padding:8px 12px calc(var(--safe-b,0px) + 18px);box-shadow:0 -8px 30px rgba(0,0,0,.14);max-width:560px;margin:0 auto}
+.nvdh{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 4px 0 12px;border-bottom:1px solid var(--line)}
+.nvdh b{font-size:17px}
+.nvx{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:10px;background:none;color:var(--ink);cursor:pointer}
+.nvscrim[hidden],.nvdrawer[hidden]{display:none!important}
+/* wide: sidebar */
+@media (min-width:1000px){
+ .nvbar,.nvdrawer,.nvscrim{display:none!important}
+ .nvside{display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;width:var(--nvw);z-index:20;overflow:auto;padding:calc(var(--safe-t,0px) + 22px) 12px 18px;background:var(--bg);border-right:1px solid var(--line)}
+ body.hasnav{padding-left:var(--nvw)}
+ body.hasnav main{padding-bottom:calc(var(--safe-b,0px) + 110px)!important}
+ .nvbrand{display:flex;flex-direction:column;gap:2px;padding:0 12px 4px}
+ .nvbrand b{font-size:17px;font-weight:700;color:var(--ink)}
+ .nvbrand span{font-size:12.5px;color:var(--nvsub)}
+ .nvfoot{margin-top:auto!important;padding-top:12px!important;border-top:1px solid var(--line)}
+}
+@media (prefers-reduced-motion:reduce){.nvit,.nvtab{transition:none}}
+@media (max-width:999.98px){body.hasnav #fab.add,body.hasnav .fab{bottom:calc(var(--safe-b,0px) + 82px)!important}}
+.sheet:not(.on){box-shadow:none!important}
+@media (min-width:1000px){body.hasnav .sheet{left:var(--nvw)!important}}
+</style>
 </head>
 <body>
 <header>
-  <div class="navseg"><a href="./">KPI</a><a href="./#meet">นัดประชุม</a><a href="./#jd">JD</a><a href="./#req">ใบคำขอ</a><a href="./#cmail">เมล</a><a class="on">Check list SO</a></div>
-  <div class="top">
+    <div class="top">
     <div style="flex:1;min-width:0">
       <h1 id="title">Check list SO</h1>
       <div class="sync"><span class="dot" id="dot"></span><span id="syncTxt">กำลังเชื่อมต่อ…</span></div>
@@ -1270,6 +1312,50 @@ $('list').onclick=e=>{
 $('addBtn').onclick=()=>view==='so'?openSOPaste():openEditor(null);
 $('menuBtn').onclick=openMenu;
 init();
+</script>
+<script>
+/* ===== Sale Center navigation: sidebar (wide) / bottom bar + drawer (narrow) ===== */
+(function(){
+const I={kpi:'<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+ mail:'<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+ req:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+ so:'<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+ meet:'<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/>',
+ jd:'<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>',
+ portal:'<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+ more:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+ x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'};
+const svg=k=>`<svg class="nvi" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${I[k]}</svg>`;
+const M=[{k:'salekpi',href:'./',t:'KPI',s:'KPI',ic:'kpi',g:1},{k:'cm',href:'./#cmail',t:'เมลความต้องการ',s:'เมล',ic:'mail',g:1},
+ {k:'req',href:'./#req',t:'ใบคำขอพัฒนาระบบ',s:'ใบคำขอ',ic:'req',g:1},{k:'so',href:'./so.html',t:'Check list SO',s:'SO',ic:'so',g:1},
+ {k:'meet',href:'./#meet',t:'นัดประชุม',s:'นัดประชุม',ic:'meet',g:2},{k:'jd',href:'./#jd',t:'หน้าที่งาน (JD)',s:'JD',ic:'jd',g:2}];
+const it=m=>`<li><a class="nvit" href="${m.href}" data-nv="${m.k}">${svg(m.ic)}<span>${m.t}</span></a></li>`;
+const back=`<li><a class="nvit" href="../">${svg('portal')}<span>กลับ IT Portal</span></a></li>`;
+const html=`<nav class="nvside" aria-label="เมนูหลัก"><div class="nvbrand"><b>Sale Center</b><span>Union Belt · UNB</span></div>
+<div class="nvgh" id="nvg1">งานหลัก</div><ul aria-labelledby="nvg1">${M.filter(m=>m.g===1).map(it).join('')}</ul>
+<div class="nvgh" id="nvg2">เอกสารแผนก</div><ul aria-labelledby="nvg2">${M.filter(m=>m.g===2).map(it).join('')}</ul>
+<ul class="nvfoot" aria-label="ลิงก์อื่น">${back}</ul></nav>
+<nav class="nvbar" aria-label="เมนูหลัก">${M.filter(m=>m.g===1).map(m=>`<a class="nvtab" href="${m.href}" data-nv="${m.k}">${svg(m.ic)}<span>${m.s}</span></a>`).join('')}<button type="button" class="nvtab" id="nvmore" aria-haspopup="dialog" aria-expanded="false" aria-controls="nvdrawer">${svg('more')}<span>เพิ่มเติม</span></button></nav>
+<div class="nvscrim" id="nvscrim" hidden></div>
+<div class="nvdrawer" id="nvdrawer" role="dialog" aria-modal="true" aria-labelledby="nvdt" hidden><div class="nvdh"><b id="nvdt">เมนูเพิ่มเติม</b><button type="button" class="nvx" id="nvclose" aria-label="ปิดเมนู">${svg('x')}</button></div>
+<div class="nvgh" id="nvg3">เอกสารแผนก</div><ul aria-labelledby="nvg3">${M.filter(m=>m.g===2).map(it).join('')}</ul>
+<div class="nvgh" id="nvg4">อื่น ๆ</div><ul aria-labelledby="nvg4">${back}</ul></div>`;
+document.body.insertAdjacentHTML('beforeend',html);document.body.classList.add('hasnav');
+const $=id=>document.getElementById(id),more=$('nvmore'),dr=$('nvdrawer'),sc=$('nvscrim');
+const cur=()=>window.SKNAV&&SKNAV.current?SKNAV.current():'so';
+function sync(){const c=cur();document.querySelectorAll('[data-nv]').forEach(a=>{if(a.dataset.nv===c)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  const inMore=M.some(m=>m.g===2&&m.k===c);more.classList.toggle('on',inMore);more.setAttribute('aria-label',inMore?'เพิ่มเติม (หน้าปัจจุบันอยู่ในเมนูนี้)':'เพิ่มเติม')}
+function open(){dr.hidden=false;sc.hidden=false;more.setAttribute('aria-expanded','true');(dr.querySelector('[aria-current]')||dr.querySelector('a,button.nvx')).focus()}
+function close(back){if(dr.hidden)return;dr.hidden=true;sc.hidden=true;more.setAttribute('aria-expanded','false');if(back!==false)more.focus()}
+more.onclick=()=>dr.hidden?open():close();$('nvclose').onclick=()=>close();sc.onclick=()=>close();
+dr.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close();return}
+  if(e.key==='Tab'){const F=[...dr.querySelectorAll('a,button')];const f=F[0],l=F[F.length-1];if(e.shiftKey&&document.activeElement===f){e.preventDefault();l.focus()}else if(!e.shiftKey&&document.activeElement===l){e.preventDefault();f.focus()}}});
+document.addEventListener('click',e=>{const a=e.target.closest('[data-nv]');if(!a)return;const k=a.dataset.nv;
+  if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button>0){return}
+  if(window.SKNAV&&SKNAV.go&&k!=='so'){e.preventDefault();close(false);SKNAV.go(k);sync();const t=document.querySelector('main');if(t){t.setAttribute('tabindex','-1');t.focus({preventScroll:true})}}else close(false)});
+window.addEventListener('resize',()=>{if(innerWidth>=1000)close(false)});
+window.skNavSync=sync;sync();
+})();
 </script>
 </body>
 </html>
