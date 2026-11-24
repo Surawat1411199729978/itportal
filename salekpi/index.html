@@ -1286,16 +1286,13 @@ const M=[{k:'salekpi',href:'./',t:'KPI',s:'KPI',ic:'kpi',g:1},{k:'cm',href:'./#c
  {k:'req',href:'./#req',t:'ใบคำขอพัฒนาระบบ',s:'ใบคำขอ',ic:'req',g:1},{k:'so',href:'./so.html',t:'Check list SO',s:'SO',ic:'so',g:1},
  {k:'meet',href:'./#meet',t:'นัดประชุม',s:'นัดประชุม',ic:'meet',g:2},{k:'jd',href:'./#jd',t:'หน้าที่งาน (JD)',s:'JD',ic:'jd',g:2}];
 const it=m=>`<li><a class="nvit" href="${m.href}" data-nv="${m.k}">${svg(m.ic)}<span>${m.t}</span></a></li>`;
-const back=`<li><a class="nvit" href="../">${svg('portal')}<span>กลับ IT Portal</span></a></li>`;
 const html=`<nav class="nvside" aria-label="เมนูหลัก"><div class="nvbrand"><b>Sale Center</b><span>Union Belt · UNB</span></div>
 <div class="nvgh" id="nvg1">งานหลัก</div><ul aria-labelledby="nvg1">${M.filter(m=>m.g===1).map(it).join('')}</ul>
-<div class="nvgh" id="nvg2">เอกสารแผนก</div><ul aria-labelledby="nvg2">${M.filter(m=>m.g===2).map(it).join('')}</ul>
-<ul class="nvfoot" aria-label="ลิงก์อื่น">${back}</ul></nav>
+<div class="nvgh" id="nvg2">เอกสารแผนก</div><ul aria-labelledby="nvg2">${M.filter(m=>m.g===2).map(it).join('')}</ul></nav>
 <nav class="nvbar" aria-label="เมนูหลัก">${M.filter(m=>m.g===1).map(m=>`<a class="nvtab" href="${m.href}" data-nv="${m.k}">${svg(m.ic)}<span>${m.s}</span></a>`).join('')}<button type="button" class="nvtab" id="nvmore" aria-haspopup="dialog" aria-expanded="false" aria-controls="nvdrawer">${svg('more')}<span>เพิ่มเติม</span></button></nav>
 <div class="nvscrim" id="nvscrim" hidden></div>
 <div class="nvdrawer" id="nvdrawer" role="dialog" aria-modal="true" aria-labelledby="nvdt" hidden><div class="nvdh"><b id="nvdt">เมนูเพิ่มเติม</b><button type="button" class="nvx" id="nvclose" aria-label="ปิดเมนู">${svg('x')}</button></div>
-<div class="nvgh" id="nvg3">เอกสารแผนก</div><ul aria-labelledby="nvg3">${M.filter(m=>m.g===2).map(it).join('')}</ul>
-<div class="nvgh" id="nvg4">อื่น ๆ</div><ul aria-labelledby="nvg4">${back}</ul></div>`;
+<div class="nvgh" id="nvg3">เอกสารแผนก</div><ul aria-labelledby="nvg3">${M.filter(m=>m.g===2).map(it).join('')}</ul></div>`;
 document.body.insertAdjacentHTML('beforeend',html);document.body.classList.add('hasnav');
 const $=id=>document.getElementById(id),more=$('nvmore'),dr=$('nvdrawer'),sc=$('nvscrim');
 const cur=()=>window.SKNAV&&SKNAV.current?SKNAV.current():'so';
