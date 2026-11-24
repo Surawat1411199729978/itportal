@@ -582,7 +582,7 @@ async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิ�
     <div class="formg">${files.length?live().map(f=>{const i=files.indexOf(f),on=!st.off.includes(f.name);return `<div class="cmrow"><input type="checkbox" data-fk="${i}" ${on?'checked':''} aria-label="ส่งไฟล์ ${esc(f.name)}" style="width:22px;height:22px;flex:none;accent-color:var(--acc)"><button data-cf="${i}" title="เปิดดู" style="flex:1;min-width:0;text-align:left;color:${on?'var(--acc)':'var(--sub)'};${on?'':'text-decoration:line-through;'}padding:12px 0;font-size:15.5px;overflow-wrap:anywhere">📄 ${esc(f.name)} <span style="color:var(--sub);font-size:13px">· ${cmKB(f.size)}</span></button><button class="x" data-fd="${i}" style="color:var(--bad);font-size:15px;flex:none">ลบ</button></div>`}).join('')||'<div class="f" style="color:var(--sub)">ลบไฟล์ออกหมดแล้ว</div>':(st.files||[]).map((f,i)=>`<div class="f"><button data-cu="${i}" style="flex:1;text-align:left;color:var(--acc);padding:12px 0">📄 ${esc(f.name)}</button></div>`).join('')||'<div class="f" style="color:var(--sub)">ไม่มีไฟล์แนบ</div>'}</div>
     ${files.length?'<div class="vpnote">ติ๊กเฉพาะไฟล์ที่จะส่ง · กดชื่อไฟล์เพื่อเปิดดู · กด “ลบ” เพื่อเอาออกจากรายการ (ไฟล์ในเมลต้นฉบับไม่ถูกลบ)</div>':''}
     <div class="fgroup" style="display:flex;justify-content:space-between;align-items:baseline"><h3>สรุปความต้องการ</h3>${files.length||body?'<button class="x" id="cm_pull" style="font-size:14px;margin-right:16px">ดึงข้อความจากไฟล์/เมล</button>':''}</div>
-    <div class="formg"><div class="f"><label>ลูกค้า</label><input id="cm_cust" value="${esc(S.cust)}"></div><div class="f"><label>เรื่อง</label><input id="cm_title" value="${esc(S.title)}"></div>
+    <div class="formg"><div class="f"><label>เรื่อง</label><input id="cm_title" value="${esc(S.title)}"></div>
     <div class="f"><label>วันที่ต้องการ</label><input id="cm_need" type="date" value="${esc(S.need||'')}"></div>
     <div class="f area"><label>รายละเอียด / สเปก</label><textarea id="cm_det" rows="6" placeholder="สรุปความต้องการ">${esc(S.detail||'')}</textarea></div></div>
     <div class="fgroup"><h3>รายการ</h3></div><div class="formg">${S.items.map((it,i)=>`<div class="f" data-it="${i}" style="gap:8px"><input data-k="d" value="${esc(it.d)}" placeholder="รายการ / สเปก" style="flex:3"><input data-k="q" value="${esc(it.q)}" placeholder="จำนวน" inputmode="decimal" style="flex:1;max-width:80px"><input data-k="u" value="${esc(it.u)}" placeholder="หน่วย" style="flex:1;max-width:70px"><button class="x" data-idel="${i}" style="color:var(--bad)">ลบ</button></div>`).join('')}<div class="f"><button class="x" id="cm_add">+ เพิ่มรายการ</button></div></div>
@@ -593,7 +593,7 @@ async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิ�
     <button class="cta" id="cm_send" style="display:block;width:100%;margin-top:18px">${sent?'ส่งอีกครั้ง':'ส่ง Mail'}${st.groupIds.length?` + แจ้ง Teams (${st.groupIds.length})`:''}</button>
     <div class="btnlist" style="margin-top:10px">${st.webLink?'<button id="cm_ol">เปิดเมลต้นฉบับใน Outlook</button>':''}${sent?'':`<button id="cm_skip">${st.status==='skip'?'ยกเลิก “ไม่ต้องส่ง”':'ทำเครื่องหมาย “ไม่ต้องส่ง”'}</button>`}</div>
     <div class="vpnote">ไฟล์แนบจะเก็บใน SharePoint (${CM_DIR}) · ไฟล์รวมไม่เกิน 3 MB แนบไปกับเมล ถ้าใหญ่กว่านั้นจะใส่เป็นลิงก์</div>`);
-    const sync=()=>{S.cust=$('cm_cust').value.trim();S.title=$('cm_title').value.trim();S.need=$('cm_need').value;S.detail=$('cm_det').value;
+    const sync=()=>{S.title=$('cm_title').value.trim();S.need=$('cm_need').value;S.detail=$('cm_det').value;
       S.items=[...document.querySelectorAll('[data-it]')].map(el=>({d:el.querySelector('[data-k="d"]').value,q:el.querySelector('[data-k="q"]').value,u:el.querySelector('[data-k="u"]').value}));
       st.to=cmAddrs($('cm_to').value);st.cc=cmAddrs($('cm_cc').value);st.groupIds=[...document.querySelectorAll('[data-gr]:checked')].map(x=>x.dataset.gr)};
     const redo=()=>{const y=$('sheet').scrollTop;draw();$('sheet').scrollTop=y};
@@ -616,7 +616,7 @@ async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิ�
     $('cm_sv').onclick=async()=>{sync();const b=$('cm_sv');b.disabled=true;b.textContent='กำลังบันทึก…';try{if(st.status==='new')st.status='saved';await cmSave(st,pick());toast('บันทึกแล้ว');render();redo()}catch(e){b.disabled=false;b.textContent='บันทึก';toast('บันทึกไม่สำเร็จ: '+e.message)}};
     $('cm_send').onclick=()=>{sync();if(!st.to.length){toast('ใส่อีเมลผู้รับ (To) ก่อน');$('cm_to').focus();return}if(!S.title){toast('ใส่เรื่องก่อน');return}preview()}};
   const preview=()=>{const P=files.length?pick():[];if(files.length)st.sendNames=P.map(f=>f.name);const tot=P.reduce((a,f)=>a+f.size,0),inl=P.length&&tot<=3e6;const G=C.groups.filter(g=>st.groupIds.includes(g.id));
-    const subj=`ความต้องการ: ${st.sum.cust} – ${st.sum.title}`;const row=(k,v)=>`<div class="f"><label>${k}</label><div class="rqv">${v}</div></div>`;
+    const subj=`ความต้องการ: ${st.sum.title}`;const row=(k,v)=>`<div class="f"><label>${k}</label><div class="rqv">${v}</div></div>`;
     openSheet(`${shh('<button class="x" id="pv_b">แก้ไข</button>','ตรวจก่อนส่ง','<button class="x b" id="pv_go">ส่ง</button>')}
     <div class="vpnote" style="margin:4px 2px 0">ตรวจเมลและข้อความ Teams ด้านล่าง ถ้าถูกต้องกด “ยืนยันส่ง” · ถ้าต้องแก้ กด “แก้ไข”</div>
     <div class="fgroup"><h3>📧 Mail ที่จะส่ง</h3></div><div class="formg">${row('จาก',esc(me))}${row('ถึง (To)',esc(st.to.join(', ')))}${st.cc.length?row('สำเนา (cc)',esc(st.cc.join(', '))):''}${row('หัวเรื่อง','<b>'+esc(subj)+'</b>')}${row('ไฟล์แนบ',P.length?P.map(f=>'📄 '+esc(f.name)+' <span style="color:var(--sub);font-size:13px">· '+cmKB(f.size)+'</span>').join('<br>')+(inl?'':'<div style="color:var(--sub);font-size:13px;margin-top:4px">ไฟล์รวมเกิน 3 MB จะใส่เป็นลิงก์ในเนื้อเมลแทนการแนบ</div>'):'ไม่มี')}</div>
@@ -653,7 +653,7 @@ async function cmSave(st,files){
 function cmHtml(st,forMail){const S=st.sum;const row=(k,v)=>v?`<tr><td style="padding:4px 12px 4px 0;color:#666;vertical-align:top;white-space:nowrap">${k}</td><td style="padding:4px 0">${v}</td></tr>`:'';
   const items=(S.items||[]).filter(x=>x.d||x.q);
   return `<div style="font-family:Tahoma,'Segoe UI',sans-serif;font-size:14px;line-height:1.5">${forMail?'<p>เรียนทุกท่าน</p><p>แจ้งความต้องการตามรายละเอียดด้านล่าง</p>':'<p><b>📩 แจ้งความต้องการ</b></p>'}
-  <table style="border-collapse:collapse">${row('ลูกค้า',esc(S.cust))}${row('เรื่อง','<b>'+esc(S.title)+'</b>')}${row('วันที่ต้องการ',S.need?esc(thDate(S.need)):'')}${row('ได้รับเมล',esc(cmDT(st.received))+' จาก '+esc(st.from))}</table>
+  <table style="border-collapse:collapse">${row('เรื่อง','<b>'+esc(S.title)+'</b>')}${row('วันที่ต้องการ',S.need?esc(thDate(S.need)):'')}${row('ได้รับเมล',esc(cmDT(st.received))+' จาก '+esc(st.from))}</table>
   ${items.length?`<table style="border-collapse:collapse;margin-top:8px"><tr><th style="border:1px solid #ccc;padding:4px 8px;background:#f3f3f3">#</th><th style="border:1px solid #ccc;padding:4px 8px;background:#f3f3f3;text-align:left">รายการ / สเปก</th><th style="border:1px solid #ccc;padding:4px 8px;background:#f3f3f3">จำนวน</th><th style="border:1px solid #ccc;padding:4px 8px;background:#f3f3f3">หน่วย</th></tr>${items.map((x,i)=>`<tr><td style="border:1px solid #ccc;padding:4px 8px;text-align:center">${i+1}</td><td style="border:1px solid #ccc;padding:4px 8px">${esc(x.d)}</td><td style="border:1px solid #ccc;padding:4px 8px;text-align:right">${esc(x.q)}</td><td style="border:1px solid #ccc;padding:4px 8px">${esc(x.u)}</td></tr>`).join('')}</table>`:''}
   ${S.detail?`<p style="margin-top:10px"><b>รายละเอียด</b><br>${esc(S.detail.slice(0,forMail?20000:1500)).replace(/\n/g,'<br>')}</p>`:''}
   ${forMail==='links'&&cmSendF(st).length?`<p><b>ไฟล์แนบ</b><br>${cmSendF(st).map(f=>`<a href="${esc(f.url)}">${esc(f.name)}</a>`).join('<br>')}</p>`:''}
@@ -661,7 +661,7 @@ function cmHtml(st,forMail){const S=st.sum;const row=(k,v)=>v?`<tr><td style="pa
 const cmB64=b=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(b)});
 async function cmSendMail(st,files){const tot=(files||[]).reduce((a,f)=>a+f.size,0);const att=[];const inl=files&&files.length&&tot<=3e6;
   if(inl)for(const f of files)att.push({'@odata.type':'#microsoft.graph.fileAttachment',name:f.name,contentType:f.type||'application/octet-stream',contentBytes:await cmB64(f.blob)});
-  const msg={subject:`ความต้องการ: ${st.sum.cust} – ${st.sum.title}`,body:{contentType:'HTML',content:cmHtml(st,inl||!cmSendF(st).length?true:'links')},
+  const msg={subject:`ความต้องการ: ${st.sum.title}`,body:{contentType:'HTML',content:cmHtml(st,inl||!cmSendF(st).length?true:'links')},
     toRecipients:st.to.map(a=>({emailAddress:{address:a}})),ccRecipients:st.cc.map(a=>({emailAddress:{address:a}})),attachments:att};
   if(DEMO)return;await cmFetch('/me/sendMail',['Mail.Send'],{method:'POST',json:{message:msg,saveToSentItems:true}})}
 const cmSendF=st=>(st.files||[]).filter(f=>!st.sendNames||st.sendNames.includes(f.name));
@@ -1279,7 +1279,7 @@ addEventListener('popstate',()=>{const v=skView();if(v===view)return;
 addEventListener('beforeunload',e=>{if(skDirty&&$('sheet').classList.contains('on')){e.preventDefault();e.returnValue=''}});
 
 /* ===== auto-update: reload once when a newer build is online ===== */
-const SK_BUILD='2026-11-24.8';
+const SK_BUILD='2026-11-24.9';
 async function skCheckUpdate(){try{if(document.querySelector('#sheet.on,.sheet.on'))return;const r=await fetch(location.pathname.replace(/[^/]*$/,'')+'index.html?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/SK_BUILD='([^']+)'/);
   if(m&&m[1]!==SK_BUILD){const k='sk-upd-'+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('v',m[1]);location.replace(u.toString())}}catch(_){}}
 skCheckUpdate();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')skCheckUpdate()});
