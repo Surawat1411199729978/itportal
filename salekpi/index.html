@@ -503,7 +503,7 @@ function renderCm(){const M=$('main');
   if(!C.senders.length){M.innerHTML=`<div class="empty" style="padding:30px 10px 10px">ยังไม่ได้กำหนดอีเมลที่จะตรวจ</div><button class="mtcta" id="cm_set"><span style="font-size:24px">⚙️</span><span><b>ตั้งค่าอีเมลที่จะตรวจ</b><small>ใส่อีเมลหรือโดเมน ผู้รับ Mail, cc และกลุ่ม Teams</small></span>${CHEV}</button>`;$('cm_set').onclick=cmSettings;return}
   if(CM_IN===null){M.innerHTML='<div class="center"><div class="spin"></div><div style="margin-top:10px">กำลังตรวจเมล…</div></div>';if(!CM_BUSY)cmLoad().then(()=>{if(view==='cm')renderCm()});return}
   const ids=new Set(CM_IN.map(m=>m.id)),RD=cmRead();
-  const rows=CM_IN.map(m=>({id:m.id,subject:m.subject,from:m.from.emailAddress,at:m.receivedDateTime,att:m.hasAttachments,pre:m.bodyPreview,r:cmRec(m.id),rd:!!m.isRead}))
+  const rows=CM_IN.map(m=>({id:m.id,subject:m.subject,from:m.from.emailAddress,at:m.receivedDateTime,att:m.hasAttachments,pre:m.bodyPreview,r:cmRec(m.id),rd:false}))
     .concat(cmRecs().filter(r=>!ids.has(r.msgId)).map(r=>({id:r.msgId,subject:r.subject,from:{name:r.fromName,address:r.from},at:r.received,att:(r.files||[]).length,r,rd:true})))
     .sort((a,b)=>String(b.at).localeCompare(String(a.at)));
   rows.forEach(x=>{x.un=!(x.rd||x.r||RD.has(x.id))});
@@ -1315,7 +1315,7 @@ addEventListener('popstate',()=>{const v=skView();if(v===view)return;
 addEventListener('beforeunload',e=>{if(skDirty&&$('sheet').classList.contains('on')){e.preventDefault();e.returnValue=''}});
 
 /* ===== auto-update: reload once when a newer build is online ===== */
-const SK_BUILD='2026-11-25.12';
+const SK_BUILD='2026-11-25.13';
 async function skCheckUpdate(){try{if(document.querySelector('#sheet.on,.sheet.on'))return;const r=await fetch(location.pathname.replace(/[^/]*$/,'')+'index.html?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/SK_BUILD='([^']+)'/);
   if(m&&m[1]!==SK_BUILD){const k='sk-upd-'+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('v',m[1]);location.replace(u.toString())}}catch(_){}}
 skCheckUpdate();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')skCheckUpdate()});
