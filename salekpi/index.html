@@ -183,7 +183,7 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 .rqd{margin-top:20px}.rqd>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:46px;padding:0 16px;background:var(--card);border-radius:12px;font-size:16px;font-weight:600}.rqd>summary::-webkit-details-marker{display:none}.rqd>summary small{flex:1;font-size:13px;font-weight:400;color:var(--sub)}.rqd>summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--sub);border-bottom:2px solid var(--sub);transform:rotate(45deg);margin:-4px 4px 0}.rqd[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
 .f .rqv{flex:1;min-width:0;padding:11px 0;font-size:16px;overflow-wrap:anywhere}.rqreq{color:var(--bad)}
 .cmtbl{overflow:auto;background:var(--card);border-radius:12px;padding:6px}.cmtbl table{border-collapse:collapse;font-size:13px}.cmtbl td{border:1px solid var(--line,rgba(127,127,127,.25));padding:4px 8px;white-space:nowrap}.cmpre{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14px;background:var(--card);border-radius:12px;padding:12px 16px;margin:8px 0 0;max-height:60vh;overflow:auto}.cmdoc{background:#fff;color:#111;border-radius:12px;padding:16px 18px;font-size:15px;line-height:1.6;overflow:auto}.cmdoc table{border-collapse:collapse}.cmdoc td,.cmdoc th{border:1px solid #ccc;padding:4px 8px}
-.cmrow{display:flex;align-items:center;gap:12px;padding:4px 14px 4px 16px;min-height:50px}.cmrow+.cmrow{border-top:1px solid var(--line)}.cmtg{flex:none;min-width:48px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:14px;font-weight:600;color:var(--sub);background:none}.cmtg.on{background:var(--acc);border-color:var(--acc);color:#fff}.cmrow input[type=checkbox]{width:22px;height:22px;flex:none;margin:0;accent-color:var(--acc)}
+.cmrow{display:flex;align-items:center;gap:12px;padding:4px 14px 4px 16px;min-height:50px}.cmrow+.cmrow{border-top:1px solid var(--line)}.cmmail{background:#fff;color:#111;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:10px;overflow:auto;font-size:14px}.cmmail a{color:#0b57d0}.cmtg{flex:none;min-width:48px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:14px;font-weight:600;color:var(--sub);background:none}.cmtg.on{background:var(--acc);border-color:var(--acc);color:#fff}.cmrow input[type=checkbox]{width:22px;height:22px;flex:none;margin:0;accent-color:var(--acc)}
 </style>
 <style id="calm">
 /* ===== Calm theme: tokens ===== */
@@ -614,16 +614,27 @@ async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิ�
     if($('cm_ol'))$('cm_ol').onclick=()=>window.open(st.webLink,'_blank');
     if($('cm_skip'))$('cm_skip').onclick=async()=>{sync();st.status=st.status==='skip'?'saved':'skip';try{await cmSave(st,pick());toast('บันทึกแล้ว');render();closeSheet()}catch(e){toast('ไม่สำเร็จ: '+e.message)}};
     $('cm_sv').onclick=async()=>{sync();const b=$('cm_sv');b.disabled=true;b.textContent='กำลังบันทึก…';try{if(st.status==='new')st.status='saved';await cmSave(st,pick());toast('บันทึกแล้ว');render();redo()}catch(e){b.disabled=false;b.textContent='บันทึก';toast('บันทึกไม่สำเร็จ: '+e.message)}};
-    $('cm_send').onclick=async()=>{sync();if(!st.to.length){toast('ใส่อีเมลผู้รับ (To) ก่อน');$('cm_to').focus();return}if(!S.title){toast('ใส่เรื่องก่อน');return}
-      const b=$('cm_send');b.disabled=true;const step=t=>b.textContent=t;
+    $('cm_send').onclick=()=>{sync();if(!st.to.length){toast('ใส่อีเมลผู้รับ (To) ก่อน');$('cm_to').focus();return}if(!S.title){toast('ใส่เรื่องก่อน');return}preview()}};
+  const preview=()=>{const P=files.length?pick():[];if(files.length)st.sendNames=P.map(f=>f.name);const tot=P.reduce((a,f)=>a+f.size,0),inl=P.length&&tot<=3e6;const G=C.groups.filter(g=>st.groupIds.includes(g.id));
+    const subj=`ความต้องการ: ${st.sum.cust} – ${st.sum.title}`;const row=(k,v)=>`<div class="f"><label>${k}</label><div class="rqv">${v}</div></div>`;
+    openSheet(`${shh('<button class="x" id="pv_b">แก้ไข</button>','ตรวจก่อนส่ง','<button class="x b" id="pv_go">ส่ง</button>')}
+    <div class="vpnote" style="margin:4px 2px 0">ตรวจเมลและข้อความ Teams ด้านล่าง ถ้าถูกต้องกด “ยืนยันส่ง” · ถ้าต้องแก้ กด “แก้ไข”</div>
+    <div class="fgroup"><h3>📧 Mail ที่จะส่ง</h3></div><div class="formg">${row('จาก',esc(me))}${row('ถึง (To)',esc(st.to.join(', ')))}${st.cc.length?row('สำเนา (cc)',esc(st.cc.join(', '))):''}${row('หัวเรื่อง','<b>'+esc(subj)+'</b>')}${row('ไฟล์แนบ',P.length?P.map(f=>'📄 '+esc(f.name)+' <span style="color:var(--sub);font-size:13px">· '+cmKB(f.size)+'</span>').join('<br>')+(inl?'':'<div style="color:var(--sub);font-size:13px;margin-top:4px">ไฟล์รวมเกิน 3 MB จะใส่เป็นลิงก์ในเนื้อเมลแทนการแนบ</div>'):'ไม่มี')}</div>
+    <div class="cmmail">${cmHtml(st,inl||!P.length?true:'links')}</div>
+    <div class="fgroup"><h3>💬 ข้อความ Teams${G.length?` (${G.length} แชท)`:''}</h3></div>${G.length?`<div class="formg">${row('ส่งเข้า',G.map(g=>(g.t==='p'?'👤 ':'👥 ')+esc(g.name)).join('<br>'))}</div><div class="cmmail">${cmHtml(st,false)}<p>ส่ง Mail ถึง ${esc(st.to.join(', '))}${st.cc.length?' · cc '+esc(st.cc.join(', ')):''} · โดย ${esc(me)}</p>${P.length?`<p style="color:#555">📎 ${P.map(f=>esc(f.name)).join('<br>📎 ')}</p>`:''}</div>`:'<div class="vpnote">ไม่ได้เลือกแชท Teams · จะส่ง Mail อย่างเดียว</div>'}
+    <button class="cta" id="pv_go2" style="display:block;width:100%;margin-top:18px">ยืนยันส่ง Mail${G.length?` + แจ้ง Teams (${G.length})`:''}</button>
+    <div class="btnlist" style="margin-top:10px"><button id="pv_b2">กลับไปแก้ไข</button></div>`);
+    const back=()=>{draw();const b=$('cm_send');if(b)b.scrollIntoView({block:'center'})};$('pv_b').onclick=back;$('pv_b2').onclick=back;
+    $('pv_go').onclick=$('pv_go2').onclick=()=>doSend(G)};
+  const doSend=async G=>{const b=$('pv_go2'),b1=$('pv_go');b.disabled=b1.disabled=true;$('pv_b').disabled=$('pv_b2').disabled=true;const step=t=>b.textContent=t;
       try{step('กำลังเก็บไฟล์…');if(st.status==='new')st.status='saved';if(files.length)st.sendNames=pick().map(f=>f.name);await cmSave(st,pick());
         step('กำลังส่ง Mail…');await cmSendMail(st,files.length?pick():[]);
-        const G=C.groups.filter(g=>st.groupIds.includes(g.id));const bad=[];step('กำลังแจ้ง Teams…');
+        const bad=[];step('กำลังแจ้ง Teams…');
         for(const gr of G){try{await cmPost(st,gr)}catch(e){bad.push(gr.name+': '+e.message)}}
         st.status='sent';st.sentAt=nowIso();st.sentBy=me;st.groups=G.map(x=>x.name);await cmSave(st,null);
         const nb=[...st.to,...st.cc].filter(e=>!(C.book||[]).some(x=>x.e===e));if(nb.length){C.book=[...(C.book||[]),...nb.map(e=>({n:'',e}))];try{await store.save('salekpi',C)}catch(_){}}
-        toast(bad.length?`ส่ง Mail แล้ว · แจ้ง Teams ไม่สำเร็จ ${bad.length} แชท`:G.length?`ส่ง Mail และแจ้ง Teams ${G.length} แชทแล้ว`:'ส่ง Mail แล้ว');if(bad.length)alertBad(bad);render();redo()}
-      catch(e){b.disabled=false;b.textContent='ส่ง Mail'+(st.groupIds.length?' + แจ้ง Teams':'');toast((e.status===403?'ไม่มีสิทธิ์: ':'ส่งไม่สำเร็จ: ')+e.message)}}};
+        toast(bad.length?`ส่ง Mail แล้ว · แจ้ง Teams ไม่สำเร็จ ${bad.length} แชท`:G.length?`ส่ง Mail และแจ้ง Teams ${G.length} แชทแล้ว`:'ส่ง Mail แล้ว');render();draw();if(bad.length){alertBad(bad);const v=$('cm_send');if(v)v.scrollIntoView({block:'center'})}}
+      catch(e){b.disabled=b1.disabled=false;$('pv_b').disabled=$('pv_b2').disabled=false;b.textContent='ยืนยันส่ง Mail'+(G.length?` + แจ้ง Teams (${G.length})`:'');toast((e.status===403?'ไม่มีสิทธิ์: ':'ส่งไม่สำเร็จ: ')+e.message)}};
   const alertBad=L=>{const v=$('cm_send');if(v)v.insertAdjacentHTML('afterend',`<div class="vpnote" style="color:var(--bad)">${L.map(esc).join('<br>')}</div>`)};
   draw()}
 
