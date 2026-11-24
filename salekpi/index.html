@@ -183,7 +183,7 @@ main{padding:8px 16px calc(var(--safe-b) + 40px);max-width:720px;margin:0 auto}
 .rqd{margin-top:20px}.rqd>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:46px;padding:0 16px;background:var(--card);border-radius:12px;font-size:16px;font-weight:600}.rqd>summary::-webkit-details-marker{display:none}.rqd>summary small{flex:1;font-size:13px;font-weight:400;color:var(--sub)}.rqd>summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--sub);border-bottom:2px solid var(--sub);transform:rotate(45deg);margin:-4px 4px 0}.rqd[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
 .f .rqv{flex:1;min-width:0;padding:11px 0;font-size:16px;overflow-wrap:anywhere}.rqreq{color:var(--bad)}
 .cmtbl{overflow:auto;background:var(--card);border-radius:12px;padding:6px}.cmtbl table{border-collapse:collapse;font-size:13px}.cmtbl td{border:1px solid var(--line,rgba(127,127,127,.25));padding:4px 8px;white-space:nowrap}.cmpre{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14px;background:var(--card);border-radius:12px;padding:12px 16px;margin:8px 0 0;max-height:60vh;overflow:auto}.cmdoc{background:#fff;color:#111;border-radius:12px;padding:16px 18px;font-size:15px;line-height:1.6;overflow:auto}.cmdoc table{border-collapse:collapse}.cmdoc td,.cmdoc th{border:1px solid #ccc;padding:4px 8px}
-.cmrow{display:flex;align-items:center;gap:12px;padding:4px 14px 4px 16px;min-height:50px}.cmrow+.cmrow{border-top:1px solid var(--line)}.cmchips{display:flex;gap:8px;overflow-x:auto;padding:6px 2px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.cmchips::-webkit-scrollbar{display:none}.cmchip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;cursor:pointer}.cmchip span{color:var(--sub);font-weight:500;margin-left:2px}.cmchip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}.cmchip[aria-pressed=true] span{color:rgba(255,255,255,.8)}.cmchip:focus-visible{outline:2px solid var(--acc);outline-offset:2px}.formg .f.cmadd{flex-wrap:nowrap!important;align-items:center!important;gap:10px}.formg .f.cmadd input{flex:1 1 auto;width:auto!important;min-width:0}.formg .f.cmadd .x{flex:none}.cmmail{background:#fff;color:#111;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:10px;overflow:auto;font-size:14px}.cmmail a{color:#0b57d0}.cmtg{flex:none;min-width:48px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:14px;font-weight:600;color:var(--sub);background:none}.cmtg.on{background:var(--acc);border-color:var(--acc);color:#fff}.cmrow input[type=checkbox]{width:22px;height:22px;flex:none;margin:0;accent-color:var(--acc)}
+.cmrow{display:flex;align-items:center;gap:12px;padding:4px 14px 4px 16px;min-height:50px}.cmrow+.cmrow{border-top:1px solid var(--line)}.cmchips{display:flex;gap:8px;overflow-x:auto;padding:6px 2px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.cmchips::-webkit-scrollbar{display:none}.cmchip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;cursor:pointer}.cmchip span{color:var(--sub);font-weight:500;margin-left:2px}.cmchip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}.cmchip[aria-pressed=true] span{color:rgba(255,255,255,.8)}.cmtools{display:flex;gap:8px;margin:8px 0 2px}.cmbtn{flex:1;min-height:44px;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 12px;font:inherit;font-size:14.5px;font-weight:600;color:var(--ink);cursor:pointer}.cmbtn[aria-pressed=true]{background:var(--acc-soft,#e3efed);border-color:var(--acc);color:var(--acc)}.cmbtn:disabled{opacity:.45;cursor:default}.cmbtn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}.cmdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--acc);margin-right:7px;vertical-align:1px}.cmttl{font-weight:600;font-size:16px}.cmun .cmttl{font-weight:800}.cmun .d{color:var(--ink)}.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.cmchip:focus-visible{outline:2px solid var(--acc);outline-offset:2px}.formg .f.cmadd{flex-wrap:nowrap!important;align-items:center!important;gap:10px}.formg .f.cmadd input{flex:1 1 auto;width:auto!important;min-width:0}.formg .f.cmadd .x{flex:none}.cmmail{background:#fff;color:#111;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:10px;overflow:auto;font-size:14px}.cmmail a{color:#0b57d0}.cmtg{flex:none;min-width:48px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:14px;font-weight:600;color:var(--sub);background:none}.cmtg.on{background:var(--acc);border-color:var(--acc);color:#fff}.cmrow input[type=checkbox]{width:22px;height:22px;flex:none;margin:0;accent-color:var(--acc)}
 </style>
 <style id="calm">
 /* ===== Calm theme: tokens ===== */
@@ -484,33 +484,47 @@ function cmTools(){return `<h1 style="font-size:30px;margin-top:0">เมลค�
 
 /* ---- inbox ---- */
 async function cmLoad(){const C=cmCfg();if(!C.senders.length){CM_IN=[];return}CM_BUSY=true;CM_ERR='';
-  try{const since=new Date(Date.now()-(C.days||30)*864e5).toISOString();let next=`/me/messages?$filter=receivedDateTime ge ${since}&$orderby=receivedDateTime desc&$select=id,subject,from,receivedDateTime,hasAttachments,bodyPreview&$top=100`,L=[],n=0;
+  try{const since=new Date(Date.now()-(C.days||30)*864e5).toISOString();let next=`/me/messages?$filter=receivedDateTime ge ${since}&$orderby=receivedDateTime desc&$select=id,subject,from,receivedDateTime,hasAttachments,bodyPreview,isRead&$top=100`,L=[],n=0;
     while(next&&n++<5){const r=await cmMail(next);L=L.concat(r.value);next=r['@odata.nextLink']}
     CM_IN=L.filter(m=>cmHit(m.from&&m.from.emailAddress&&m.from.emailAddress.address,C.senders))}
   catch(e){CM_ERR=e.message;CM_IN=CM_IN||[]}finally{CM_BUSY=false}}
-const cmSt=r=>!r?['ใหม่','b-warn']:r.status==='sent'?['ส่งแล้ว','b-ok']:r.status==='skip'?['ไม่ต้องส่ง','b-mute']:['บันทึกแล้ว','b-mute'];
+const cmSt=r=>!r?['ยังไม่บันทึก','b-warn']:r.status==='sent'?['ส่งแล้ว','b-ok']:r.status==='skip'?['ไม่ต้องส่ง','b-mute']:['บันทึกแล้ว','b-mute'];
+/* read state (per user, kept in SharePoint so it syncs between phone and computer) */
+const cmMe=()=>String(typeof account!=='undefined'&&account&&account.username||me||'').toLowerCase();
+const cmReadRec=()=>(DATA.salekpi||[]).find(r=>r.type==='cmread'&&r.user===cmMe());
+let CM_RD=null,CM_UO=false;const cmRead=()=>CM_RD||(CM_RD=new Set((cmReadRec()||{}).ids||[]));
+async function cmMarkRead(ids){const S=cmRead();let ch=0;for(const i of ids)if(i&&!S.has(i)){S.add(i);ch++}if(!ch)return;
+  const live=new Set((CM_IN||[]).map(m=>m.id));let arr=[...S];if(arr.length>800)arr=arr.filter(i=>live.has(i)).concat(arr.filter(i=>!live.has(i)).slice(-200));
+  const cur=cmReadRec();try{await store.save('salekpi',cur?{...cur,ids:arr}:{type:'cmread',user:cmMe(),ids:arr})}catch(_){}}
 function renderCm(){const M=$('main');
   if(!lists[MODS.salekpi.list]){M.innerHTML='<div class="empty">ยังไม่มี list "Sale KPI" ใน SharePoint</div>';return}
   if(!DATA.salekpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   const C=cmCfg();
   if(!C.senders.length){M.innerHTML=`<div class="empty" style="padding:30px 10px 10px">ยังไม่ได้กำหนดอีเมลที่จะตรวจ</div><button class="mtcta" id="cm_set"><span style="font-size:24px">⚙️</span><span><b>ตั้งค่าอีเมลที่จะตรวจ</b><small>ใส่อีเมลหรือโดเมน ผู้รับ Mail, cc และกลุ่ม Teams</small></span>${CHEV}</button>`;$('cm_set').onclick=cmSettings;return}
   if(CM_IN===null){M.innerHTML='<div class="center"><div class="spin"></div><div style="margin-top:10px">กำลังตรวจเมล…</div></div>';if(!CM_BUSY)cmLoad().then(()=>{if(view==='cm')renderCm()});return}
-  const ids=new Set(CM_IN.map(m=>m.id));
-  const rows=CM_IN.map(m=>({id:m.id,subject:m.subject,from:m.from.emailAddress,at:m.receivedDateTime,att:m.hasAttachments,pre:m.bodyPreview,r:cmRec(m.id)}))
-    .concat(cmRecs().filter(r=>!ids.has(r.msgId)).map(r=>({id:r.msgId,subject:r.subject,from:{name:r.fromName,address:r.from},at:r.received,att:(r.files||[]).length,r})))
+  const ids=new Set(CM_IN.map(m=>m.id)),RD=cmRead();
+  const rows=CM_IN.map(m=>({id:m.id,subject:m.subject,from:m.from.emailAddress,at:m.receivedDateTime,att:m.hasAttachments,pre:m.bodyPreview,r:cmRec(m.id),rd:!!m.isRead}))
+    .concat(cmRecs().filter(r=>!ids.has(r.msgId)).map(r=>({id:r.msgId,subject:r.subject,from:{name:r.fromName,address:r.from},at:r.received,att:(r.files||[]).length,r,rd:true})))
     .sort((a,b)=>String(b.at).localeCompare(String(a.at)));
-  const nNew=rows.filter(x=>!x.r).length;
-  const SN=C.sname||{},who=x=>C.senders.find(p=>cmHit(x.from.address,[p]))||'',cnt={};rows.forEach(x=>{const w=who(x);cnt[w]=(cnt[w]||0)+1});
-  if(CM_PF&&!C.senders.includes(CM_PF))CM_PF='';const R=CM_PF?rows.filter(x=>who(x)===CM_PF):rows;
+  rows.forEach(x=>{x.un=!(x.rd||x.r||RD.has(x.id))});
+  const nNew=rows.filter(x=>!x.r).length,nUn=rows.filter(x=>x.un).length;
+  const SN=C.sname||{},who=x=>C.senders.find(p=>cmHit(x.from.address,[p]))||'';
+  if(CM_PF&&!C.senders.includes(CM_PF))CM_PF='';
+  const base=CM_UO?rows.filter(x=>x.un):rows,cnt={};base.forEach(x=>{const w=who(x);cnt[w]=(cnt[w]||0)+1});
+  const R=CM_PF?base.filter(x=>who(x)===CM_PF):base,unView=R.filter(x=>x.un);
   const lab=p=>SN[p]||(p.startsWith('@')?p:((rows.find(x=>who(x)===p&&x.from.name&&x.from.name.toLowerCase()!==p)||{}).from||{}).name||p.split('@')[0]);
-  const chips=C.senders.length>1?`<div class="cmchips" role="group" aria-label="ดูเมลตามผู้ส่ง"><button class="cmchip" data-pf="" aria-pressed="${!CM_PF}">ทั้งหมด <span>${rows.length}</span></button>${C.senders.map(p=>`<button class="cmchip" data-pf="${esc(p)}" aria-pressed="${CM_PF===p}">${esc(lab(p))} <span>${cnt[p]||0}</span></button>`).join('')}</div>`:'';
+  const chips=C.senders.length>1?`<div class="cmchips" role="group" aria-label="ดูเมลตามผู้ส่ง"><button class="cmchip" data-pf="" aria-pressed="${!CM_PF}">ทั้งหมด <span>${base.length}</span></button>${C.senders.map(p=>`<button class="cmchip" data-pf="${esc(p)}" aria-pressed="${CM_PF===p}">${esc(lab(p))} <span>${cnt[p]||0}</span></button>`).join('')}</div>`:'';
   M.innerHTML=`<button class="mtcta" id="cm_ref" style="margin:14px 0 8px!important"><span style="font-size:24px">📥</span><span><b>ตรวจเมลใหม่</b></span></button>
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 2px 4px;font-size:13.5px;color:var(--sub)"><span>${nNew?'<b style="color:var(--ink)">'+nNew+' เมลใหม่</b> ยังไม่ได้บันทึก':'ไม่มีเมลใหม่'} · ย้อนหลัง ${C.days||30} วัน · ${C.senders.length} ผู้ส่ง</span><button id="cm_set" style="color:var(--acc);font-size:14px;font-weight:600;white-space:nowrap">⚙️ ตั้งค่า</button></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 2px 2px;font-size:14px;color:var(--sub)"><span><b style="color:var(--ink)">ยังไม่อ่าน ${nUn}</b> · ยังไม่บันทึก ${nNew} รายการ</span><button id="cm_set" style="color:var(--acc);font-size:14px;font-weight:600;white-space:nowrap">⚙️ ตั้งค่า</button></div>
+  <div class="cmtools"><button class="cmbtn" id="cm_all" ${unView.length?'':'disabled'}>อ่านทั้งหมด${unView.length?` (${unView.length})`:''}</button><button class="cmbtn" id="cm_uo" aria-pressed="${CM_UO}">เฉพาะยังไม่อ่าน</button></div>
   ${chips}${CM_ERR?`<div class="vpnote" style="color:var(--bad)">ตรวจเมลไม่สำเร็จ: ${esc(CM_ERR)}</div>`:''}
-  ${R.length?R.map(x=>{const [t,c]=cmSt(x.r);return `<div class="kpca" data-cm="${esc(x.id)}"><div class="d" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>${esc(SN[String(x.from.address||'').toLowerCase()]||x.from.name||x.from.address||'')} · ${esc(cmDT(x.at))}</span><span class="badge ${c}">${t}</span></div><p style="font-weight:700;font-size:16px">${esc(x.r&&x.r.sum&&x.r.sum.title||x.subject||'(ไม่มีหัวเรื่อง)')}</p><p style="color:var(--sub);font-size:13px">${x.att?'📎 มีไฟล์แนบ · ':''}${esc(x.r&&x.r.sum&&x.r.sum.cust||x.from.address||'')}${x.r&&x.r.sentAt?' · ส่งถึง '+esc((x.r.to||[]).join(', ')):''}</p></div>`}).join(''):`<div class="empty">${CM_PF?'ไม่มีเมลจากผู้ส่งนี้ในช่วงนี้':'ไม่พบเมลจากผู้ส่งที่กำหนดในช่วงนี้'}</div>`}`;
+  ${R.length?R.map(x=>{const [t,c]=cmSt(x.r);return `<div class="kpca${x.un?' cmun':''}" data-cm="${esc(x.id)}"><div class="d" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>${x.un?'<span class="cmdot"></span><span class="vh">ยังไม่อ่าน · </span>':''}${esc(SN[String(x.from.address||'').toLowerCase()]||x.from.name||x.from.address||'')} · ${esc(cmDT(x.at))}</span><span class="badge ${c}">${t}</span></div><p class="cmttl">${esc(x.r&&x.r.sum&&x.r.sum.title||x.subject||'(ไม่มีหัวเรื่อง)')}</p><p style="color:var(--sub);font-size:13px">${x.att?'📎 มีไฟล์แนบ · ':''}${esc(x.from.address||'')}${x.r&&x.r.sentAt?' · ส่งถึง '+esc((x.r.to||[]).join(', ')):''}</p></div>`}).join(''):`<div class="empty">${CM_UO?'ไม่มีเมลที่ยังไม่อ่าน':CM_PF?'ไม่มีเมลจากผู้ส่งนี้ในช่วงนี้':'ไม่พบเมลจากผู้ส่งที่กำหนดในช่วงนี้'}</div>`}`;
   $('cm_ref').onclick=()=>{CM_IN=null;renderCm()};$('cm_set').onclick=cmSettings;
+  $('cm_uo').onclick=()=>{CM_UO=!CM_UO;renderCm()};
+  $('cm_all').onclick=async()=>{const n=unView.length;if(!n)return;await cmMarkRead(unView.map(x=>x.id));renderCm();toast(`ทำเครื่องหมายอ่านแล้ว ${n} เมล`)};
   M.querySelectorAll('[data-pf]').forEach(b=>b.onclick=()=>{CM_PF=b.dataset.pf;renderCm()});
   M.querySelectorAll('[data-cm]').forEach(c=>c.onclick=()=>cmOpen(c.dataset.cm))}
+
 
 /* ---- settings ---- */
 function cmSettings(){const C=JSON.parse(JSON.stringify(cmCfg()));C.sname=C.sname||{};C.book=C.book||[];const sn=e=>C.sname[e]||'';
@@ -586,7 +600,7 @@ async function cmView(f,back){openSheet(`${shh('<button class="x" id="cv_b">ก�
   catch(e){box.innerHTML=`<div class="empty">เปิดไฟล์ไม่สำเร็จ: ${esc(e.message)}</div>`}}
 function cmGuessDate(t){let best='';const now=today();for(const x of String(t).matchAll(/\b(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4}|\d{2})\b/g)){let y=+x[3];if(y<100)y+=y>60?2500:2000;if(y>2400)y-=543;const d=`${y}-${String(+x[2]).padStart(2,'0')}-${String(+x[1]).padStart(2,'0')}`;if(+x[2]<=12&&+x[1]<=31&&d>=now&&(!best||d<best))best=d}return best}
 
-async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมล','')}<div class="center"><div class="spin"></div><div style="margin-top:10px">กำลังโหลดเมลและไฟล์แนบ…</div></div>`);$('cm_x').onclick=closeSheet;
+async function cmOpen(id){cmMarkRead([id]);openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมล','')}<div class="center"><div class="spin"></div><div style="margin-top:10px">กำลังโหลดเมลและไฟล์แนบ…</div></div>`);$('cm_x').onclick=closeSheet;
   const R=cmRec(id);let X=null;
   try{X=await cmFiles(id)}catch(e){if(!R){openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมล','')}<div class="empty">โหลดเมลไม่สำเร็จ: ${esc(e.message)}</div>`);$('cm_x').onclick=closeSheet;return}}
   const C=cmCfg(),m=X&&X.m,from=m?m.from.emailAddress:{name:R.fromName,address:R.from};
@@ -692,7 +706,7 @@ async function cmPost(st,gr){const F=cmSendF(st).filter(f=>f.url&&f.etag);const 
   if(DEMO)return;await cmFetch(`/chats/${encodeURIComponent(gr.id)}/messages`,['ChatMessage.Send'],{method:'POST',json:{body:{contentType:'html',content:html},attachments:att}})}
 
 /* ===== KPI แผนก Sale Center (FM-QMS-01-03 · list 'Sale KPI' · นับจำนวนครั้ง ผ่านเมื่อ ≤ เป้า) ===== */
-MODS.salekpi={kind:'salekpi',list:'Sale KPI',title:'KPI Sale Center',icon:['chart','#ff9f0a'],desc:'ตัวชี้วัด · FM-QMS-01-03 · Sale Center',titleOf:r=>r.type==='cm'?('CM '+(r.sum&&r.sum.cust||r.from||'')+' '+(r.sum&&r.sum.title||r.subject||'')).trim():r.type==='cmcfg'?'cmcfg':r.type==='req'?((r.no||'REQ')+' '+(r.job||'')).trim():r.type==='jd'?'JD-'+(r.code||'')+'-'+(r.title||''):r.type==='mt'?'MT-'+(r.date||''):r.type==='m'?'M-'+r.ym:r.type==='cfg'?'cfg':'CA-'+(r.date||''),fields:[],filters:[],sorts:[['x','']],search:[]};
+MODS.salekpi={kind:'salekpi',list:'Sale KPI',title:'KPI Sale Center',icon:['chart','#ff9f0a'],desc:'ตัวชี้วัด · FM-QMS-01-03 · Sale Center',titleOf:r=>r.type==='cmread'?'cmread '+(r.user||''):r.type==='cm'?('CM '+(r.sum&&r.sum.cust||r.from||'')+' '+(r.sum&&r.sum.title||r.subject||'')).trim():r.type==='cmcfg'?'cmcfg':r.type==='req'?((r.no||'REQ')+' '+(r.job||'')).trim():r.type==='jd'?'JD-'+(r.code||'')+'-'+(r.title||''):r.type==='mt'?'MT-'+(r.date||''):r.type==='m'?'M-'+r.ym:r.type==='cfg'?'cfg':'CA-'+(r.date||''),fields:[],filters:[],sorts:[['x','']],search:[]};
 const SL_DEF=[
   {n:1,name:'ความผิดพลาดของการให้ราคาขาย',full:'1. ความผิดพลาดของการให้ราคาขายจากต้นทุนประเมิน ไม่เกิน 1 ครั้ง /เดือน',proc:'ความผิดพลาดของการให้ราคาขายจากต้นทุนประเมิน ไม่เกิน 1 ครั้ง /เดือน',target:1,sheet:'การประเมินผิด'},
   {n:2,name:'ความผิดพลาดของการตรวจสอบข้อมูล',full:'2. ความผิดพลาดของการตรวจสอบข้อมูล ไม่เกิน 3 ครั้ง/เดือน',proc:'ความผิดพลาดของการตรวจสอบข้อมูล ไม่เกิน 3 ครั้ง /เดือน',target:3,sheet:'ตรวจสอบข้อมูลผิด'}
@@ -1301,7 +1315,7 @@ addEventListener('popstate',()=>{const v=skView();if(v===view)return;
 addEventListener('beforeunload',e=>{if(skDirty&&$('sheet').classList.contains('on')){e.preventDefault();e.returnValue=''}});
 
 /* ===== auto-update: reload once when a newer build is online ===== */
-const SK_BUILD='2026-11-25.11';
+const SK_BUILD='2026-11-25.12';
 async function skCheckUpdate(){try{if(document.querySelector('#sheet.on,.sheet.on'))return;const r=await fetch(location.pathname.replace(/[^/]*$/,'')+'index.html?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/SK_BUILD='([^']+)'/);
   if(m&&m[1]!==SK_BUILD){const k='sk-upd-'+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('v',m[1]);location.replace(u.toString())}}catch(_){}}
 skCheckUpdate();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')skCheckUpdate()});
