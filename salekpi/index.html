@@ -475,8 +475,8 @@ function cmSettings(){const C=JSON.parse(JSON.stringify(cmCfg()));
     $('cs_x').onclick=closeSheet;
     document.querySelectorAll('[data-gdel]').forEach(b=>b.onclick=()=>{keep();C.groups.splice(+b.dataset.gdel,1);draw()});
     $('cs_load').onclick=async()=>{keep();const box=$('cs_gl');box.innerHTML='<div class="center"><div class="spin"></div></div>';
-      try{let L=[],next=`/me/chats?$filter=chatType eq 'group'&$select=id,topic&$top=50`,n=0;while(next&&n++<4){const r=await cmFetch(next,['Chat.ReadBasic']);L=L.concat(r.value);next=r['@odata.nextLink']}
-        L=L.filter(c=>c.topic&&!C.groups.some(g=>g.id===c.id));
+      try{let L=[],next=`/me/chats?$select=id,topic,chatType&$top=50`,n=0;while(next&&n++<6){const r=await cmFetch(next,['Chat.ReadBasic']);L=L.concat(r.value);next=r['@odata.nextLink']}
+        L=L.filter(c=>c.chatType==='group'&&c.topic&&!C.groups.some(g=>g.id===c.id));
         box.innerHTML=L.length?`<div class="formg" style="margin-top:10px">${L.map(c=>`<div class="f" style="justify-content:space-between"><span style="flex:1">${esc(c.topic)}</span><button class="x b" data-gadd="${esc(c.id)}">เพิ่ม</button></div>`).join('')}</div>`:'<div class="vpnote">ไม่มีกลุ่มอื่นให้เพิ่ม</div>';
         box.querySelectorAll('[data-gadd]').forEach(b=>b.onclick=()=>{keep();const c=L.find(x=>x.id===b.dataset.gadd);C.groups.push({id:c.id,name:c.topic});draw()})}
       catch(e){box.innerHTML=`<div class="vpnote" style="color:var(--bad)">โหลดกลุ่มไม่สำเร็จ: ${esc(e.message)}</div>`}};
