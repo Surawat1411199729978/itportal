@@ -273,46 +273,69 @@ header{background:var(--bg)!important;backdrop-filter:none!important;-webkit-bac
 </style>
 <style id="nav">
 /* ===== Sale Center navigation ===== */
-:root{--nvacc:var(--acc,var(--ink));--nvsoft:var(--acc-soft,color-mix(in srgb,var(--ink) 9%,transparent));--nvsub:var(--sub,var(--muted,#6b6b6b));--nvw:232px}
-.nvside,.nvbar,.nvdrawer,.nvscrim{font-family:inherit}
-.nvside ul,.nvdrawer ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
-.nvit{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:10px;color:var(--ink);text-decoration:none;font-size:15px;font-weight:500;line-height:1.3}
+:root{--nvacc:var(--acc,var(--ink));--nvsoft:var(--acc-soft,color-mix(in srgb,var(--ink) 9%,transparent));--nvsub:var(--sub,var(--muted,#6b6b6b));--nvx:240px;--nvc:72px;--nvw:0px;--nvdur:200ms}
+.nvside,.nvbar,.nvscrim,.nvtip{font-family:inherit}
+.nvside ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.nvit{position:relative;display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:10px;color:var(--ink);text-decoration:none;font-size:15px;font-weight:500;line-height:1.3;white-space:nowrap}
 .nvit .nvi{color:var(--nvsub);flex:none}
+.nvit .nvl{min-width:0;overflow:hidden;text-overflow:ellipsis;transition:opacity var(--nvdur) ease}
 .nvit:hover{background:color-mix(in srgb,var(--ink) 5%,transparent)}
 .nvit[aria-current=page]{background:var(--nvsoft);color:var(--nvacc);font-weight:700}
 .nvit[aria-current=page] .nvi{color:currentColor;stroke-width:2.25}
-.nvgh{font-size:12.5px;font-weight:600;color:var(--nvsub);margin:20px 12px 6px}
-.nvit:focus-visible,.nvtab:focus-visible,.nvx:focus-visible{outline:2px solid var(--nvacc);outline-offset:2px}
-/* narrow: bottom bar */
-.nvside{display:none}
+.nvgh{font-size:12.5px;font-weight:600;color:var(--nvsub);margin:20px 12px 6px;white-space:nowrap;overflow:hidden;transition:opacity var(--nvdur) ease}
+.nvit:focus-visible,.nvtab:focus-visible,.nvx:focus-visible,.nvtog:focus-visible{outline:2px solid var(--nvacc);outline-offset:2px}
+.nvhead{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:48px;padding:0 0 4px 12px}
+.nvbrand{display:flex;flex-direction:column;gap:2px;min-width:0;white-space:nowrap}
+.nvbrand b{font-size:17px;font-weight:700;color:var(--ink)}
+.nvbrand span{font-size:12.5px;color:var(--nvsub)}
+.nvmono{display:none;place-items:center;width:40px;height:40px;border-radius:10px;background:var(--nvsoft);color:var(--nvacc);font-weight:800;font-size:15px;letter-spacing:.02em}
+.nvtog,.nvx{display:grid;place-items:center;flex:none;width:44px;height:44px;border:0;border-radius:10px;background:none;color:var(--nvsub);cursor:pointer;-webkit-appearance:none;appearance:none}
+.nvtog:hover,.nvx:hover{background:color-mix(in srgb,var(--ink) 6%,transparent);color:var(--ink)}
+.nvx{display:none}
+.nvbadge{margin-left:auto;background:#d93025;color:#fff;border-radius:999px;min-width:20px;padding:0 6px;font-size:12px;font-weight:700;line-height:20px;text-align:center}
+.nvtip{position:fixed;z-index:60;pointer-events:none;background:var(--ink);color:var(--bg);font-size:13.5px;font-weight:600;line-height:1.3;padding:6px 10px;border-radius:8px;white-space:nowrap;transform:translateY(-50%)}
+.nvtip[hidden]{display:none}
+/* narrow: bottom bar + menu drawer (the same sidebar, slid in from the left) */
 .nvbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:2px;padding:4px 6px calc(var(--safe-b,0px) + 4px);background:color-mix(in srgb,var(--bg) 92%,transparent);-webkit-backdrop-filter:saturate(180%) blur(16px);backdrop-filter:saturate(180%) blur(16px);border-top:1px solid var(--line)}
-.nvtab{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:54px;padding:4px 2px;border:0;border-radius:10px;background:none;color:var(--nvsub);font:inherit;font-size:12.5px;font-weight:500;line-height:1.2;text-decoration:none;cursor:pointer;-webkit-appearance:none;appearance:none}
-.nvtab span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nvtab{position:relative;flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:54px;padding:4px 2px;border:0;border-radius:10px;background:none;color:var(--nvsub);font:inherit;font-size:12.5px;font-weight:500;line-height:1.2;text-decoration:none;cursor:pointer;-webkit-appearance:none;appearance:none}
+.nvtab span:not(.nvbadge){max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nvtab .nvi{box-sizing:content-box;padding:3px 14px;border-radius:999px}
 .nvtab[aria-current=page],.nvtab.on{color:var(--nvacc);font-weight:700}
 .nvtab[aria-current=page] .nvi,.nvtab.on .nvi{background:var(--nvsoft);stroke-width:2.25}
+.nvtab .nvbadge{position:absolute;top:4px;left:calc(50% + 6px);margin:0;min-width:18px;line-height:18px;font-size:11px;padding:0 5px}
 body.hasnav main{padding-bottom:calc(var(--safe-b,0px) + 112px)!important}
 .nvscrim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.32)}
-.nvdrawer{position:fixed;left:0;right:0;bottom:0;z-index:41;max-height:80vh;overflow:auto;background:var(--bg);border-radius:16px 16px 0 0;padding:8px 12px calc(var(--safe-b,0px) + 18px);box-shadow:0 -8px 30px rgba(0,0,0,.14);max-width:560px;margin:0 auto}
-.nvdh{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 4px 0 12px;border-bottom:1px solid var(--line)}
-.nvdh b{font-size:17px}
-.nvx{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:10px;background:none;color:var(--ink);cursor:pointer}
-.nvscrim[hidden],.nvdrawer[hidden]{display:none!important}
-/* wide: sidebar */
-@media (min-width:1000px){
- .nvbar,.nvdrawer,.nvscrim{display:none!important}
- .nvside{display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;width:var(--nvw);z-index:20;overflow:auto;padding:calc(var(--safe-t,0px) + 22px) 12px 18px;background:var(--bg);border-right:1px solid var(--line)}
+.nvscrim[hidden]{display:none!important}
+@media (max-width:759.98px){
+ .nvside{position:fixed;top:0;left:0;bottom:0;z-index:41;width:min(300px,86vw);display:flex;flex-direction:column;overflow:auto;padding:calc(var(--safe-t,0px) + 12px) 12px calc(var(--safe-b,0px) + 18px);background:var(--bg);box-shadow:8px 0 30px rgba(0,0,0,.14);transform:translateX(-105%);visibility:hidden;transition:transform 220ms cubic-bezier(.2,.8,.2,1),visibility 0s linear 220ms}
+ .nvside.open{transform:none;visibility:visible;transition:transform 220ms cubic-bezier(.2,.8,.2,1)}
+ .nvtog{display:none}.nvx{display:grid}
+ body.hasnav #fab.add,body.hasnav .fab{bottom:calc(var(--safe-b,0px) + 82px)!important}
+}
+/* wide: sidebar, expanded or collapsed; width comes only from --nvw */
+@media (min-width:760px){
+ :root{--nvw:var(--nvx)}
+ html.nvcol{--nvw:var(--nvc)}
+ .nvbar,.nvscrim{display:none!important}
+ .nvside{display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;width:var(--nvw);z-index:20;overflow-x:hidden;overflow-y:auto;padding:calc(var(--safe-t,0px) + 14px) 12px 18px;background:var(--bg);border-right:1px solid var(--line);box-sizing:border-box}
  body.hasnav{padding-left:var(--nvw)}
  body.hasnav main{padding-bottom:calc(var(--safe-b,0px) + 110px)!important}
- .nvbrand{display:flex;flex-direction:column;gap:2px;padding:0 12px 4px}
- .nvbrand b{font-size:17px;font-weight:700;color:var(--ink)}
- .nvbrand span{font-size:12.5px;color:var(--nvsub)}
- .nvfoot{margin-top:auto!important;padding-top:12px!important;border-top:1px solid var(--line)}
+ body.hasnav .sheet{left:var(--nvw)!important}
+ html.nvanim .nvside{transition:width var(--nvdur) cubic-bezier(.2,.8,.2,1)}
+ html.nvanim body.hasnav{transition:padding-left var(--nvdur) cubic-bezier(.2,.8,.2,1)}
+ html.nvanim body.hasnav .sheet{transition:left var(--nvdur) cubic-bezier(.2,.8,.2,1),transform .28s cubic-bezier(.2,.8,.2,1)}
+ /* the mail list may use the room the sidebar gives back; forms keep their reading width */
+ body.hasnav[data-nvpage=cm] main,body.hasnav[data-nvpage=cm] #hdr .hin{max-width:1280px}
+ html.nvcol .nvhead{flex-direction:column;align-items:center;padding:0 0 4px;gap:8px}
+ html.nvcol .nvbrand{display:none}
+ html.nvcol .nvmono{display:grid}
+ html.nvcol .nvit{justify-content:center;padding:0;gap:0}
+ html.nvcol .nvit .nvl{opacity:0;width:0;flex:0 0 0}
+ html.nvcol .nvgh{color:transparent;height:1px;margin:14px 8px 9px;background:var(--line)}
+ html.nvcol .nvit .nvbadge{position:absolute;top:4px;right:6px;margin:0;min-width:16px;line-height:16px;font-size:10.5px;padding:0 4px}
 }
-@media (prefers-reduced-motion:reduce){.nvit,.nvtab{transition:none}}
-@media (max-width:999.98px){body.hasnav #fab.add,body.hasnav .fab{bottom:calc(var(--safe-b,0px) + 82px)!important}}
 .sheet:not(.on){box-shadow:none!important}
-@media (min-width:1000px){body.hasnav .sheet{left:var(--nvw)!important}}
+@media (prefers-reduced-motion:reduce){.nvit,.nvtab,.nvit .nvl,.nvgh{transition:none!important}html.nvanim .nvside,html.nvanim body.hasnav,html.nvanim body.hasnav .sheet,.nvside,.nvside.open{transition:none!important}}
 </style>
 </head>
 <body>
@@ -1314,13 +1337,13 @@ $('menuBtn').onclick=openMenu;
 init();
 
 /* ===== auto-update: reload once when a newer build is online ===== */
-const SK_BUILD='2026-11-24.8';
+const SK_BUILD='2026-11-25.9';
 async function skCheckUpdate(){try{if(document.querySelector('#sheet.on,.sheet.on'))return;const r=await fetch(location.pathname.replace(/[^/]*$/,'')+'so.html?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/SK_BUILD='([^']+)'/);
   if(m&&m[1]!==SK_BUILD){const k='sk-upd-'+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('v',m[1]);location.replace(u.toString())}}catch(_){}}
 skCheckUpdate();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')skCheckUpdate()});
 </script>
 <script>
-/* ===== Sale Center navigation: sidebar (wide) / bottom bar + drawer (narrow) ===== */
+/* ===== Sale Center navigation: collapsible sidebar (wide) / bottom bar + menu drawer (narrow) ===== */
 (function(){
 const I={kpi:'<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
  mail:'<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
@@ -1330,34 +1353,62 @@ const I={kpi:'<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><pat
  jd:'<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>',
  portal:'<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
  more:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
- x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'};
+ x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+ menu:'<path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/>',
+ pclose:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m16 15-3-3 3-3"/>',
+ popen:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m14 9 3 3-3 3"/>'};
 const svg=k=>`<svg class="nvi" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${I[k]}</svg>`;
 const M=[{k:'salekpi',href:'./',t:'KPI',s:'KPI',ic:'kpi',g:1},{k:'cm',href:'./#cmail',t:'เมลความต้องการ',s:'เมล',ic:'mail',g:1},
  {k:'req',href:'./#req',t:'ใบคำขอพัฒนาระบบ',s:'ใบคำขอ',ic:'req',g:1},{k:'so',href:'./so.html',t:'Check list SO',s:'SO',ic:'so',g:1},
  {k:'meet',href:'./#meet',t:'นัดประชุม',s:'นัดประชุม',ic:'meet',g:2},{k:'jd',href:'./#jd',t:'หน้าที่งาน (JD)',s:'JD',ic:'jd',g:2}];
-const it=m=>`<li><a class="nvit" href="${m.href}" data-nv="${m.k}">${svg(m.ic)}<span>${m.t}</span></a></li>`;
-const html=`<nav class="nvside" aria-label="เมนูหลัก"><div class="nvbrand"><b>Sale Center</b><span>Union Belt · UNB</span></div>
+/* layout state: one class on <html> (nvcol) drives --nvw; the choice is remembered on desktop only */
+const H=document.documentElement,KEY='sk.nav.collapsed',WIDE=760,DESK=1200;
+const ls={get(){try{return localStorage.getItem(KEY)}catch(_){return null}},set(v){try{localStorage.setItem(KEY,v)}catch(_){}}};
+const mq=w=>window.matchMedia(`(min-width:${w}px)`).matches;let mid=null,mem=null;
+const wantCol=()=>!mq(WIDE)?false:mq(DESK)?(ls.get()??mem)==='1':(mid!==null?mid:true);
+H.classList.toggle('nvcol',wantCol());
+const it=m=>`<li><a class="nvit" href="${m.href}" data-nv="${m.k}" data-tip="${m.t}">${svg(m.ic)}<span class="nvl">${m.t}</span></a></li>`;
+const html=`<nav class="nvside" id="nvside" aria-label="เมนูหลัก"><div class="nvhead"><div class="nvbrand"><b>Sale Center</b><span>Union Belt · UNB</span></div><span class="nvmono" role="img" aria-label="Sale Center">SC</span>
+<button type="button" class="nvtog" id="nvtog" aria-controls="nvside"></button><button type="button" class="nvx" id="nvclose" aria-label="ปิดเมนู">${svg('x')}</button></div>
 <div class="nvgh" id="nvg1">งานหลัก</div><ul aria-labelledby="nvg1">${M.filter(m=>m.g===1).map(it).join('')}</ul>
 <div class="nvgh" id="nvg2">เอกสารแผนก</div><ul aria-labelledby="nvg2">${M.filter(m=>m.g===2).map(it).join('')}</ul></nav>
-<nav class="nvbar" aria-label="เมนูหลัก">${M.filter(m=>m.g===1).map(m=>`<a class="nvtab" href="${m.href}" data-nv="${m.k}">${svg(m.ic)}<span>${m.s}</span></a>`).join('')}<button type="button" class="nvtab" id="nvmore" aria-haspopup="dialog" aria-expanded="false" aria-controls="nvdrawer">${svg('more')}<span>เพิ่มเติม</span></button></nav>
-<div class="nvscrim" id="nvscrim" hidden></div>
-<div class="nvdrawer" id="nvdrawer" role="dialog" aria-modal="true" aria-labelledby="nvdt" hidden><div class="nvdh"><b id="nvdt">เมนูเพิ่มเติม</b><button type="button" class="nvx" id="nvclose" aria-label="ปิดเมนู">${svg('x')}</button></div>
-<div class="nvgh" id="nvg3">เอกสารแผนก</div><ul aria-labelledby="nvg3">${M.filter(m=>m.g===2).map(it).join('')}</ul></div>`;
+<nav class="nvbar" aria-label="เมนูด่วน">${M.filter(m=>m.g===1).map(m=>`<a class="nvtab" href="${m.href}" data-nv="${m.k}">${svg(m.ic)}<span>${m.s}</span></a>`).join('')}<button type="button" class="nvtab" id="nvmore" aria-haspopup="dialog" aria-expanded="false" aria-controls="nvside">${svg('menu')}<span>เมนู</span></button></nav>
+<div class="nvscrim" id="nvscrim" hidden></div><div class="nvtip" id="nvtip" role="tooltip" hidden></div>`;
 document.body.insertAdjacentHTML('beforeend',html);document.body.classList.add('hasnav');
-const $=id=>document.getElementById(id),more=$('nvmore'),dr=$('nvdrawer'),sc=$('nvscrim');
+const $=id=>document.getElementById(id),side=$('nvside'),tog=$('nvtog'),more=$('nvmore'),sc=$('nvscrim'),tip=$('nvtip');
+requestAnimationFrame(()=>requestAnimationFrame(()=>H.classList.add('nvanim')));
+function paintTog(){const c=H.classList.contains('nvcol');tog.innerHTML=svg(c?'popen':'pclose');tog.setAttribute('aria-label',c?'ขยายเมนู':'ย่อเมนู');tog.dataset.tip=c?'ขยายเมนู':'ย่อเมนู';tog.setAttribute('aria-expanded',String(!c))}
+function apply(){H.classList.toggle('nvcol',wantCol());paintTog();hideTip()}
+tog.onclick=()=>{const c=!H.classList.contains('nvcol');if(mq(DESK)){mem=c?'1':'0';ls.set(mem)}else mid=c;apply()};
+/* tooltip for the icon rail: hover or keyboard focus */
+function showTip(el){if(!mq(WIDE))return;if(el!==tog&&!H.classList.contains('nvcol'))return;const r=el.getBoundingClientRect();tip.textContent=el.dataset.tip||'';
+  tip.style.left=(side.getBoundingClientRect().right+8)+'px';tip.style.top=(r.top+r.height/2)+'px';tip.hidden=false}
+function hideTip(){tip.hidden=true}
+side.addEventListener('pointerover',e=>{const a=e.target.closest('.nvit,.nvtog');if(a&&e.pointerType!=='touch')showTip(a)});
+side.addEventListener('pointerout',e=>{const a=e.target.closest('.nvit,.nvtog');if(a&&!a.contains(e.relatedTarget))hideTip()});
+side.addEventListener('focusin',e=>{const a=e.target.closest('.nvit,.nvtog');if(a&&a.matches(':focus-visible'))showTip(a)});
+side.addEventListener('focusout',hideTip);side.addEventListener('scroll',hideTip,{passive:true});
+/* narrow: the same sidebar opens as a drawer */
+let inerted=[];const isOpen=()=>side.classList.contains('open');
+function open(){side.classList.add('open');sc.hidden=false;more.setAttribute('aria-expanded','true');side.setAttribute('role','dialog');side.setAttribute('aria-modal','true');
+  inerted=[...document.body.children].filter(n=>n!==side&&n!==sc&&n!==tip&&!n.inert&&!/^(SCRIPT|STYLE)$/.test(n.tagName));inerted.forEach(n=>n.inert=true);
+  setTimeout(()=>(side.querySelector('[aria-current]')||$('nvclose')).focus(),30)}
+function close(back){if(!isOpen())return;side.classList.remove('open');sc.hidden=true;more.setAttribute('aria-expanded','false');side.removeAttribute('role');side.removeAttribute('aria-modal');
+  inerted.forEach(n=>n.inert=false);inerted=[];if(back!==false)more.focus()}
+more.onclick=()=>isOpen()?close():open();$('nvclose').onclick=()=>close();sc.onclick=()=>close();
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(isOpen()){e.preventDefault();close()}else hideTip()});
+side.addEventListener('keydown',e=>{if(e.key!=='Tab'||!isOpen())return;const F=[...side.querySelectorAll('a,button')].filter(x=>x.offsetParent);const f=F[0],l=F[F.length-1];
+  if(e.shiftKey&&document.activeElement===f){e.preventDefault();l.focus()}else if(!e.shiftKey&&document.activeElement===l){e.preventDefault();f.focus()}});
 const cur=()=>window.SKNAV&&SKNAV.current?SKNAV.current():'so';
-function sync(){const c=cur();document.querySelectorAll('[data-nv]').forEach(a=>{if(a.dataset.nv===c)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-  const inMore=M.some(m=>m.g===2&&m.k===c);more.classList.toggle('on',inMore);more.setAttribute('aria-label',inMore?'เพิ่มเติม (หน้าปัจจุบันอยู่ในเมนูนี้)':'เพิ่มเติม')}
-function open(){dr.hidden=false;sc.hidden=false;more.setAttribute('aria-expanded','true');(dr.querySelector('[aria-current]')||dr.querySelector('a,button.nvx')).focus()}
-function close(back){if(dr.hidden)return;dr.hidden=true;sc.hidden=true;more.setAttribute('aria-expanded','false');if(back!==false)more.focus()}
-more.onclick=()=>dr.hidden?open():close();$('nvclose').onclick=()=>close();sc.onclick=()=>close();
-dr.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close();return}
-  if(e.key==='Tab'){const F=[...dr.querySelectorAll('a,button')];const f=F[0],l=F[F.length-1];if(e.shiftKey&&document.activeElement===f){e.preventDefault();l.focus()}else if(!e.shiftKey&&document.activeElement===l){e.preventDefault();f.focus()}}});
-document.addEventListener('click',e=>{const a=e.target.closest('[data-nv]');if(!a)return;const k=a.dataset.nv;
-  if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button>0){return}
+function sync(){const c=cur();document.body.dataset.nvpage=c;document.querySelectorAll('[data-nv]').forEach(a=>{if(a.dataset.nv===c)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  const inMore=M.some(m=>m.g===2&&m.k===c);more.classList.toggle('on',inMore);more.setAttribute('aria-label',inMore?'เมนู (หน้าปัจจุบันอยู่ในเมนูนี้)':'เมนู')}
+document.addEventListener('click',e=>{const a=e.target.closest('[data-nv]');if(!a)return;const k=a.dataset.nv;hideTip();
+  if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button>0)return;
   if(window.SKNAV&&SKNAV.go&&k!=='so'){e.preventDefault();close(false);SKNAV.go(k);sync();const t=document.querySelector('main');if(t){t.setAttribute('tabindex','-1');t.focus({preventScroll:true})}}else close(false)});
-window.addEventListener('resize',()=>{if(innerWidth>=1000)close(false)});
-window.skNavSync=sync;sync();
+let lastW=mq(WIDE),lastD=mq(DESK);window.addEventListener('resize',()=>{const w=mq(WIDE),d=mq(DESK);if(w&&isOpen())close(false);if(w!==lastW||d!==lastD){lastW=w;lastD=d;apply()}});
+window.skNavSync=sync;window.skNavBadge=(k,n)=>document.querySelectorAll(`[data-nv="${k}"]`).forEach(a=>{let b=a.querySelector('.nvbadge');if(!n){if(b)b.remove();a.removeAttribute('aria-description');return}
+  if(!b){b=document.createElement('span');b.className='nvbadge';b.setAttribute('aria-hidden','true');a.appendChild(b)}b.textContent=n>99?'99+':n;a.setAttribute('aria-description',`มีเมลใหม่ ${n} ฉบับ`)});
+paintTog();sync();
 })();
 </script>
 </body>
