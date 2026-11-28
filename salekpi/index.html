@@ -309,6 +309,18 @@ html .sheet{background:var(--sheet)!important;border-radius:16px 16px 0 0!import
 .kpna{display:block;font-size:15px;font-weight:500;color:var(--faint);letter-spacing:0;line-height:1.4}
 .kpm button b.na{color:var(--line2)!important;font-weight:400!important}
 @media(min-width:720px){.kpm{grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:4px!important}.kpm button{padding:6px 0 5px!important}}
+.cmrefresh.mtcta::before{display:none}.cmrefresh svg{flex:none}.cmrefresh:disabled{opacity:.65;cursor:wait}
+.cmfilters{display:grid;grid-template-columns:minmax(0,1fr) minmax(140px,auto);gap:8px;margin-top:12px}
+.cmfilters input,.cmfilters select{width:100%;min-width:0;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:16px}
+.cmfilters input::placeholder{color:var(--sub)}
+.cmfilters :focus-visible,.cmcard:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.cmcard{display:block;width:100%;text-align:left;overflow-wrap:anywhere}
+.cmcard .d{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.cmcard .cmttl,.cmcard .cmmeta{display:block;margin-top:4px;line-height:1.5}
+.cmcard .cmmeta,.cmcount{color:var(--sub);font-size:13px}
+.cmcount{margin:8px 2px 0}
+#cm_more{width:100%;margin-top:10px}
+@media(max-width:520px){.cmfilters{grid-template-columns:minmax(0,1fr)}}
 .kpca .badge{flex:none}.kpca p .badge{margin-left:6px;vertical-align:2px}
 #tools .sub{max-width:62ch}
 .formg .f label{line-height:1.4}
@@ -487,7 +499,8 @@ const CM_GROUPS0=[
   {id:'19:0ac584c12b5f44fdbe05b632a685be05@thread.v2',name:'ใบสั่งขาย (SO) Factory 1'},
   {id:'19:1b5a6a243e7547f8b16ebad681249a20@thread.v2',name:'Messenger and More'}];
 const CM_DIR='Customer Requests';
-let CM_IN=null,CM_ERR='',CM_BUSY=false,CM_PF='';const CM_F={};
+let CM_IN=null,CM_ERR='',CM_BUSY=false,CM_CHECKED=0,CM_SCAN=0;
+let CM_PF='',CM_QUERY='',CM_STATUS='',CM_LIMIT=50;const CM_F={};
 const cmCfg=()=>(DATA.salekpi||[]).find(r=>r.type==='cmcfg')||{type:'cmcfg',senders:[],to:[],cc:[],groups:CM_GROUPS0.slice(),days:30};
 const cmRecs=()=>(DATA.salekpi||[]).filter(r=>r.type==='cm');
 const cmRec=id=>cmRecs().find(r=>r.msgId===id);
@@ -506,67 +519,219 @@ const cmMail=(p,o)=>cmFetch(p,['Mail.Read'],o);
 function cmTools(){const n=cmNewList().length;return `<h1 style="font-size:30px;margin-top:0;display:flex;align-items:center;gap:12px">เมลความต้องการ<button type="button" class="cmbell" id="cm_bell" ${n?'':'hidden'} aria-label="มีเมลใหม่ ${n} ฉบับ"><span aria-hidden="true">🔔</span><b>${n}</b></button></h1><div class="sub">ตรวจเมลจากผู้ส่งที่กำหนด อ่านไฟล์แนบ แล้วส่งต่อทาง Mail และแจ้งกลุ่ม Teams</div>`}
 
 /* ---- inbox ---- */
-async function cmLoad(){const C=cmCfg();if(!C.senders.length){CM_IN=[];return}CM_BUSY=true;CM_ERR='';
-  try{const since=new Date(Date.now()-(C.days||30)*864e5).toISOString();let next=`/me/messages?$filter=receivedDateTime ge ${since}&$orderby=receivedDateTime desc&$select=id,subject,from,receivedDateTime,hasAttachments,bodyPreview,isRead&$top=100`,L=[],n=0;
-    while(next&&n++<5){const r=await cmMail(next);L=L.concat(r.value);next=r['@odata.nextLink']}
-    CM_IN=L.filter(m=>cmHit(m.from&&m.from.emailAddress&&m.from.emailAddress.address,C.senders))}
-  catch(e){CM_ERR=e.message;CM_IN=CM_IN||[]}finally{CM_BUSY=false}}
-const cmSt=r=>!r?['ยังไม่บันทึก','b-warn']:r.status==='sent'?['ส่งแล้ว','b-ok']:r.status==='skip'?['ไม่ต้องส่ง','b-mute']:['บันทึกแล้ว','b-mute'];
+const cmFrom=m=>m.from?.emailAddress||{};
+async function cmRefresh(recent=false){
+  const C=cmCfg();
+  if(CM_BUSY||!C.senders.length)return;
+  CM_BUSY=true;
+  const scan=CM_SCAN,started=Date.now(),cutoff=started-(C.days||30)*864e5;
+  // Brief overlap across polls allows for messages that appear after the previous scan.
+  const since=recent&&CM_CHECKED?Math.max(cutoff,CM_CHECKED-5*60*1000):cutoff;
+  let redraw=!recent||CM_IN===null;
+  const button=$('cm_ref');
+  if(button){button.disabled=true;button.querySelector('b').textContent='กำลังตรวจเมล…'}
+  try{
+    const matches=new Map();
+    for(const m of CM_IN||[]){
+      const at=Date.parse(m.receivedDateTime);
+      if(at>=cutoff&&at<since)matches.set(m.id,m);
+    }
+    let next=`/me/messages?$filter=receivedDateTime ge ${new Date(since).toISOString()}&$orderby=receivedDateTime desc&$select=id,subject,from,receivedDateTime,hasAttachments,bodyPreview&$top=100`;
+    while(next){
+      const page=await cmMail(next);
+      if(scan!==CM_SCAN)return;
+      for(const m of page.value){
+        if(cmHit(cmFrom(m).address,C.senders))matches.set(m.id,m);
+      }
+      next=page['@odata.nextLink'];
+    }
+    redraw||=!!CM_ERR||matches.size!==CM_IN?.length||CM_IN.some(m=>{
+      const current=matches.get(m.id);
+      return current!==m&&JSON.stringify(current)!==JSON.stringify(m);
+    });
+    CM_IN=[...matches.values()];
+    CM_CHECKED=started;
+    CM_ERR='';
+  }catch(e){
+    if(scan===CM_SCAN){
+      redraw||=CM_ERR!==e.message;
+      CM_ERR=e.message;
+      CM_IN=CM_IN||[];
+    }
+  }finally{
+    CM_BUSY=false;
+    if(view==='cm'&&(redraw||scan!==CM_SCAN))renderCm();
+    else{
+      const refresh=$('cm_ref');
+      if(refresh){refresh.disabled=false;refresh.querySelector('b').textContent='ตรวจเมลใหม่'}
+      cmBadge();
+    }
+  }
+}
+const CM_STATES={
+  pending:['ยังไม่บันทึก','b-warn'],
+  saved:['บันทึกแล้ว','b-mute'],
+  sent:['ส่งแล้ว','b-ok'],
+  skip:['ไม่ต้องส่ง','b-mute']
+};
+const cmState=r=>!r?'pending':r.status==='sent'||r.status==='skip'?r.status:'saved';
 /* read state (per user, kept in SharePoint so it syncs between phone and computer) */
 const cmMe=()=>String(typeof account!=='undefined'&&account&&account.username||me||'').toLowerCase();
 const cmReadRec=()=>(DATA.salekpi||[]).find(r=>r.type==='cmread'&&r.user===cmMe());
-let CM_RD=null,CM_UO=false;const cmRead=()=>CM_RD||(CM_RD=new Set((cmReadRec()||{}).ids||[]));
-async function cmMarkRead(ids){const S=cmRead();let ch=0;for(const i of ids)if(i&&!S.has(i)){S.add(i);ch++}if(!ch)return;
-  const live=new Set((CM_IN||[]).map(m=>m.id));let arr=[...S];if(arr.length>800)arr=arr.filter(i=>live.has(i)).concat(arr.filter(i=>!live.has(i)).slice(-200));
-  const cur=cmReadRec();try{await store.save('salekpi',cur?{...cur,ids:arr}:{type:'cmread',user:cmMe(),ids:arr})}catch(_){}}
+let CM_UO=false,CM_READ_WRITE=Promise.resolve();
+const cmRead=()=>new Set(cmReadRec()?.ids||[]);
+function cmWriteRead(change){
+  const write=CM_READ_WRITE.then(async()=>{
+    const cur=cmReadRec();
+    const fields=change(cur||{type:'cmread',user:cmMe(),ids:[]});
+    if(fields)await store.save('salekpi',{...cur,type:'cmread',user:cmMe(),...fields});
+  });
+  CM_READ_WRITE=write.catch(()=>{});
+  return write;
+}
+function cmMarkRead(ids){
+  return cmWriteRead(cur=>{
+    const previous=new Set(cur.ids||[]);
+    const all=new Set([...previous,...ids.filter(Boolean)]);
+    if(all.size===previous.size)return null;
+    const live=new Set((CM_IN||[]).map(m=>m.id));
+    const arr=[...all];
+    return {ids:arr.length>800?arr.filter(i=>live.has(i)).concat(arr.filter(i=>!live.has(i)).slice(-200)):arr};
+  });
+}
 /* new-mail alert: mail received after the last time this user looked (cmread.seen) */
 let CM_SEEN='',CM_NV=null;
-const cmSeen=()=>CM_SEEN||((cmReadRec()||{}).seen)||'';
-async function cmSetSeen(at){if(!at||at<=cmSeen())return;CM_SEEN=at;const cur=cmReadRec();
-  try{await store.save('salekpi',cur?{...cur,seen:at}:{type:'cmread',user:cmMe(),ids:[...cmRead()],seen:at})}catch(_){}}
+const cmSeen=()=>CM_SEEN||cmReadRec()?.seen||'';
+async function cmSetSeen(at){
+  if(!at||at<=cmSeen())return;
+  CM_SEEN=at;
+  try{await cmWriteRead(cur=>({seen:at,ids:cur.ids||[]}))}
+  catch(_){if(CM_SEEN===at)CM_SEEN=''}
+}
 function cmNewList(){if(!CM_IN||!CM_IN.length||!DATA.salekpi)return [];const sn=cmSeen();
   if(!sn){cmSetSeen(CM_IN.reduce((a,m)=>m.receivedDateTime>a?m.receivedDateTime:a,''));return []}
-  const RD=cmRead();return CM_IN.filter(m=>m.receivedDateTime>sn&&!cmRec(m.id)&&!RD.has(m.id))}
+  const RD=cmRead(),recorded=new Set(cmRecs().map(r=>r.msgId));
+  return CM_IN.filter(m=>m.receivedDateTime>sn&&!recorded.has(m.id)&&!RD.has(m.id))}
 function cmBadge(){const n=cmNewList().length,b=$('cm_bell');if(b){b.hidden=!n;b.querySelector('b').textContent=n;b.setAttribute('aria-label',`มีเมลใหม่ ${n} ฉบับ`)}if(window.skNavBadge)skNavBadge('cm',n)}
-function cmShowNew(){const L=cmNewList();if(!L.length)return;CM_NV=new Set(L.map(m=>m.id));CM_PF='';CM_UO=false;
+function cmShowNew(){const L=cmNewList();if(!L.length)return;CM_NV=new Set(L.map(m=>m.id));CM_PF='';CM_UO=false;CM_QUERY='';CM_STATUS='';CM_LIMIT=50;
   cmSetSeen(L.reduce((a,m)=>m.receivedDateTime>a?m.receivedDateTime:a,''));if(view!=='cm'&&window.SKNAV)SKNAV.go('cm');else{renderCm();cmBadge()}window.scrollTo(0,0)}
-async function cmPoll(){try{if(document.visibilityState!=='visible'||!account||CM_BUSY||!DATA.salekpi||!cmCfg().senders.length)return;
-  if($('sheet')&&$('sheet').classList.contains('on'))return;if(!DEMO){try{await msal.acquireTokenSilent({scopes:['Mail.Read'],account})}catch(_){return}}const before=cmNewList().length;await cmLoad();
-  if(view==='cm'&&!$('sheet').classList.contains('on')&&cmNewList().length!==before)renderCm();else cmBadge()}catch(_){}}
+async function cmPoll(){
+  if(document.visibilityState!=='visible'||!account||CM_BUSY||!DATA.salekpi||!cmCfg().senders.length)return;
+  if($('sheet').classList.contains('on'))return;
+  try{await msal.acquireTokenSilent({scopes:['Mail.Read'],account})}catch(_){return}
+  if(!$('sheet').classList.contains('on'))await cmRefresh(true);
+}
 setInterval(cmPoll,5*60*1000);setTimeout(cmPoll,5000);setTimeout(cmPoll,20000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')cmPoll()});
-function renderCm(){const M=$('main');
+const cmSearchText=s=>String(s||'').normalize('NFC').toLowerCase();
+function renderCm(){
+  const M=$('main');
   if(!lists[MODS.salekpi.list]){M.innerHTML='<div class="empty">ยังไม่มี list "Sale KPI" ใน SharePoint</div>';return}
   if(!DATA.salekpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   const C=cmCfg();
   if(!C.senders.length){M.innerHTML=`<div class="empty" style="padding:30px 10px 10px">ยังไม่ได้กำหนดอีเมลที่จะตรวจ</div><button class="mtcta" id="cm_set"><span style="font-size:24px">⚙️</span><span><b>ตั้งค่าอีเมลที่จะตรวจ</b><small>ใส่อีเมลหรือโดเมน ผู้รับ Mail, cc และกลุ่ม Teams</small></span>${CHEV}</button>`;$('cm_set').onclick=cmSettings;return}
-  if(CM_IN===null){M.innerHTML='<div class="center"><div class="spin"></div><div style="margin-top:10px">กำลังตรวจเมล…</div></div>';if(!CM_BUSY)cmLoad().then(()=>{if(view==='cm')renderCm()});return}
-  const ids=new Set(CM_IN.map(m=>m.id)),RD=cmRead();
-  const rows=CM_IN.map(m=>({id:m.id,subject:m.subject,from:m.from.emailAddress,at:m.receivedDateTime,att:m.hasAttachments,pre:m.bodyPreview,r:cmRec(m.id),rd:false}))
-    .concat(cmRecs().filter(r=>!ids.has(r.msgId)).map(r=>({id:r.msgId,subject:r.subject,from:{name:r.fromName,address:r.from},at:r.received,att:(r.files||[]).length,r,rd:true})))
-    .sort((a,b)=>String(b.at).localeCompare(String(a.at)));
-  rows.forEach(x=>{x.un=!(x.rd||x.r||RD.has(x.id))});
-  const nNew=rows.filter(x=>!x.r).length,nUn=rows.filter(x=>x.un).length;
-  const SN=C.sname||{},who=x=>C.senders.find(p=>cmHit(x.from.address,[p]))||'';
+  if(CM_IN===null){
+    M.innerHTML='<div class="center" role="status"><div class="spin"></div><div style="margin-top:10px">กำลังตรวจเมล…</div></div>';
+    if(!CM_BUSY)cmRefresh();
+    return;
+  }
+  const active=document.activeElement;
+  const focused=M.contains(active)&&['cm_q','cm_status','cm_uo','cm_all'].includes(active.id)?active.id:'';
+  const selection=focused==='cm_q'?[active.selectionStart,active.selectionEnd]:null;
+  const inbox=new Set(CM_IN.map(m=>m.id)),RD=cmRead(),records=new Map();
+  for(const r of cmRecs()){if(!records.has(r.msgId))records.set(r.msgId,r)}
+  const SN=C.sname||{};
+  const sender=from=>C.senders.find(p=>!p.startsWith('@')&&cmHit(from.address,[p]))||
+    C.senders.find(p=>p.startsWith('@')&&cmHit(from.address,[p]))||'';
+  const senderLabel=(from,p)=>SN[String(from.address||'').toLowerCase()]||SN[p]||from.name||from.address||'';
+  const rows=CM_IN.map(m=>({id:m.id,subject:m.subject,from:cmFrom(m),at:m.receivedDateTime,att:m.hasAttachments,pre:m.bodyPreview,r:records.get(m.id)}))
+    .concat([...records.values()].filter(r=>!inbox.has(r.msgId)).map(r=>({id:r.msgId,subject:r.subject,from:{name:r.fromName,address:r.from},at:r.received,att:(r.files||[]).length,r})))
+    .sort((a,b)=>String(b.at||'').localeCompare(String(a.at||'')));
+  const senderNames=new Map();
+  for(const x of rows){
+    x.un=!x.r&&!RD.has(x.id);
+    x.state=cmState(x.r);
+    x.sender=sender(x.from);
+    x.senderLabel=senderLabel(x.from,x.sender);
+    x.title=x.r?.sum?.title||x.subject||'(ไม่มีหัวเรื่อง)';
+    x.search=cmSearchText([x.title,x.subject,x.senderLabel,x.from.name,x.from.address,x.pre,x.r?.sum?.cust,x.r?.sum?.detail].join(' '));
+    if(x.sender&&x.from.name&&x.from.name.toLowerCase()!==x.sender&&!senderNames.has(x.sender))senderNames.set(x.sender,x.from.name);
+  }
   if(CM_PF&&!C.senders.includes(CM_PF))CM_PF='';
-  const base=CM_UO?rows.filter(x=>x.un):rows,cnt={};base.forEach(x=>{const w=who(x);cnt[w]=(cnt[w]||0)+1});
-  const NL=cmNewList(),ncnt={};NL.forEach(m=>{const w=who({from:m.from.emailAddress});ncnt[w]=(ncnt[w]||0)+1});
-  const NW=Object.keys(ncnt).sort((a,b)=>ncnt[b]-ncnt[a]),nline=NW.map((w,i)=>`${i===0?'จาก ':i===NW.length-1?'และ ':''}${esc(w?lab0(w):'ผู้ส่งอื่น')} จำนวน ${ncnt[w]} ฉบับ`).join('<br>');
-  const R=CM_NV?rows.filter(x=>CM_NV.has(x.id)):CM_PF?base.filter(x=>who(x)===CM_PF):base,unView=R.filter(x=>x.un);
-  const lab=p=>lab0(p);function lab0(p){return SN[p]||(p.startsWith('@')?p:((rows.find(x=>who(x)===p&&x.from.name&&x.from.name.toLowerCase()!==p)||{}).from||{}).name||p.split('@')[0])}
-  const chips=C.senders.length>1?`<div class="cmchips" role="group" aria-label="ดูเมลตามผู้ส่ง"><button class="cmchip" data-pf="" aria-pressed="${!CM_PF}">ทั้งหมด <span>${base.length}</span></button>${C.senders.map(p=>`<button class="cmchip" data-pf="${esc(p)}" aria-pressed="${CM_PF===p}">${esc(lab(p))} <span>${cnt[p]||0}</span></button>`).join('')}</div>`:'';
+  const lab=p=>SN[p]||(p.startsWith('@')?p:senderNames.get(p)||p.split('@')[0]);
+  const NL=cmNewList(),ncnt=new Map();
+  for(const m of NL){const p=sender(cmFrom(m));ncnt.set(p,(ncnt.get(p)||0)+1)}
+  const nline=[...ncnt].sort((a,b)=>b[1]-a[1]).map(([p,n])=>`${esc(p?lab(p):'ผู้ส่งอื่น')} ${n} ฉบับ`).join('<br>');
   const banner=NL.length&&!CM_NV?`<div class="cmnew" role="status"><p class="cmnt">มีเมลใหม่ ${NL.length} ฉบับ</p><p class="cmns">${nline}</p><button type="button" class="cmnb" id="cm_new">ดูเมลใหม่</button></div>`:'';
-  const nvbar=CM_NV?`<div class="cmnvb"><span><b>เมลใหม่ ${R.length} ฉบับ</b></span><button type="button" class="cmbtn" id="cm_nvx" style="flex:none">ดูทั้งหมด</button></div>`:'';
-  M.innerHTML=`${banner}<button class="mtcta" id="cm_ref" style="margin:14px 0 8px!important"><span style="font-size:24px">📥</span><span><b>ตรวจเมลใหม่</b></span></button>
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 2px 2px;font-size:14px;color:var(--sub)"><span><b style="color:var(--ink)">ยังไม่อ่าน ${nUn}</b> · ยังไม่บันทึก ${nNew} รายการ</span><button id="cm_set" style="color:var(--acc);font-size:14px;font-weight:600;white-space:nowrap">⚙️ ตั้งค่า</button></div>
-  <div class="cmtools"><button class="cmbtn" id="cm_all" ${unView.length?'':'disabled'}>อ่านทั้งหมด${unView.length?` (${unView.length})`:''}</button><button class="cmbtn" id="cm_uo" aria-pressed="${CM_UO}">เฉพาะยังไม่อ่าน</button></div>
-  ${CM_NV?nvbar:chips}${CM_ERR?`<div class="vpnote" style="color:var(--bad)">ตรวจเมลไม่สำเร็จ: ${esc(CM_ERR)}</div>`:''}
-  ${R.length?R.map(x=>{const [t,c]=cmSt(x.r);return `<div class="kpca${x.un?' cmun':''}" data-cm="${esc(x.id)}"><div class="d" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>${x.un?'<span class="cmdot"></span><span class="vh">ยังไม่อ่าน · </span>':''}${esc(SN[String(x.from.address||'').toLowerCase()]||x.from.name||x.from.address||'')} · ${esc(cmDT(x.at))}</span><span class="badge ${c}">${t}</span></div><p class="cmttl">${esc(x.r&&x.r.sum&&x.r.sum.title||x.subject||'(ไม่มีหัวเรื่อง)')}</p><p style="color:var(--sub);font-size:13px">${x.att?'📎 มีไฟล์แนบ · ':''}${esc(x.from.address||'')}${x.r&&x.r.sentAt?' · ส่งถึง '+esc((x.r.to||[]).join(', ')):''}</p></div>`}).join(''):`<div class="empty">${CM_UO?'ไม่มีเมลที่ยังไม่อ่าน':CM_PF?'ไม่มีเมลจากผู้ส่งนี้ในช่วงนี้':'ไม่พบเมลจากผู้ส่งที่กำหนดในช่วงนี้'}</div>`}`;
-  $('cm_ref').onclick=()=>{CM_IN=null;CM_NV=null;renderCm()};if($('cm_new'))$('cm_new').onclick=cmShowNew;if($('cm_nvx'))$('cm_nvx').onclick=()=>{CM_NV=null;renderCm()};
-  if($('cm_bell'))$('cm_bell').onclick=cmShowNew;cmBadge();$('cm_set').onclick=cmSettings;
-  $('cm_uo').onclick=()=>{CM_UO=!CM_UO;renderCm()};
-  $('cm_all').onclick=async()=>{const n=unView.length;if(!n)return;await cmMarkRead(unView.map(x=>x.id));renderCm();toast(`ทำเครื่องหมายอ่านแล้ว ${n} เมล`)};
-  M.querySelectorAll('[data-pf]').forEach(b=>b.onclick=()=>{CM_PF=b.dataset.pf;renderCm()});
-  M.querySelectorAll('[data-cm]').forEach(c=>c.onclick=()=>cmOpen(c.dataset.cm))}
+  M.innerHTML=`${banner}<button class="mtcta cmrefresh" id="cm_ref" ${CM_BUSY?'disabled':''} style="margin:14px 0 8px!important"><svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.4 7a7.5 7.5 0 0 1 12.5-1.1L20 9M4 15l2.1 3.1A7.5 7.5 0 0 0 18.6 17"/></svg><span><b>${CM_BUSY?'กำลังตรวจเมล…':'ตรวจเมลใหม่'}</b></span></button>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 2px 2px;font-size:14px;color:var(--sub)"><span><b style="color:var(--ink)">ยังไม่อ่าน ${rows.filter(x=>x.un).length}</b> · ยังไม่บันทึก ${rows.filter(x=>!x.r).length} รายการ</span><button id="cm_set" style="color:var(--acc);font-size:14px;font-weight:600;white-space:nowrap">⚙️ ตั้งค่า</button></div>
+    ${CM_ERR?`<div class="vpnote" role="status" style="color:var(--bad)">ตรวจเมลไม่สำเร็จ: ${esc(CM_ERR)} · กดตรวจเมลใหม่เพื่อลองอีกครั้ง</div>`:''}
+    ${CM_NV?`<div class="cmnvb"><span><b>เมลใหม่ ${rows.filter(x=>CM_NV.has(x.id)).length} ฉบับ</b></span><button type="button" class="cmbtn" id="cm_nvx" style="flex:none">ดูทั้งหมด</button></div>`:''}
+    <div class="cmfilters">
+      <input type="search" id="cm_q" aria-label="ค้นหาเมล" placeholder="ค้นหาหัวเรื่อง ผู้ส่ง หรือข้อความ" value="${esc(CM_QUERY)}" autocomplete="off">
+      <select id="cm_status" aria-label="กรองตามสถานะ"><option value="">สถานะทั้งหมด</option>${Object.entries(CM_STATES).map(([key,[label]])=>`<option value="${key}">${label}</option>`).join('')}</select>
+    </div>
+    <div class="cmtools"><button class="cmbtn" id="cm_all" disabled>อ่านทั้งหมด</button><button class="cmbtn" id="cm_uo" aria-pressed="${CM_UO}">เฉพาะยังไม่อ่าน</button></div>
+    <div id="cm_senders"></div><p class="cmcount" id="cm_count" role="status"></p><div id="cm_rows"></div>`;
+  $('cm_status').value=CM_STATUS;
+  let unread=[];
+  const paint=()=>{
+    const terms=cmSearchText(CM_QUERY).trim().split(/\s+/).filter(Boolean);
+    const base=rows.filter(x=>(!CM_NV||CM_NV.has(x.id))&&(!CM_UO||x.un)&&(!CM_STATUS||x.state===CM_STATUS)&&terms.every(t=>x.search.includes(t)));
+    const results=CM_PF?base.filter(x=>x.sender===CM_PF):base;
+    const shown=results.slice(0,CM_LIMIT);
+    unread=results.filter(x=>x.un);
+    const all=$('cm_all');
+    all.disabled=!unread.length;
+    all.textContent=unread.length?`อ่านทั้งหมด (${unread.length})`:'อ่านทั้งหมด';
+    $('cm_uo').setAttribute('aria-pressed',CM_UO);
+    const senderBox=$('cm_senders');
+    if(!CM_NV&&C.senders.length>1){
+      const counts=new Map();
+      for(const x of base)counts.set(x.sender,(counts.get(x.sender)||0)+1);
+      senderBox.innerHTML=`<div class="cmchips" role="group" aria-label="ดูเมลตามผู้ส่ง"><button class="cmchip" data-pf="" aria-pressed="${!CM_PF}">ทั้งหมด <span>${base.length}</span></button>${C.senders.map(p=>`<button class="cmchip" data-pf="${esc(p)}" aria-pressed="${CM_PF===p}">${esc(lab(p))} <span>${counts.get(p)||0}</span></button>`).join('')}</div>`;
+      senderBox.querySelectorAll('[data-pf]').forEach(b=>b.onclick=()=>{
+        CM_PF=b.dataset.pf;CM_LIMIT=50;paint();
+        [...senderBox.querySelectorAll('[data-pf]')].find(x=>x.dataset.pf===CM_PF)?.focus({preventScroll:true});
+      });
+    }
+    $('cm_count').textContent=results.length?`แสดง ${shown.length} จาก ${results.length} ฉบับ`:'';
+    const dest=$('cm_rows');
+    const empty=terms.length||CM_STATUS||CM_PF?'ไม่พบเมลที่ตรงกับตัวกรอง':CM_UO?'ไม่มีเมลที่ยังไม่อ่าน':CM_ERR?'ยังไม่มีผลการตรวจเมล':'ไม่พบเมลจากผู้ส่งที่กำหนดในช่วงนี้';
+    dest.innerHTML=shown.map(x=>{
+      const [label,badge]=CM_STATES[x.state];
+      return `<button type="button" class="kpca cmcard${x.un?' cmun':''}" data-cm="${esc(x.id)}"><span class="d"><span>${x.un?'<span class="cmdot"></span><span class="vh">ยังไม่อ่าน · </span>':''}${esc(x.senderLabel)} · ${esc(cmDT(x.at))}</span><span class="badge ${badge}">${label}</span></span><span class="cmttl">${esc(x.title)}</span><span class="cmmeta">${x.att?'📎 มีไฟล์แนบ · ':''}${esc(x.from.address||'')}${x.r?.sentAt?' · ส่งถึง '+esc((x.r.to||[]).join(', ')):''}</span></button>`;
+    }).join('')||`<div class="empty">${empty}</div>`;
+    if(shown.length<results.length){
+      dest.insertAdjacentHTML('beforeend','<button type="button" class="cmbtn" id="cm_more">แสดงเมลเพิ่มเติม</button>');
+      $('cm_more').onclick=()=>{CM_LIMIT+=50;paint();dest.querySelectorAll('[data-cm]')[shown.length]?.focus()};
+    }
+    dest.querySelectorAll('[data-cm]').forEach(c=>c.onclick=()=>cmOpen(c.dataset.cm));
+  };
+  $('cm_ref').onclick=()=>cmRefresh();
+  if($('cm_new'))$('cm_new').onclick=cmShowNew;
+  if($('cm_nvx'))$('cm_nvx').onclick=()=>{CM_NV=null;CM_LIMIT=50;renderCm()};
+  if($('cm_bell'))$('cm_bell').onclick=cmShowNew;
+  cmBadge();
+  $('cm_set').onclick=cmSettings;
+  $('cm_q').oninput=e=>{CM_QUERY=e.target.value;CM_LIMIT=50;paint()};
+  $('cm_status').onchange=e=>{CM_STATUS=e.target.value;CM_LIMIT=50;paint()};
+  $('cm_uo').onclick=()=>{CM_UO=!CM_UO;CM_LIMIT=50;paint()};
+  $('cm_all').onclick=async()=>{
+    const n=unread.length;
+    if(!n)return;
+    $('cm_all').disabled=true;
+    try{
+      await cmMarkRead(unread.map(x=>x.id));
+      toast(`ทำเครื่องหมายอ่านแล้ว ${n} เมล`);
+    }catch(e){toast('บันทึกสถานะการอ่านไม่สำเร็จ: '+e.message)}
+    if(view==='cm')renderCm();
+  };
+  paint();
+  if(focused){
+    $(focused).focus({preventScroll:true});
+    if(selection)$(focused).setSelectionRange(...selection);
+  }
+}
 
 
 /* ---- settings ---- */
@@ -609,7 +774,7 @@ function cmSettings(){const C=JSON.parse(JSON.stringify(cmCfg()));C.sname=C.snam
         if(L.length){paint('');$('cs_q').oninput=e=>paint(e.target.value)}}
       catch(e){box.innerHTML=`<div class="vpnote" style="color:var(--bad)">โหลดแชทไม่สำเร็จ: ${esc(e.message)}</div>`}};
     $('cs_s').onclick=async()=>{keep();if(!C.senders.length){toast('ใส่อีเมลอย่างน้อย 1 รายการ');return}const b=$('cs_s');b.disabled=true;
-      try{await store.save('salekpi',C);cmSaveTxt(C).catch(()=>{});CM_IN=null;closeSheet();toast('บันทึกการตั้งค่าแล้ว');render()}catch(e){b.disabled=false;toast('บันทึกไม่สำเร็จ: '+e.message)}}};
+      try{await store.save('salekpi',C);cmSaveTxt(C).catch(()=>{});CM_SCAN++;CM_IN=null;CM_CHECKED=0;CM_ERR='';CM_NV=null;CM_LIMIT=50;closeSheet();toast('บันทึกการตั้งค่าแล้ว');render()}catch(e){b.disabled=false;toast('บันทึกไม่สำเร็จ: '+e.message)}}};
   draw()}
 /* copy of the sender list as a text file, so the daily alert can read it */
 async function cmSaveTxt(C){if(DEMO)return;const d=await rpDriveId();await cmFetch(`/drives/${d}/root:/${encodeURIComponent(CM_DIR)}/_senders.txt:/content`,SCOPES,{method:'PUT',headers:{'Content-Type':'text/plain'},body:C.senders.join('\n')+'\n'})}
@@ -644,10 +809,20 @@ async function cmView(f,back){openSheet(`${shh('<button class="x" id="cv_b">ก�
   catch(e){box.innerHTML=`<div class="empty">เปิดไฟล์ไม่สำเร็จ: ${esc(e.message)}</div>`}}
 function cmGuessDate(t){let best='';const now=today();for(const x of String(t).matchAll(/\b(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4}|\d{2})\b/g)){let y=+x[3];if(y<100)y+=y>60?2500:2000;if(y>2400)y-=543;const d=`${y}-${String(+x[2]).padStart(2,'0')}-${String(+x[1]).padStart(2,'0')}`;if(+x[2]<=12&&+x[1]<=31&&d>=now&&(!best||d<best))best=d}return best}
 
-async function cmOpen(id){cmMarkRead([id]);openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมล','')}<div class="center"><div class="spin"></div><div style="margin-top:10px">กำลังโหลดเมลและไฟล์แนบ…</div></div>`);$('cm_x').onclick=closeSheet;
+async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมล','')}<div class="center"><div class="spin"></div><div style="margin-top:10px">กำลังโหลดเมลและไฟล์แนบ…</div></div>`);
+  const loading=$('cm_x');
+  loading.onclick=closeSheet;
+  const isOpen=()=>$('cm_x')===loading&&$('sheet').classList.contains('on');
   const R=cmRec(id);let X=null;
-  try{X=await cmFiles(id)}catch(e){if(!R){openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมล','')}<div class="empty">โหลดเมลไม่สำเร็จ: ${esc(e.message)}</div>`);$('cm_x').onclick=closeSheet;return}}
-  const C=cmCfg(),m=X&&X.m,from=m?m.from.emailAddress:{name:R.fromName,address:R.from};
+  try{X=await cmFiles(id)}catch(e){if(!R){
+    if(isOpen()){openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมล','')}<div class="empty">โหลดเมลไม่สำเร็จ: ${esc(e.message)}</div>`);$('cm_x').onclick=closeSheet}
+    return;
+  }}
+  if(!isOpen())return;
+  if(!R&&!cmRead().has(id)){
+    cmMarkRead([id]).then(()=>{if(view==='cm')renderCm()}).catch(e=>toast('บันทึกสถานะการอ่านไม่สำเร็จ: '+e.message));
+  }
+  const C=cmCfg(),m=X&&X.m,from=m?cmFrom(m):{name:R.fromName,address:R.from};
   const st=R?JSON.parse(JSON.stringify(R)):{type:'cm',msgId:id,subject:m.subject||'',from:from.address,fromName:from.name||'',received:m.receivedDateTime,webLink:m.webLink||'',status:'new',files:[],
     sum:{cust:from.name||from.address,title:m.subject||'',need:cmGuessDate((m.subject||'')+'\n'+(m.body&&m.body.content||'')),detail:'',items:[]}};
   if(!st.to)st.to=C.to.slice();if(!st.cc)st.cc=C.cc.slice();if(!st.groupIds)st.groupIds=C.groups.length===1?[C.groups[0].id]:[];
@@ -1362,7 +1537,7 @@ addEventListener('popstate',()=>{const v=skView();if(v===view)return;
 addEventListener('beforeunload',e=>{if(skDirty&&$('sheet').classList.contains('on')){e.preventDefault();e.returnValue=''}});
 
 /* ===== auto-update: reload once when a newer build is online ===== */
-const SK_BUILD='2026-11-25.16';
+const SK_BUILD='2026-11-28.17';
 async function skCheckUpdate(){try{if(document.querySelector('#sheet.on,.sheet.on'))return;const r=await fetch(location.pathname.replace(/[^/]*$/,'')+'index.html?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/SK_BUILD='([^']+)'/);
   if(m&&m[1]!==SK_BUILD){const k='sk-upd-'+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('v',m[1]);location.replace(u.toString())}}catch(_){}}
 skCheckUpdate();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')skCheckUpdate()});
