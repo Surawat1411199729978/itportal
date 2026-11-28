@@ -451,6 +451,46 @@ body.hasnav main{padding-bottom:calc(var(--safe-b,0px) + 112px)!important}
 }
 .sheet:not(.on){box-shadow:none!important}
 @media (prefers-reduced-motion:reduce){.nvit,.nvtab,.nvit .nvl,.nvgh{transition:none!important}html.nvanim .nvside,html.nvanim body.hasnav,html.nvanim body.hasnav .sheet,.nvside,.nvside.open{transition:none!important}}
+/* Keep the mail dialog inside the visible viewport, including above the on-screen keyboard. */
+#sheet.cm-popup{
+  --popup-padding:clamp(14px,2.2vw,24px);
+  --popup-top-gap:24px;--popup-bottom-gap:24px;
+  left:calc(var(--popup-left,0px) + var(--popup-width,100vw) / 2)!important;
+  right:auto;bottom:auto;
+  top:calc(var(--popup-top,0px) + (var(--popup-height,100vh) + var(--popup-top-gap) - var(--popup-bottom-gap)) / 2);
+  width:min(940px,calc(var(--popup-width,100vw) - 48px));
+  height:min(820px,calc(var(--popup-height,100vh) - var(--popup-top-gap) - var(--popup-bottom-gap)));
+  max-width:none;max-height:none;margin:0;
+  padding:0 var(--popup-padding) 18px;
+  transform:translate(-50%,-50%);transition:none!important;
+  border:1px solid var(--line);border-radius:16px!important;
+  box-shadow:0 20px 64px rgba(35,38,40,.25);
+  overscroll-behavior:contain;
+}
+#sheet.cm-popup:not(.on){visibility:hidden;pointer-events:none}
+html:has(#sheet.cm-popup.on){overflow:hidden}
+#sheet.cm-popup>.shh,#sheet.cm-popup>.cm-editor-head{
+  top:0;margin-inline:calc(-1 * var(--popup-padding));padding-inline:var(--popup-padding);
+}
+#sheet.cm-popup>.shh{padding-block:6px}
+#sheet.cm-popup.cm-popup-compact>.cm-editor-head{padding-bottom:4px}
+#sheet.cm-popup.cm-popup-compact .cm-editor-head .shh{margin-bottom:2px;padding-block:0}
+#sheet.cm-popup.cm-popup-compact .cm-editor-tabs{padding-block:2px}
+#sheet.cm-popup input:not([type=checkbox]),#sheet.cm-popup textarea{font-size:max(16px,1em)}
+@media (max-width:720px){
+  #sheet.cm-popup{
+    --popup-top-gap:max(8px,env(safe-area-inset-top));
+    --popup-bottom-gap:max(8px,env(safe-area-inset-bottom));
+    width:calc(var(--popup-width,100vw) - max(8px,env(safe-area-inset-left)) - max(8px,env(safe-area-inset-right)));
+    left:calc(var(--popup-left,0px) + (var(--popup-width,100vw) + max(8px,env(safe-area-inset-left)) - max(8px,env(safe-area-inset-right))) / 2)!important;
+  }
+}
+@media (min-width:721px){
+  .cm-entry-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(205px,30%)}
+  .cm-entry-grid.cm-recipient-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cm-entry-grid>.f:nth-child(2){border-left:1px solid var(--line)}
+  .cm-entry-grid:not(.cm-recipient-grid)>.f:last-child{grid-column:1/-1}
+}
 </style>
 </head>
 <body>
@@ -473,7 +513,17 @@ const kpYm=(y,i)=>y+'-'+String(i+1).padStart(2,'0');
 const thDate=s=>{if(!s)return '';const [y,m,d]=String(s).split('-').map(Number);if(!y)return esc(s);return `${d?d+' ':''}${m?TH_M[m-1]+' ':''}${y+543}`};
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2200)}
 const shh=(l,t,r)=>`<div class="shh">${l||'<span style="width:60px"></span>'}<span class="tt">${t||''}</span>${r||'<span style="width:60px"></span>'}</div>`;
-function openSheet(html){if(!$('sheet').classList.contains('on'))skDirty=false;$('sheet').innerHTML='<div class="grab"></div>'+html;$('sheet').classList.add('on');$('scrim').classList.add('on');$('sheet').scrollTop=0}
+function openSheet(html,mailPopup=false){
+  const sheet=$('sheet');
+  if(!sheet.classList.contains('on'))skDirty=false;
+  sheet.classList.toggle('cm-popup',mailPopup);
+  if(!mailPopup)sheet.classList.remove('cm-popup-compact');
+  sheet.innerHTML=(mailPopup?'':'<div class="grab"></div>')+html;
+  sheet.classList.add('on');
+  $('scrim').classList.add('on');
+  sheet.scrollTop=0;
+  if(mailPopup)cmFitPopup();
+}
 function closeSheet(){skDirty=false;$('sheet').classList.remove('on');$('scrim').classList.remove('on')}
 const nowIso=()=>new Date().toISOString();
 const loadLib=(u,gv)=>window[gv]?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=()=>no(new Error('โหลดตัวช่วยสร้างไฟล์ไม่สำเร็จ'));document.head.appendChild(s)});
@@ -911,6 +961,38 @@ function cmSettings(){const C=JSON.parse(JSON.stringify(cmCfg()));C.sname=C.snam
 async function cmSaveTxt(C){if(DEMO)return;const d=await rpDriveId();await cmFetch(`/drives/${d}/root:/${encodeURIComponent(CM_DIR)}/_senders.txt:/content`,SCOPES,{method:'PUT',headers:{'Content-Type':'text/plain'},body:C.senders.join('\n')+'\n'})}
 
 /* ---- one email ---- */
+function cmFitPopup(keepFieldVisible=false){
+  const sheet=$('sheet');
+  if(!sheet.classList.contains('cm-popup')||!sheet.classList.contains('on'))return;
+  const vp=window.visualViewport;
+  const height=vp?.height||window.innerHeight;
+  sheet.classList.toggle('cm-popup-compact',height<420);
+  sheet.style.setProperty('--popup-height',height+'px');
+  sheet.style.setProperty('--popup-width',(vp?.width||window.innerWidth)+'px');
+  sheet.style.setProperty('--popup-top',(vp?.offsetTop||0)+'px');
+  sheet.style.setProperty('--popup-left',(vp?.offsetLeft||0)+'px');
+  const field=document.activeElement;
+  if(!keepFieldVisible||!sheet.contains(field)||!field.matches('input,textarea,select'))return;
+  const bounds=sheet.getBoundingClientRect();
+  const header=sheet.firstElementChild.getBoundingClientRect();
+  const top=Math.max(bounds.top,header.bottom)+8,bottom=bounds.bottom-8;
+  const fieldRect=field.getBoundingClientRect();
+  if(fieldRect.top<top)sheet.scrollTop+=fieldRect.top-top;
+  else if(fieldRect.bottom>bottom)sheet.scrollTop+=Math.min(fieldRect.top-top,fieldRect.bottom-bottom);
+}
+let CM_POPUP_FRAME=0;
+function cmPopupResize(){
+  if(!$('sheet').matches('.cm-popup.on')||CM_POPUP_FRAME)return;
+  CM_POPUP_FRAME=requestAnimationFrame(()=>{
+    CM_POPUP_FRAME=0;
+    cmFitPopup(true);
+  });
+}
+window.addEventListener('resize',cmPopupResize);
+window.visualViewport?.addEventListener('resize',cmPopupResize);
+window.visualViewport?.addEventListener('scroll',cmPopupResize);
+const openMailPopup=html=>openSheet(html,true);
+
 async function cmFiles(id){if(CM_F[id])return CM_F[id];
   const m=await cmMail(`/me/messages/${id}?$select=id,subject,from,receivedDateTime,body,toRecipients,ccRecipients,webLink`,{headers:{Prefer:'outlook.body-content-type="text"'}});
   const A=m.hasAttachments===false?[]:(await cmMail(`/me/messages/${id}/attachments?$select=id,name,size,contentType,isInline`)).value.filter(a=>a['@odata.type']==='#microsoft.graph.fileAttachment'&&!(a.isInline&&/^image\//.test(a.contentType)&&a.size<60000));
@@ -924,7 +1006,7 @@ async function cmText(f){const k=cmKind(f),buf=await (await cmBlob(f)).arrayBuff
   if(k==='doc'){await loadLib('https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js','mammoth');return (await mammoth.extractRawText({arrayBuffer:buf})).value.trim()}
   if(k==='txt')return (await f.blob.text()).trim();return ''}
 async function cmBlob(f){if(f.blob)return f.blob;if(!f.iid||DEMO)throw new Error('ไม่พบไฟล์');const d=await rpDriveId();f.blob=await (await cmFetch(`/drives/${d}/items/${f.iid}/content`,SCOPES,{raw:true})).blob();return f.blob}
-async function cmView(f,back){openSheet(`${shh('<button class="x" id="cv_b">กลับ</button>',esc(f.name),'<button class="x" id="cv_dl" disabled>ดาวน์โหลด</button>')}<div id="cv_box" style="margin-top:8px"><div class="center"><div class="spin"></div></div></div>`);
+async function cmView(f,back){openMailPopup(`${shh('<button class="x" id="cv_b">กลับ</button>',esc(f.name),'<button class="x" id="cv_dl" disabled>ดาวน์โหลด</button>')}<div id="cv_box" style="margin-top:8px"><div class="center"><div class="spin"></div></div></div>`);
   $('cv_b').onclick=back;const download=$('cv_dl'),box=$('cv_box'),k=cmKind(f);
   download.onclick=()=>rpSaveFile(f.blob,f.name);
   try{await cmBlob(f);download.disabled=false;if(k==='pdf'){const P=await cmPdfLib();const doc=await P.getDocument({data:new Uint8Array(await f.blob.arrayBuffer())}).promise;box.innerHTML='';const W=Math.min(box.clientWidth||600,900);
@@ -941,13 +1023,13 @@ async function cmView(f,back){openSheet(`${shh('<button class="x" id="cv_b">ก�
   catch(e){box.innerHTML=`<div class="empty">เปิดไฟล์ไม่สำเร็จ: ${esc(e.message)}</div>`}}
 function cmGuessDate(t){let best='';const now=today();for(const x of String(t).matchAll(/\b(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4}|\d{2})\b/g)){let y=+x[3];if(y<100)y+=y>60?2500:2000;if(y>2400)y-=543;const d=`${y}-${String(+x[2]).padStart(2,'0')}-${String(+x[1]).padStart(2,'0')}`;if(+x[2]<=12&&+x[1]<=31&&d>=now&&(!best||d<best))best=d}return best}
 
-async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมล','')}<div class="center"><div class="spin"></div><div style="margin-top:10px">กำลังโหลดเมลและไฟล์แนบ…</div></div>`);
+async function cmOpen(id){openMailPopup(`${shh('<button class="x" id="cm_x">ปิด</button>','เมล','')}<div class="center"><div class="spin"></div><div style="margin-top:10px">กำลังโหลดเมลและไฟล์แนบ…</div></div>`);
   const loading=$('cm_x');
   loading.onclick=closeSheet;
   const isOpen=()=>$('cm_x')===loading&&$('sheet').classList.contains('on');
   const R=cmRec(id);let X=null;
   try{X=await cmFiles(id)}catch(e){if(!R){
-    if(isOpen()){openSheet(`${shh('<button class="x" id="cm_x">ปิด</button>','เมล','')}<div class="empty">โหลดเมลไม่สำเร็จ: ${esc(e.message)}</div>`);$('cm_x').onclick=closeSheet}
+    if(isOpen()){openMailPopup(`${shh('<button class="x" id="cm_x">ปิด</button>','เมล','')}<div class="empty">โหลดเมลไม่สำเร็จ: ${esc(e.message)}</div>`);$('cm_x').onclick=closeSheet}
     return;
   }}
   if(!isOpen())return;
@@ -980,7 +1062,7 @@ async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิ�
   const draw=()=>{
     const S=st.sum,sent=st.status==='sent',recipients=book();
     const [statusLabel,statusStyle]=CM_STATES[cmState(st.status==='new'?null:st)];
-    openSheet(`
+    openMailPopup(`
     <div class="cm-editor-head">
       ${shh('<button type="button" class="x" id="cm_x">ปิด</button>','รายละเอียดเมล','<button type="button" class="x b" id="cm_sv">บันทึก</button>')}
       <div class="cm-editor-tabs" role="tablist" aria-label="ส่วนของรายละเอียดเมล">
@@ -1012,7 +1094,7 @@ async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิ�
     </section>
     <section class="cm-editor-pane" id="cm_pane_summary" role="tabpanel" aria-labelledby="cm_tab_summary" ${panel==='summary'?'':'hidden'}>
       <div class="cm-section-head"><h3>สรุปความต้องการ</h3>${files.length||body?'<button type="button" class="cmbtn" id="cm_pull">ดึงข้อความจากไฟล์/เมล</button>':''}</div>
-      <div class="formg">
+      <div class="formg cm-entry-grid">
         <div class="f area"><label for="cm_title">เรื่อง</label><input id="cm_title" value="${esc(S.title)}"></div>
         <div class="f area"><label for="cm_need">วันที่ต้องการ</label><input id="cm_need" type="date" lang="th-TH" aria-describedby="cm_need_label" value="${esc(S.need||'')}"><small class="cm-need-label" id="cm_need_label">${esc(S.need?thDate(S.need):'')}</small></div>
         <div class="f area"><label for="cm_det">รายละเอียด / สเปก</label><textarea id="cm_det" rows="6" placeholder="สรุปความต้องการ">${esc(S.detail||'')}</textarea></div>
@@ -1027,7 +1109,7 @@ async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิ�
     </section>
     <section class="cm-editor-pane" id="cm_pane_delivery" role="tabpanel" aria-labelledby="cm_tab_delivery" ${panel==='delivery'?'':'hidden'}>
       <div class="cm-section-head"><h3>ผู้รับอีเมล</h3></div>
-      <div class="formg">
+      <div class="formg cm-entry-grid cm-recipient-grid">
         <div class="f area"><label for="cm_to">ส่งถึง (To)</label><textarea id="cm_to" rows="2" placeholder="คั่นแต่ละอีเมลด้วยเครื่องหมายจุลภาค">${esc(st.to.join(', '))}</textarea></div>
         <div class="f area"><label for="cm_cc">สำเนา (CC)</label><textarea id="cm_cc" rows="2">${esc(st.cc.join(', '))}</textarea></div>
       </div>
@@ -1093,7 +1175,7 @@ async function cmOpen(id){openSheet(`${shh('<button class="x" id="cm_x">ปิ�
     $('cm_send').onclick=()=>{sync();if(!st.to.length){toast('ใส่อีเมลผู้รับ (To) ก่อน');$('cm_to').focus();return}if(!S.title){activate('summary');$('cm_title').focus();toast('ใส่เรื่องก่อน');return}preview()}};
   const preview=()=>{const P=files.length?pick():[];if(files.length)st.sendNames=P.map(f=>f.name);const tot=P.reduce((a,f)=>a+f.size,0),inl=P.length&&tot<=3e6;const G=C.groups.filter(g=>st.groupIds.includes(g.id));
     const subj=`ความต้องการ: ${st.sum.title}`;const row=(k,v)=>`<div class="f"><label>${k}</label><div class="rqv">${v}</div></div>`;
-    openSheet(`${shh('<button class="x" id="pv_b">แก้ไข</button>','ตรวจก่อนส่ง','<button class="x b" id="pv_go">ยืนยันส่ง</button>')}
+    openMailPopup(`${shh('<button class="x" id="pv_b">แก้ไข</button>','ตรวจก่อนส่ง','<button class="x b" id="pv_go">ยืนยันส่ง</button>')}
     <div class="vpnote" style="margin:4px 2px 0">ตรวจเมลและข้อความ Teams ด้านล่าง ถ้าถูกต้องกด “ยืนยันส่ง” · ถ้าต้องแก้ กด “แก้ไข”</div>
     <div class="fgroup"><h3>📧 Mail ที่จะส่ง</h3></div><div class="formg">${row('จาก',esc(me))}${row('ถึง (To)',esc(st.to.join(', ')))}${st.cc.length?row('สำเนา (cc)',esc(st.cc.join(', '))):''}${row('หัวเรื่อง','<b>'+esc(subj)+'</b>')}${row('ไฟล์แนบ',P.length?P.map(f=>'📄 '+esc(f.name)+' <span style="color:var(--sub);font-size:13px">· '+cmKB(f.size)+'</span>').join('<br>')+(inl?'':'<div style="color:var(--sub);font-size:13px;margin-top:4px">ไฟล์รวมเกิน 3 MB จะใส่เป็นลิงก์ในเนื้อเมลแทนการแนบ</div>'):'ไม่มี')}</div>
     <div class="cmmail">${cmHtml(st,inl||!P.length?true:'links')}</div>
@@ -1944,7 +2026,7 @@ addEventListener('popstate',()=>{const v=skView();if(v===view)return;
 addEventListener('beforeunload',e=>{if(skDirty&&$('sheet').classList.contains('on')){e.preventDefault();e.returnValue=''}});
 
 /* ===== auto-update: reload once when a newer build is online ===== */
-const SK_BUILD='2026-11-28.19';
+const SK_BUILD='2026-11-28.20';
 async function skCheckUpdate(){try{if(document.querySelector('#sheet.on,.sheet.on,#cm_sender_dialog[open]'))return;const r=await fetch(location.pathname.replace(/[^/]*$/,'')+'index.html?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/SK_BUILD='([^']+)'/);
   if(m&&m[1]!==SK_BUILD){const k='sk-upd-'+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('v',m[1]);location.replace(u.toString())}}catch(_){}}
 skCheckUpdate();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')skCheckUpdate()});
