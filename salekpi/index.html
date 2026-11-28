@@ -309,6 +309,10 @@ html .sheet{background:var(--sheet)!important;border-radius:16px 16px 0 0!import
 .kpna{display:block;font-size:15px;font-weight:500;color:var(--faint);letter-spacing:0;line-height:1.4}
 .kpm button b.na{color:var(--line2)!important;font-weight:400!important}
 @media(min-width:720px){.kpm{grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:4px!important}.kpm button{padding:6px 0 5px!important}}
+.jd-actions{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:0 0 12px}
+.jd-actions .mtcta{width:auto!important;margin:0!important}.jd-actions .cmbtn{flex:none;min-height:44px}
+.jd-actions button:disabled{opacity:.65;cursor:wait}.jd-actions button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+@media(max-width:520px){.jd-actions .mtcta,.jd-actions .cmbtn{flex:1;min-width:max-content}}
 .cmrefresh.mtcta::before{display:none}.cmrefresh svg{flex:none}.cmrefresh:disabled{opacity:.65;cursor:wait}
 .cmfilters{display:grid;grid-template-columns:minmax(0,1fr) minmax(140px,auto);gap:8px;margin-top:12px}
 .cmfilters input,.cmfilters select{width:100%;min-width:0;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:16px}
@@ -1220,8 +1224,26 @@ function renderJD(){const M=$('main');
   if(!lists[MODS.salekpi.list]){M.innerHTML='<div class="empty">ยังไม่มี list "Sale KPI" ใน SharePoint</div>';return}
   if(!DATA.salekpi){M.innerHTML='<div class="center"><div class="spin"></div></div>';return}
   const L=jdAll();
-  M.innerHTML=`<button class="mtcta" id="jd_new"><span style="font-size:24px">📝</span><span><b>เพิ่ม JD ตำแหน่งใหม่</b><small>กรอกหน้าที่ ผลที่คาดหวัง หน่วยงานที่เกี่ยวข้อง อำนาจอนุมัติ และคุณสมบัติ</small></span>${CHEV}</button>`+(L.length?L.map(r=>`<div class="kpca" data-jd="${esc(r._id)}"><div class="d">${esc(r.code||'FM-HRM-01-02')} · แผนก${esc(r.dept||'')} · ระดับ${esc(r.level||'')}</div><p style="font-weight:700;font-size:17px">${esc(r.title||'')}</p><p style="color:var(--sub);font-size:13.5px">ผู้บังคับบัญชา: ${esc(r.boss||'')}</p><p style="color:var(--sub);font-size:13px">หน้าที่หลัก ${(r.duties||[]).length} หมวด · ${(r.duties||[]).reduce((a,d)=>a+(d.items||[]).length,0)} ข้อ</p></div>`).join(''):'<div class="empty">ยังไม่มี JD · กด “เพิ่ม JD ตำแหน่งใหม่” เพื่อเริ่ม</div>');
+  M.innerHTML=`<div class="jd-actions"><button type="button" class="mtcta" id="jd_new"><span style="font-size:24px">📝</span><span><b>เพิ่ม JD ตำแหน่งใหม่</b><small>กรอกหน้าที่ ผลที่คาดหวัง หน่วยงานที่เกี่ยวข้อง อำนาจอนุมัติ และคุณสมบัติ</small></span>${CHEV}</button><button type="button" class="cmbtn" id="jd_import">นำเข้า Word</button><input type="file" id="jd_word" accept=".docx,.doc" hidden></div><p class="vpnote" role="status" id="jd_import_status" hidden></p>`+(L.length?L.map(r=>`<div class="kpca" data-jd="${esc(r._id)}"><div class="d">${esc(r.code||'FM-HRM-01-02')} · แผนก${esc(r.dept||'')} · ระดับ${esc(r.level||'')}</div><p style="font-weight:700;font-size:17px">${esc(r.title||'')}</p><p style="color:var(--sub);font-size:13.5px">ผู้บังคับบัญชา: ${esc(r.boss||'')}</p><p style="color:var(--sub);font-size:13px">หน้าที่หลัก ${(r.duties||[]).length} หมวด · ${(r.duties||[]).reduce((a,d)=>a+(d.items||[]).length,0)} ข้อ</p></div>`).join(''):'<div class="empty">ยังไม่มี JD · เพิ่มตำแหน่งใหม่หรือนำเข้า Word</div>');
   $('jd_new').onclick=()=>jdEdit(null);
+  const picker=$('jd_word'),importButton=$('jd_import'),newButton=$('jd_new'),status=$('jd_import_status');
+  importButton.onclick=()=>picker.click();
+  picker.onchange=async()=>{
+    const file=picker.files[0];
+    picker.value='';
+    if(!file)return;
+    importButton.disabled=newButton.disabled=true;
+    status.hidden=false;status.textContent='กำลังอ่านไฟล์ Word…';
+    try{
+      const {draft,source}=await jdImportWord(file);
+      if(view==='jd'&&picker.isConnected&&!$('sheet').classList.contains('on'))jdEdit(null,draft,source);
+    }catch(e){
+      status.textContent=e.message||'อ่านไฟล์ Word ไม่สำเร็จ';
+    }finally{
+      importButton.disabled=newButton.disabled=false;
+      status.hidden=status.textContent==='กำลังอ่านไฟล์ Word…';
+    }
+  };
   M.querySelectorAll('[data-jd]').forEach(c=>c.onclick=()=>jdView(jdAll().find(x=>x._id===c.dataset.jd)))}
 function jdView(r){if(!r)return;
   openSheet(`${shh('<button class="x" id="jv_e">แก้ไข</button>','JD · '+esc(r.title||''),'<button class="x" id="jv_x">เสร็จ</button>')}
@@ -1271,12 +1293,173 @@ function jdPrint(r){const w=window.open('','_blank');if(!w){toast('เบรา�
 
 /* ---- JD: แก้ไข / เพิ่ม / ลบ ---- */
 const JD_BLANK=()=>({type:'jd',code:'FM-HRM-01-02',rev:'00',eff:'',title:'',dept:'ขาย',org:'ฝ่ายขาย',level:'',boss:'',duties:[{h:'หมวด 1. ',items:[],res:[]}],rel:[],ext:[],auth:[],qual:[],know:[],skill:[],trait:[]});
-const jdLines=s=>String(s||'').split('\n').map(x=>x.replace(/^\s*\d+[.)]\s*/,'').trim()).filter(Boolean);
-function jdEdit(r,draft){const isNew=!r||!r._id;const m=draft||JSON.parse(JSON.stringify(r||JD_BLANK()));['duties','rel','ext','auth','qual','know','skill','trait'].forEach(k=>{if(!Array.isArray(m[k]))m[k]=[]});
+const jdLines=s=>String(s||'').split('\n').map(x=>jdWordItem(x.trim())).filter(Boolean);
+/* ---- JD: นำเข้าร่างจากไฟล์ Word ---- */
+const JD_WORD_META={
+  title:/^(?:ชื่อ)?ตำแหน่ง(?:งาน)?(?:\s*\((?:Job Title|Position)\))?(?=$|[\s:：])/i,
+  dept:/^แผนก(?:\s*\(Department\))?(?=$|[\s:：])/i,
+  org:/^สังกัด(?:\s*\((?:Division|Section|Organization)\))?(?=$|[\s:：])/i,
+  level:/^ระดับ(?:ตำแหน่ง(?:งาน)?)?(?:\s*\((?:Job Level|Level)\))?(?=$|[\s:：])/i,
+  boss:/^ผู้บังคับบัญชา(?:โดยตรง)?(?:\s*\((?:Reports to|Supervisor)\))?(?=$|[\s:：])/i,
+  code:/^รหัสเอกสาร(?:\s*\(Doc(?:ument)?\s*No\.?\))?(?=$|[\s:：])/i,
+  rev:/^แก้ไขครั้งที่(?:\s*\(Revision\))?(?=$|[\s:：])/i,
+  eff:/^วันที่(?:มีผล)?บังคับใช้(?:\s*\(Effective Date\))?(?=$|[\s:：])/i
+};
+const JD_WORD_SECTIONS={
+  duties:/^หน้าที่(?:หลัก|และความรับผิดชอบ)|^ความรับผิดชอบหลัก/,
+  result:/^ผลที่คาดหวัง(?:$|[\s:：])/,
+  ext:/^(?:หน่วยงาน)?ภายนอก|^การประสานงานภายนอก/,
+  rel:/^หน่วยงาน(?:ภายใน|ที่เกี่ยวข้อง)|^การประสานงานภายใน/,
+  auth:/^(?:ระดับ)?อำนาจอนุมัติ/,
+  qual:/^คุณสมบัติ(?:ประจำตำแหน่ง|ผู้สมัคร|ของผู้ดำรงตำแหน่ง)?(?:$|[\s:：])/,
+  know:/^ความรู้(?:$|[\s:：])/,
+  skill:/^ทักษะ(?:$|[\s:：])/,
+  trait:/^(?:ความสามารถด้านการคิด|บุคลิกภาพ)(?:$|[\s/（(:：])/,
+  other:/^ความสามารถประจำตำแหน่ง|^(?:ผู้จัดทำ|ผู้อนุมัติ|พนักงาน)\s*\((?:Prepared by|Approved by|Employee)\)/i
+};
+const jdWordItem=s=>String(s||'').replace(/^(?:[\d๐-๙]+(?:\.[\d๐-๙]+)*[.)](?![\d๐-๙])\s*|[•●▪◦–-]\s+)/,'').trim();
+function jdWordLines(node){
+  const lines=[];
+  let line='';
+  const flush=()=>{const s=line.replace(/\s+/g,' ').trim();if(s)lines.push(s);line=''};
+  const visit=n=>{
+    if(n.nodeType===3){line+=n.textContent;return}
+    if(n.nodeType!==1||n.matches('script,style,head,title,template,iframe,object,noscript,svg,del'))return;
+    const block=n.matches('br,p,div,li,h1,h2,h3,h4,h5,h6,tr');
+    if(block)flush();
+    n.childNodes.forEach(visit);
+    if(block)flush();
+  };
+  visit(node);flush();
+  return lines;
+}
+function jdWordRows(html){
+  const template=document.createElement('template');
+  template.innerHTML=html;
+  const rows=[];
+  const visit=parent=>{
+    for(const child of parent.children){
+      if(child.tagName==='TABLE'){
+        for(const row of child.rows)rows.push([...row.cells].map(jdWordLines));
+      }else if(child.querySelector('table'))visit(child);
+      else for(const line of jdWordLines(child))rows.push([[line]]);
+    }
+  };
+  visit(template.content);
+  return rows.filter(row=>row.some(cell=>cell.length));
+}
+function jdWordMeta(text){
+  return Object.entries(JD_WORD_META).find(([,pattern])=>pattern.test(text));
+}
+function jdWordFields(rows){
+  const draft={...JD_BLANK(),duties:[],dept:'',org:''};
+  let section='',duty=null,approvalColumns=null,uncertain=0,matched=false;
+  const startDuty=h=>{
+    duty={h,items:[],res:[]};
+    draft.duties.push(duty);
+  };
+  const items=lines=>lines.map(jdWordItem).filter(Boolean);
+  for(const cells of rows){
+    const [first=[],second=[]]=cells;
+    const head=first[0]||'';
+    if(!section){
+      let metadata=false;
+      cells.forEach((lines,i)=>lines.forEach((line,j)=>{
+        const meta=jdWordMeta(line);
+        if(!meta)return;
+        const [key,pattern]=meta;
+        const inline=line.replace(pattern,'').replace(/^[\s:：]+/,'');
+        const next=lines[j+1]||(lines.length===1?cells[i+1]?.[0]:'')||'';
+        const value=inline||(!jdWordMeta(next)?next:'');
+        if(value&&!/^[.⋅·…_\s-]+$/.test(value)){draft[key]=value;matched=true}
+        metadata=true;
+      }));
+      if(metadata)continue;
+    }
+    const dutyTitle=/^หมวด\s*[1-4](?:\s|[.):：]|$)/.test(head);
+    const heading=head.replace(/^หมวด\s*[\d.]+\s*/,'').replace(/^[\d.]+[.)]\s*/,'').trim();
+    const status=Object.entries(JD_WORD_SECTIONS).find(([,pattern])=>pattern.test(heading))?.[0];
+    // A duty table cell may contain its category heading and the list below it.
+    if(dutyTitle){
+      startDuty(head);section='duties';
+      duty.items.push(...items(first.slice(1)));
+      duty.res.push(...items(second));
+      matched=true;continue;
+    }
+    if(status){
+      section=status;
+      const inline=heading.match(/^[^:：]+[:：]\s*(.+)$/)?.[1];
+      const remaining=items([inline,...first.slice(1)]);
+      if(remaining.length&&['duties','result'].includes(section)){
+        if(!duty)startDuty('');
+        duty[section==='duties'?'items':'res'].push(...remaining);matched=true;
+      }
+      if(remaining.length&&['qual','know','skill','trait'].includes(section)){
+        draft[section].push(...remaining);matched=true;
+      }
+      continue;
+    }
+    if(!section||section==='other')continue;
+    if(section==='duties'||section==='result'){
+      if(!duty)startDuty('');
+      duty[section==='duties'?'items':'res'].push(...items(first));
+      duty.res.push(...items(second));
+      matched=true;
+    }else if(section==='rel'||section==='ext'){
+      const columns=cells.length>=3&&/^[\d๐-๙]+[.)]?$/.test(head)?cells.slice(1):cells;
+      if(columns[0].some(s=>/^หน่วยงาน\s*\/|^หน่วยงาน\s*ผู้เกี่ยวข้อง|^ลักษณะการประสานงาน/.test(s)))continue;
+      const name=items(columns[0]).join(' '),detail=columns.slice(1).flat().join(' ');
+      if(name||detail){draft[section].push([name,detail]);matched=true}
+    }else if(section==='auth'){
+      const approve=cells.findIndex(col=>col.some(t=>/^อนุมัติได้(?:$|[\s:：])/.test(t)));
+      const refer=cells.findIndex(col=>col.some(t=>/^(?:นำ)?เสนอผู้บังคับบัญชา(?:$|[\s:：])/.test(t)));
+      if(approve>=0&&refer>=0&&approve!==refer){approvalColumns=[approve,refer];continue}
+      const nameCell=cells.length>=4&&/^[\d๐-๙]+[.)]?$/.test(head)?1:0;
+      const name=items(cells[nameCell]).join(' ');
+      if(!name||/^ข้อกำหนด(?:$|[\s:：])/.test(name))continue;
+      const checked=/^(?:[✓✔☑√/]|✅)️?$/,blank=/^[☐□–-]?$/;
+      const yes=cells[approvalColumns?.[0]]?.join(' ')||'',no=cells[approvalColumns?.[1]]?.join(' ')||'';
+      if((checked.test(yes)&&blank.test(no))||(blank.test(yes)&&checked.test(no))){
+        draft.auth.push([name,checked.test(yes)]);matched=true;
+      }else uncertain++;
+    }else{
+      draft[section].push(...items(cells.flat()));
+      matched=true;
+    }
+  }
+  if(!draft.duties.length)draft.duties=JD_BLANK().duties;
+  return {draft,matched,uncertain};
+}
+async function jdImportWord(file){
+  let html;
+  if(/\.docx$/i.test(file.name)){
+    await loadLib('https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js','mammoth');
+    try{
+      const result=await mammoth.convertToHtml({arrayBuffer:await file.arrayBuffer()},{
+        includeEmbeddedStyleMap:false,externalFileAccess:false,convertImage:mammoth.images.imgElement(()=>({}))
+      });
+      html=result.value;
+    }catch(_){throw new Error('อ่านไฟล์ .docx ไม่ได้ กรุณาตรวจว่าไฟล์เปิดใน Word ได้และไม่มีรหัสผ่าน')}
+  }else if(/\.doc$/i.test(file.name)){
+    html=await file.text();
+    if(!/^\s*(?:<!doctype\s+html[^>]*>\s*)?<html[\s>]/i.test(html)||!html.includes('WordSection1')){
+      throw new Error('สำหรับไฟล์ .doc รุ่นเก่า ให้เปิดใน Word แล้วบันทึกเป็น .docx ก่อนนำเข้า');
+    }
+  }else throw new Error('เลือกไฟล์ Word .docx หรือ .doc ที่ดาวน์โหลดจาก Sale Center');
+  const rows=jdWordRows(html);
+  if(!rows.length)throw new Error('ไม่พบข้อความในไฟล์ กรุณาเลือกไฟล์ Word ที่มีข้อความให้คัดลอกได้');
+  const {draft,matched,uncertain}=jdWordFields(rows);
+  return {draft,source:{name:file.name,matched,uncertain,text:rows.map(cells=>cells.map(c=>c.join(' / ')).join('  |  ')).join('\n')}};
+}
+
+function jdEdit(r,draft,source){const isNew=!r||!r._id;const m=draft||JSON.parse(JSON.stringify(r||JD_BLANK()));['duties','rel','ext','auth','qual','know','skill','trait'].forEach(k=>{if(!Array.isArray(m[k]))m[k]=[]});
   const ta=(id,arr,ph,rows)=>`<textarea id="${id}" rows="${rows||Math.max(3,(arr||[]).length+1)}" placeholder="${esc(ph||'1 บรรทัดต่อ 1 ข้อ')}" style="width:100%;border:0;background:var(--fill);border-radius:10px;padding:9px 11px;font-size:15px;line-height:1.5;resize:vertical">${esc((arr||[]).join('\n'))}</textarea>`;
   const inp='border:0;background:var(--fill);border-radius:8px;padding:8px 10px;font-size:15px;min-width:0';
   const pairRows=(key,ph1,ph2)=>m[key].map((x,i)=>`<div class="kpjob" data-${key}="${i}" style="padding:8px 12px;display:flex;gap:8px;align-items:flex-start"><b style="width:18px;color:var(--sub);font-size:14px;padding-top:8px">${i+1}</b><div style="flex:1;display:flex;flex-direction:column;gap:6px"><input data-f="a" value="${esc(x[0]||'')}" placeholder="${ph1}" style="${inp}"><input data-f="b" value="${esc(x[1]||'')}" placeholder="${ph2}" style="${inp}"></div><button data-del-${key}="${i}" style="color:var(--bad);font-size:20px;width:26px;padding-top:6px">×</button></div>`).join('');
+  const sourceOpen=$('sheet').classList.contains('on')&&$('je_source')?.open;
   openSheet(`${shh('<button class="x" id="je_x">ยกเลิก</button>',isNew?'JD ตำแหน่งใหม่':'แก้ไข JD','<button class="x b" id="je_s">บันทึก</button>')}
+  ${source?`<div class="vpnote">นำเข้าจาก ${esc(source.name)} · ตรวจข้อมูลก่อนบันทึก${source.matched?'':' · ยังจับคู่หัวข้อไม่ได้ กรุณากรอกข้อมูลจากข้อความต้นฉบับ'}${source.uncertain?` · มีอำนาจอนุมัติ ${source.uncertain} รายการที่ต้องกรอกเอง`:''}</div>
+  <details class="rqd" id="je_source" ${sourceOpen?'open':''} style="margin-top:8px"><summary>ข้อความต้นฉบับจาก Word</summary><pre class="cmpre">${esc(source.text)}</pre></details>`:''}
   <div class="vpnote" style="margin-top:4px">ช่องรายการ: พิมพ์ 1 บรรทัดต่อ 1 ข้อ ไม่ต้องใส่เลขลำดับ ระบบใส่ให้เอง</div>
   <div class="fgroup"><h3>ข้อมูลตำแหน่ง</h3></div><div class="formg">
   <div class="f"><label>ตำแหน่ง</label><input id="je_title" value="${esc(m.title)}" placeholder="เช่น เจ้าหน้าที่ฝ่ายขายส่วนกลาง"></div>
@@ -1312,7 +1495,8 @@ function jdEdit(r,draft){const isNew=!r||!r._id;const m=draft||JSON.parse(JSON.s
       duties:[...document.querySelectorAll('[data-du]')].map((e,i)=>({h:e.querySelector('[data-f="h"]').value.trim(),items:jdLines($('je_di'+i).value),res:jdLines($('je_dr'+i).value)})),
       rel:pair('rel'),ext:pair('ext'),auth:[...document.querySelectorAll('[data-au]')].map(e=>[e.querySelector('[data-f="t"]').value.trim(),e.querySelector('[data-f="ok"]').value==='1']),
       qual:jdLines(v('je_qual')),know:jdLines(v('je_know')),skill:jdLines(v('je_skill')),trait:jdLines(v('je_trait'))}};
-  const redo=(fn)=>{const x=read();fn(x);const st=$('sheet')?$('sheet').scrollTop:0;jdEdit(r,x);requestAnimationFrame(()=>{if($('sheet'))$('sheet').scrollTop=st})};
+  const redo=(fn)=>{const x=read();fn(x);const st=$('sheet')?$('sheet').scrollTop:0;jdEdit(r,x,source);requestAnimationFrame(()=>{if($('sheet'))$('sheet').scrollTop=st})};
+  if(source)skDirty=true;
   $('je_x').onclick=()=>isNew?closeSheet():jdView(r);
   $('je_adddu').onclick=()=>redo(x=>x.duties.push({h:'หมวด '+(x.duties.length+1)+'. ',items:[],res:[]}));
   $('je_addrel').onclick=()=>redo(x=>x.rel.push(['','']));$('je_addext').onclick=()=>redo(x=>x.ext.push(['','']));$('je_addau').onclick=()=>redo(x=>x.auth.push(['',false]));
@@ -1321,10 +1505,19 @@ function jdEdit(r,draft){const isNew=!r||!r._id;const m=draft||JSON.parse(JSON.s
   document.querySelectorAll('[data-del-rel]').forEach(b=>b.onclick=()=>redo(x=>x.rel.splice(+b.dataset.delRel,1)));
   document.querySelectorAll('[data-del-ext]').forEach(b=>b.onclick=()=>redo(x=>x.ext.splice(+b.dataset.delExt,1)));
   document.querySelectorAll('[data-del-au]').forEach(b=>b.onclick=()=>redo(x=>x.auth.splice(+b.dataset.delAu,1)));
-  $('je_s').onclick=async()=>{const x=read();if(!x.title){toast('กรอกชื่อตำแหน่ง');return}
-    x.rel=x.rel.filter(p=>p[0]||p[1]);x.ext=x.ext.filter(p=>p[0]||p[1]);x.auth=x.auth.filter(a=>a[0]);x.duties=x.duties.filter(d=>d.h||d.items.length);
+  $('je_s').onclick=async e=>{
+    const button=e.currentTarget,x=read();
+    if(!x.title){toast('กรอกชื่อตำแหน่ง');return}
+    x.rel=x.rel.filter(p=>p[0]||p[1]);x.ext=x.ext.filter(p=>p[0]||p[1]);x.auth=x.auth.filter(a=>a[0]);x.duties=x.duties.filter(d=>d.h||d.items.length||d.res.length);
     x.edited=true;x.by=me;x.at=nowIso();const old=new Set(jdAll().map(o=>o._id));
-    if(await saleSave(x,'บันทึก JD แล้ว')){const saved=x._id?jdAll().find(o=>o._id===x._id):jdAll().find(o=>!old.has(o._id));jdView(saved||x)}};
+    button.disabled=true;
+    const ok=await saleSave(x,'บันทึก JD แล้ว');
+    button.disabled=false;
+    if(ok&&view==='jd'&&$('je_s')===button&&$('sheet').classList.contains('on')){
+      const saved=x._id?jdAll().find(o=>o._id===x._id):jdAll().find(o=>!old.has(o._id));
+      skDirty=false;jdView(saved||x);
+    }
+  };
   if($('je_del'))$('je_del').onclick=async()=>{if(!confirm('ลบ JD "'+(r.title||'')+'" ?'))return;try{await store.del('salekpi',r._id);toast('ลบแล้ว');closeSheet();render()}catch(e){toast('ลบไม่สำเร็จ: '+e.message)}}}
 /* Word ที่สร้างจากข้อมูลปัจจุบัน (ใช้เมื่อ JD ถูกแก้ไขแล้ว) */
 function jdWordBlob(r){const save=MT_CACHE;MT_CACHE=null;let body;try{body=jdHTML(r)}finally{MT_CACHE=save}
@@ -1537,7 +1730,7 @@ addEventListener('popstate',()=>{const v=skView();if(v===view)return;
 addEventListener('beforeunload',e=>{if(skDirty&&$('sheet').classList.contains('on')){e.preventDefault();e.returnValue=''}});
 
 /* ===== auto-update: reload once when a newer build is online ===== */
-const SK_BUILD='2026-11-28.17';
+const SK_BUILD='2026-11-28.18';
 async function skCheckUpdate(){try{if(document.querySelector('#sheet.on,.sheet.on'))return;const r=await fetch(location.pathname.replace(/[^/]*$/,'')+'index.html?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/SK_BUILD='([^']+)'/);
   if(m&&m[1]!==SK_BUILD){const k='sk-upd-'+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('v',m[1]);location.replace(u.toString())}}catch(_){}}
 skCheckUpdate();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')skCheckUpdate()});
